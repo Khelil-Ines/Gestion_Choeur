@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const CandidatRoutes=require("./routes/candidat")
 //sur mongo local
 mongoose
   .connect("mongodb://localhost:27017/Choeur", {
@@ -24,6 +25,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
+app.use("/candidats", CandidatRoutes);
 
 module.exports = app;
