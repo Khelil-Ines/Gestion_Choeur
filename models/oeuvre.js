@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const oeuvreSchema = mongoose.Schema({
   title: { type: String, required: true },
-  compositeurs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Compositeur", required: true }],
+  Compositeur: [{ type: mongoose.Schema.Types.ObjectId, ref: "Compositeur", required: true }],
   arrangeurs: [{ type: String, required: true }],
   genre: { type: Array, required: true },
   anneeComposition: { type: Number, required: true},

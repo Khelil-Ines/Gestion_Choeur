@@ -21,9 +21,9 @@ const addCompositeur = (req, res) => {
 
 const getAllCompositeur = (req, res) => {
   Compositeur.find()
-    .then((auths) =>
+    .then((comp) =>
       res.status(200).json({
-        Livres: auths,
+        Compositeurs: comp,
         message: "success!",
       })
     )
@@ -35,6 +35,8 @@ const getAllCompositeur = (req, res) => {
       });
     });
 };
+
+
 
 module.exports = {
   getAllCompositeur,
