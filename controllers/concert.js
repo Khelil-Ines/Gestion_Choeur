@@ -5,14 +5,14 @@ const addConcert = (req, res) => {
     .then((concert) => {
       res.status(201).json({
         model: concert,
-        message: "Concert creé!",
+        message: "Concert crée!",
       });
     })
     .catch((error) => res.status(400).json({ error }));
 };
 
 const fetchConcert = (req, res) => {
-  Audition.find()
+  Concert.find().populate("programme").populate("oeuvre")
     .then((concerts) => {
       res.status(200).json(concerts);
     })
@@ -51,12 +51,12 @@ const deleteConcert = (req, res) => {
     .then((concert) => {
       if (!concert) {
         res.status(404).json({
-          message: " Concert non supprimée!",
+          message: " Concert non supprimé!",
         });
       } else {
         res.status(200).json({
           model: concert,
-          message: "Concert supprimée!",
+          message: "Concert supprimé!",
         });
       }
     })
