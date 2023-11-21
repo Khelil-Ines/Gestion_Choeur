@@ -12,7 +12,7 @@ const addConcert = (req, res) => {
 };
 
 const fetchConcert = (req, res) => {
-  Concert.find().populate("programme").populate("oeuvre")
+  Concert.find().populate("programme")
     .then((concerts) => {
       res.status(200).json(concerts);
     })

@@ -4,7 +4,7 @@ const Concert = mongoose.model('concert', {
     // affiche (optionnel) 
   date: {
     type: Date,
-    required: true
+    //required: true
   },
   lieu: {
     type: String,

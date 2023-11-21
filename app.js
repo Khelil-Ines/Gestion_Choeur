@@ -2,7 +2,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
-
+const concertRouter = require('./routers/concert');
+const oeuvreRouter = require('./routers/oeuvre');
+const programmeRouter = require('./routers/programme');
 
 app.use(express.json());
 
@@ -24,7 +26,9 @@ app.use((req, res, next) => {
    useNewUrlParser: true , useUnifiedTopology:true }
  ).then(() => console.log("connexion a MongoDB reussie!"))
 .catch((e) => console.log("connexion a MongoDB échouée!",e))
-
+app.use('/concert', concertRouter);
+app.use('/oeuvre', oeuvreRouter);
+app.use('/programme', programmeRouter);
 
 module.exports = app;
 
