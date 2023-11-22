@@ -3,7 +3,8 @@ const app = express();
 const mongoose = require('mongoose');
 const choristeRouter = require("./routes/choriste");
 const pupitreRouter = require("./routes/pupitre");
-
+const candidatRouter = require("./routes/candidat");
+const auditionRouter = require("./routes/audition");
 
 
 
@@ -29,5 +30,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/Choeur")
 
 app.use("/api/choriste", choristeRouter)
 app.use("/api/pupitre", pupitreRouter)
+app.use("/api/candidat", candidatRouter)
+app.use("/api/audition", auditionRouter)
 
 module.exports = app;
