@@ -1,7 +1,8 @@
 const Audition = require("../models/audition");
 const Candidat = require('../models/candidat');
 const nodemailer = require('nodemailer');
-
+const ejs = require("ejs");
+const path = require("path");
 
 
 const fetchAudition = (req, res) => {
@@ -52,9 +53,7 @@ const addAudition = (req, res) => {
       });
     });
   }
-
-  
-   
+ 
       const getCandidatsFiltres = (req, res) => {
         const filtre = req.params.filtre; // Utilisez la valeur directement sans conversion en minuscules
       
@@ -87,20 +86,17 @@ const addAudition = (req, res) => {
   
  
 
-      // Configurer le transporteur (Gmail dans cet exemple)
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'ayaghattas606@gmail.com',
-            pass: 'peew vcuf wmhd yvcf',
+          user: 'ayaghattas606@gmail.com',
+          pass: 'peew vcuf wmhd yvcf',
         },
       });
       
-      // Fonction pour envoyer un e-mail d'acceptation
       const envoyerEmailAcceptation = (req, res) => {
         const candidatId = req.params.id;
       
-        // Recherchez le candidat dans la base de données
         Candidat.findById(candidatId)
           .then((candidat) => {
             if (!candidat) {
@@ -109,36 +105,56 @@ const addAudition = (req, res) => {
               });
             }
       
-            // L'e-mail du candidat a été trouvé, envoyez l'e-mail d'acceptation
             const adresseEmail = candidat.email;
+            const nom = req.body.nom;
+            const prenom = req.body.prenom;
             const sujet = "Félicitations ! Vous avez été accepté à la chorale.";
-            const contenu = "Cher candidat,\n\nFélicitations ! Nous sommes ravis de vous informer que vous avez été accepté à la chorale. Bienvenue dans notre communauté musicale.\n\nCordialement,\nL'équipe de la chorale";
+            const file = path.join(__dirname, "../views/acceptationmail.ejs");
+            const pdf = path.join(__dirname, "../files/Reglement.pdf");
       
-            const mailOptions = {
-              from: 'ayaghattas606@gmail.com',
-              to: adresseEmail,
-              subject: sujet,
-              text: contenu,
-              attachments: [
-                {
-                  filename: 'nom_de_la_piece_jointe.txt', // Nom de la pièce jointe
-                  content: 'Contenu de la pièce jointe ici', // Contenu de la pièce jointe
-                },
-              ],
-            };
-      
-            transporter.sendMail(mailOptions, (error, info) => {
-              if (error) {
-                console.error(error);
+            // Utilisez ejs.renderFile avec une fonction de rappel
+            ejs.renderFile(file, {
+              name: req.body.nom + " " + req.body.prenom,
+              link: "http://localhost:5000/api/acceptationmail/sauvegarderCandidat/" +
+                req.body.nom + "/" +
+                req.body.prenom + "/" +
+                candidat.email,
+            }, (err, data) => {
+              if (err) {
+                console.error(err);
                 return res.status(500).json({
-                  error: "Erreur lors de l'envoi de l'e-mail d'acceptation.",
-                });
-              } else {
-                console.log('E-mail d\'acceptation envoyé: ' + info.response);
-                return res.status(200).json({
-                  message: "E-mail d'acceptation envoyé avec succès.",
+                  error: "Erreur lors du rendu du fichier EJS.",
                 });
               }
+      
+              const mailOptions = {
+                from: 'ayaghattas606@gmail.com',
+                to: adresseEmail,
+                subject: sujet,
+                html: data, // Utiliser le contenu généré à partir du fichier ejs
+                attachments: [
+                  {
+                    filename: 'Reglement.pdf',
+                    path:pdf,
+                  },
+                ],
+              };
+      
+              transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                  console.error(error);
+                  return res.status(500).json({
+                    error: "Erreur lors de l'envoi de l'e-mail d'acceptation.",
+                  });
+                } else {
+                  console.log('E-mail d\'acceptation envoyé: ' + info.response);
+                candidat.confirmation = true;
+                candidat.save();
+                  return res.status(200).json({
+                    message: "E-mail d'acceptation envoyé avec succès.",
+                  });
+                }
+              });
             });
           })
           .catch((error) => {
@@ -149,13 +165,6 @@ const addAudition = (req, res) => {
           });
       };
       
-      module.exports = {
-        envoyerEmailAcceptation,
-      };
-      
-      
-  
-  
   module.exports = {
     addAudition,
     getAudition,
