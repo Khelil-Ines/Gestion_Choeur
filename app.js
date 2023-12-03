@@ -1,8 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const validerMailRoute = require("./routes/validermail");
+
 //sur mongo local
 mongoose
-  .connect("mongodb://localhost:27017/Choeur", {
+  .connect("mongodb://127.0.0.1:27017/Choeur", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -24,6 +26,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
+app.use("/api/validermail", validerMailRoute);
 
 module.exports = app;
