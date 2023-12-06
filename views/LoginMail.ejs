@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Email Login</title>
+  </head>
+  <body>
+    <h1>Email Login</h1>
+    <p> Félicitations ! vous etes officiellement inscrit avec nous, voici votre login et mot de passe. Connectez vous sur notre plateforme </p>
+
+    <form action="<%= link %>" method="post">
+      <input type="hidden" name="token" />
+      <button type="submit"> Se connecter </button>
+    </form>
+    
+    <p>Merci et bienvenue dans notre chorale !</p>
+  </body>
+</html>

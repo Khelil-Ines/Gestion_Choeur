@@ -5,6 +5,9 @@ const choristeRouter = require("./routes/choriste");
 const pupitreRouter = require("./routes/pupitre");
 const candidatRouter = require("./routes/candidat");
 const auditionRouter = require("./routes/audition");
+const repetitionRouter = require("./routes/repetition");
+//const congeRouter = require("./routes/conge");
+
 
 
 
@@ -32,5 +35,9 @@ app.use("/api/choriste", choristeRouter)
 app.use("/api/pupitre", pupitreRouter)
 app.use("/api/candidat", candidatRouter)
 app.use("/api/audition", auditionRouter)
+app.use("/api/repetition", repetitionRouter)
+//app.use("/api/conge", congeRouter)
+
+
 
 module.exports = app;

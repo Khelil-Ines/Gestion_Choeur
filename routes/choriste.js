@@ -9,7 +9,9 @@ router.get("/:id",choristeController.fetchChoriste)
 
 router.post("/",choristeController.addChoriste)
 
-router.post("/liste", choristeController.getChoristesByPupitre)
+router.post("/liste", choristeController.getChoristesByPupitre) 
+
+//outer.patch("/:id", choristeController.updateTessiture)
 
 
   module.exports = router;

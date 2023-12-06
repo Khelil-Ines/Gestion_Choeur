@@ -1,4 +1,6 @@
 const Candidat = require("../models/candidat");
+const Pupitre = require("../models/pupitre");
+
 
 const fetchCandidat = (req, res) => {
     Candidat.findOne({ _id: req.params.id })
@@ -64,10 +66,29 @@ const addCandidat = (req, res) => {
       )
 }
 
+const getCandidatsByPupitre = (req, res) => {
+  const pupitreId = req.body.pupitreId;
+
+  Candidat.find({ pupitre: pupitreId })
+    .then((candidats) => {
+      res.status(200).json({
+        model: candidats,
+        message: "Liste des candidats par pupitre récupérée avec succès!",
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error: error.message,
+        message: "Problème d'extraction des candidats par pupitre",
+      });
+    });
+};
+
   
   module.exports = {
     addCandidat,
     getCandidat,
     fetchCandidat,
-    updateCandidat
+    updateCandidat,
+    getCandidatsByPupitre
   }

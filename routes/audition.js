@@ -13,4 +13,6 @@ router.get("/candidats/:filtre", auditionController.getCandidatsFiltres);
 
 router.post("/email-acceptation/:id", auditionController.envoyerEmailAcceptation);
 
+//router.post("/email-login/:id", auditionController.envoyerEmailLogin);
+
 module.exports = router;

@@ -15,6 +15,15 @@ const choristeSchema = new Schema({
     required: true,
     ref: 'Pupitre'
   },
+  compte: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Compte' 
+  },
+  
+ /* statut: {
+    type: String,
+    required: true
+  },*/
 });
 
 

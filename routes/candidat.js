@@ -11,5 +11,8 @@ router.post("/",candidatController.addCandidat)
 
 router.patch("/:id", candidatController.updateCandidat)
 
+router.post("/liste", candidatController.getCandidatsByPupitre)
+
+
 
   module.exports = router;

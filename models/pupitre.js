@@ -6,12 +6,6 @@ const pupitreSchema = new Schema({
     type: Number,
     enum: [1, 2, 3, 4]
   },
-//   choristes: [{
-//     type: mongoose.Types.ObjectId,
-//     ref: 'Choriste'
-//   }]
-
 });
-
 
 module.exports = Pupitre = mongoose.model("Pupitre", pupitreSchema);
