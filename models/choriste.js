@@ -9,7 +9,7 @@ const choristeSchema = mongoose.Schema(
         mdp:{type : String},
         statut :{type : String, enum: ['Actif','En_Congé','Eliminé']},
         niveau : {type : String, enum : ['Junior','Choriste', 'Sénior', 'Vétéran']},
-        date_adhésion:{type: Date},
+        date_adhesion:{type: Date},
         historiqueStatut: [historiqueStatutSchema],
         nbr_concerts : {type: Number},
         nbr_repetitions : {type: Number}

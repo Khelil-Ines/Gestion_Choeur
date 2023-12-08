@@ -30,27 +30,6 @@ const mettreAJourStatutSelonRegles = (choriste) => {
     }
 };
 
-exports.modifierStatut = async(req, res) => {
-    try {
-        const choriste = await Choriste.findById(req.params.id);
-        if (!choriste) {
-            return res.status(404).json({ message: 'Choriste non trouvé' });
-        }
-   
-   const nouveauStatut = mettreAJourStatutSelonRegles(choriste);
-
-   choriste.niveau = nouveauStatut;
-
-   choriste.historiqueStatut.push({ statut: nouveauStatut, date: new Date() });
-
-   await choriste.save();
-
-   res.json(choriste);
-} catch (error) {
-   res.status(500).json({ message: 'Erreur lors de la mise à jour du statut du choriste' });
-}
-};
-
 
 // Tâche planifiée pour déclencher la mise à jour du statut au début de chaque saison,programmée pour s'exécuter à minuit le 1er octobre de chaque année
 const tacheMiseAJourStatut = cron.schedule('0 0 1 10 *', async () => {
@@ -63,13 +42,10 @@ const tacheMiseAJourStatut = cron.schedule('0 0 1 10 *', async () => {
         for (const choriste of choristes) {
             const nouveauStatut = mettreAJourStatutSelonRegles(choriste);
 
-            // Mettez à jour le statut dans l'objet choriste
             choriste.niveau = nouveauStatut;
 
-            // Ajouter une nouvelle entrée dans l'historique du statut
             choriste.historiqueStatut.push({ statut: nouveauStatut, date: new Date() });
 
-            // Sauvegarder les modifications dans la base de données
             await choriste.save();
         }
 

@@ -8,10 +8,8 @@ exports.consulterDetailsProfil = async (req, res) => {
             return res.status(404).json({ message: 'Choriste non trouvé' });
         }
 
-        // Vérifiez si l'utilisateur est un choriste ou un administrateur
-        const estAdmin = req.user.role === 'admin'; // Assurez-vous d'avoir un système d'authentification pour déterminer le rôle
+        const estAdmin = req.user.role === 'admin'; 
 
-        // Les administrateurs et les choristes peuvent consulter les détails du profil
         if (estAdmin || req.user.id === choriste.id) {
             res.json({
                 id: choriste.id,
