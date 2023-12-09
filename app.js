@@ -2,15 +2,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 //sur mongo local
 mongoose
-  .connect("mongodb://localhost:27017/Choeur", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect("mongodb://localhost:27017/Gestion_Choeur", )
   .then(() => console.log("connexion a MongoDB reussie!"))
   .catch((e) => console.log("connexion a MongoDB échouée!", e));
 
 const app = express();
-app.use(express.json()); //pour que les données de post se mettent dans le body et va afficher le contenu de body sous forme json
+app.use(express.json()); 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
