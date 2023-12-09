@@ -101,7 +101,9 @@ exports.getstatutchoriste = async (req, res) => {
         });
       } else {
         res.status(200).json({
-            Historique : choriste.historiqueStatut,
+            Historique : choriste.historiqueStatut.sort((a, b) => {
+                return new Date(b.date) - new Date(a.date);
+              }),
           message: "objet trouvé!",
         });
       }
