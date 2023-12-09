@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 const choristeRouter = require('./routers/choriste.js');
+const tacheMiseAJourStatut = require('./controllers/choriste.js');
 
 
 app.use(express.json());
@@ -21,11 +22,11 @@ app.use((req, res, next) => {
   });
 
 
-    mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
-   useNewUrlParser: true , useUnifiedTopology:true }
+    mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur"
  ).then(() => console.log("connexion a MongoDB reussie!"))
 .catch((e) => console.log("connexion a MongoDB échouée!",e))
 app.use('/choriste', choristeRouter);
+
 
 
 module.exports = app;

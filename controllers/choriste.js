@@ -1,52 +1,42 @@
-const Choriste = require("../models/choriste");
 const cron = require('node-cron');
+const Choriste = require('../models/choriste');
 
 const saisonCourante = new Date().getFullYear(); 
 
 
-// Fonction pour mettre à jour le statut d'un choriste en fonction des règles spécifiées
-const mettreAJourStatutSelonRegles = (choriste) => {
-
-    // Vérifier s'il y a des entrées dans l'historique du statut
-    if (choriste.historiqueStatut.length > 0) {
-        const dernierStatut = choriste.historiqueStatut[choriste.historiqueStatut.length - 1].statut;
-
-        // Si le dernier statut est "Sénior", le choriste reste "Sénior" jusqu'à nouvel ordre
-        if (dernierStatut === "Sénior") {
-            return "Sénior";
-        }
-    }
-
-    if (choriste.date_adhesion.getFullYear() === saisonCourante) {
-        return "Junior";
-    } else if ( choriste.date_adhesion.getFullYear() === saisonCourante - 1) {
-        return "Choriste";
-    } else if (((choriste.date_adhesion.getFullYear() - saisonCourante) >= 3  ) && choriste.nbr_repetitions >= 5 && choriste.nbr_concerts >= 5) {
-        return "Sénior";
-    } else if (choriste.date_adhesion && (choriste.date_adhesion.getFullYear() === 2018 || choriste.date_adhesion.getFullYear() === 2019)) {
-        return "Vétéran"; 
-    }else {
-        return "Choriste"; 
-    }
-};
-
-
 // Tâche planifiée pour déclencher la mise à jour du statut au début de chaque saison,programmée pour s'exécuter à minuit le 1er octobre de chaque année
-const tacheMiseAJourStatut = cron.schedule('0 0 1 10 *', async () => {
+const tacheMiseAJourStatut = cron.schedule('0 0 1 10 * ', async () => {
     try {
-
-        // Récupérer tous les choristes à partir de la base de données (vous pouvez personnaliser cela en fonction de vos besoins)
+        
+        
+        // Récupérer tous les choristes à partir de la base de données 
         const choristes = await Choriste.find();
+       
 
-        // Mettez à jour le statut pour chaque choriste
+        // Mettre à jour le statut pour chaque choriste
         for (const choriste of choristes) {
-            const nouveauStatut = mettreAJourStatutSelonRegles(choriste);
+      
 
-            choriste.niveau = nouveauStatut;
+            if (choriste.date_adhesion.getFullYear() === saisonCourante) {
+                choriste.niveau = "Junior";
+                
 
-            choriste.historiqueStatut.push({ statut: nouveauStatut, date: new Date() });
+             } else if ( choriste.date_adhesion.getFullYear() === saisonCourante - 1) {
+                 choriste.niveau = "Choriste";
+             } else if (((choriste.date_adhesion.getFullYear() - saisonCourante) >= 3  ) && choriste.nbr_repetitions >= 5 && choriste.nbr_concerts >= 5) {
+                 choriste.niveau = "Sénior";
+             } else if (choriste.date_adhesion.getFullYear() === 2018 || choriste.date_adhesion.getFullYear() === 2019) {
+                 choriste.niveau = "Vétéran"; 
+                 console.log('probleme 8')
+             }else {
+                 choriste.niveau = "Choriste"; 
+             }
+             await Choriste.collection.updateOne({ _id: this._id }, { $set: { historiqueStatut: this.historiqueStatut }})
+             choriste.historiqueStatut.push({ statut: choriste.niveau, date: new Date() });
 
             await choriste.save();
+         
+
         }
 
         console.log('Mise à jour réussie pour tous les choristes');
@@ -55,6 +45,71 @@ const tacheMiseAJourStatut = cron.schedule('0 0 1 10 *', async () => {
     }
 });
 
-// Démarrer la tâche planifiée
 tacheMiseAJourStatut.start();
 
+exports.addChoriste = (req, res) => {
+    const choriste = new Choriste(req.body);
+    choriste
+      .save()
+      .then(() => {
+        res.status(201).json({
+          models: choriste,
+          message: "object cree!",
+        });
+      })
+      .catch((error) => {
+        
+        res.status(400).json({
+          error: error.message,
+          message: "Donnee invalides",
+        });
+      });
+  };
+exports.getprofilchoriste = async (req, res) => {
+    Choriste.findOne({ _id: req.params.id })
+    .then((choriste) => {
+      if (!choriste) {
+        res.status(404).json({
+          message: "objet non trouvé!",
+        });
+      } else {
+        res.status(200).json({
+            tessiture : choriste.tessiture,
+            statut : choriste.statut,
+            niveau : choriste.niveau,
+            date_adhesion: choriste.date_adhesion,
+            nbr_concerts : choriste.nbr_concerts,
+            nbr_repetitions : choriste.nbr_repetitions,
+          message: "objet trouvé!",
+        });
+      }
+    })
+    .catch(() => {
+      res.status(400).json({
+        error: Error.message,
+        message: "Données invalides!",
+      });
+    });
+};
+
+exports.getstatutchoriste = async (req, res) => {
+    Choriste.findOne({ _id: req.params.id })
+    .then((choriste) => {
+      if (!choriste) {
+        res.status(404).json({
+          message: "objet non trouvé!",
+        });
+      } else {
+        res.status(200).json({
+            Historique : choriste.historiqueStatut,
+          message: "objet trouvé!",
+        });
+      }
+    })
+    .catch(() => {
+      res.status(400).json({
+        error: Error.message,
+        message: "Données invalides!",
+      });
+    });
+};

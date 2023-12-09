@@ -5,10 +5,9 @@ const historiqueStatutSchema = mongoose.Schema({
 });
 const choristeSchema = mongoose.Schema(
     {
-        tessiture :{type : String},
-        mdp:{type : String},
-        statut :{type : String, enum: ['Actif','En_Congé','Eliminé']},
-        niveau : {type : String, enum : ['Junior','Choriste', 'Sénior', 'Vétéran']},
+        tessiture :{type : String, enum: ['Soprano','Alto','Basse','Tenor'], required: true},
+        statut :{type : String, enum: ['Actif','En_Congé','Eliminé'], default: 'Actif'},
+        niveau : {type : String, enum : ['Junior','Choriste', 'Sénior', 'Vétéran'], default: 'Junior'}, 
         date_adhesion:{type: Date},
         historiqueStatut: [historiqueStatutSchema],
         nbr_concerts : {type: Number},
