@@ -1,37 +1,53 @@
 const Compte = require('../models/compte');
-const Candidat = require('../models/candidat');
-const Choriste = require('../models/choriste');
 const bcrypt = require('bcrypt');
 
-const createCompte = async (candidat) => {
+const creerCompteChoriste = async (email) => {
   try {
-    // Créer un compte associé au candidat
+    // Générer un mot de passe aléatoire
+    const motDePasseAleatoire = genererMotDePasseAleatoire();
+
+    if (typeof motDePasseAleatoire !== 'string') {
+      throw new Error('La fonction genererMotDePasseAleatoire doit retourner une chaîne de caractères.');
+    }
+    
+    // Hasher le mot de passe
+    const motDePasseHash = await hashMotDePasse(motDePasseAleatoire);
+
+    // Créer le compte
     const nouveauCompte = new Compte({
-      login: candidat.email,
-      motDePasse: await hashMotDePasse(genererMotDePasseAleatoire()),
+      login: email,
+      motDePasse: motDePasseHash,
     });
 
+    // Sauvegarder le compte dans la base de données
     const compte = await nouveauCompte.save();
 
-    // Associer l'ID du compte au candidat
-    candidat.compte = compte._id;
-    await candidat.save();
-
-    // Convertir le candidat en choriste
-    const nouveauChoriste = new Choriste({
-      nom: candidat.nom,
-      prenom: candidat.prenom,
-      pupitre: candidat.pupitre,
-      compte: compte._id,
-    });
-
-    await nouveauChoriste.save();
+    return compte;
   } catch (error) {
+    console.error('Erreur lors de la création du compte choriste :', error);
     throw error;
   }
 };
 
+async function genererMotDePasseAleatoire(longueur) {
+  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const longueurMotDePasse = longueur || 12;
+
+  let motDePasse = '';
+  for (let i = 0; i < longueurMotDePasse; i++) {
+    const caractereAleatoire = caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    motDePasse += caractereAleatoire;
+  }
+
+  return motDePasse;
+}
+
+const coutHachage = 10;
+async function hashMotDePasse(motDePasse) {
+  return await bcrypt.hash(motDePasse, coutHachage);
+}
+
 module.exports = {
-  createCompte,
+  creerCompteChoriste,
 };
 

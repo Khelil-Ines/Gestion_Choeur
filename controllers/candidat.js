@@ -1,5 +1,4 @@
 const Candidat = require("../models/candidat");
-const Pupitre = require("../models/pupitre");
 
 
 const fetchCandidat = (req, res) => {
@@ -67,9 +66,9 @@ const addCandidat = (req, res) => {
 }
 
 const getCandidatsByPupitre = (req, res) => {
-  const pupitreId = req.body.pupitreId;
+  const pupitreNom = req.body.pupitreNom;
 
-  Candidat.find({ pupitre: pupitreId })
+  Candidat.find({ pupitre: pupitreNom })
     .then((candidats) => {
       res.status(200).json({
         model: candidats,
@@ -84,6 +83,7 @@ const getCandidatsByPupitre = (req, res) => {
     });
 };
 
+
   
   module.exports = {
     addCandidat,
@@ -91,4 +91,4 @@ const getCandidatsByPupitre = (req, res) => {
     fetchCandidat,
     updateCandidat,
     getCandidatsByPupitre
-  }
+    }

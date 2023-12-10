@@ -7,20 +7,20 @@ const compteSchema = mongoose.Schema({
 });
 
 // Utilisez la fonction 'pre' pour hacher le mot de passe avant de sauvegarder
-compteSchema.pre('save', async function (next) {
-  const compte = this;
+// compteSchema.pre('save', async function (next) {
+//   const compte = this;
 
-  if (compte.isModified('motDePasse') || compte.isNew) {
-    try {
-      const hash = await bcrypt.hash(compte.motDePasse, 10);
-      compte.motDePasse = hash;
-      next();
-    } catch (error) {
-      return next(error);
-    }
-  } else {
-    return next();
-  }
-});
+//   if (compte.isModified('motDePasse') || compte.isNew) {
+//     try {
+//       const hash = await bcrypt.hash(compte.motDePasse, 10);
+//       compte.motDePasse = hash;
+//       next();
+//     } catch (error) {
+//       return next(error);
+//     }
+//   } else {
+//     return next();
+//   }
+// });
 
 module.exports = mongoose.model("Compte", compteSchema);

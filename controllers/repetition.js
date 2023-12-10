@@ -1,4 +1,5 @@
 const Repetition = require("../models/repetition");
+const moment = require("moment");
 
 const fetchRepetition = (req, res) => {
     Repetition.findOne({ _id: req.params.id })
@@ -32,7 +33,7 @@ const addRepetition = (req, res) => {
             res.status(400).json({ erreur: 'Échec de la création du l\'repetition' });
         });
   }
-  const getRepetition = (req, res) => {
+  const getPlanning = (req, res) => {
     Repetition.find().then((repetitions) => {
       res.status(200).json({
         model: repetitions,
@@ -80,39 +81,41 @@ const deleteRepetition = (req, res) => {
     });
 }
 
-// const getRepetitionsJour = (req, res) => {
-//     const jour = req.params.jour; // Utilisez la valeur directement sans conversion en minuscules
-  
-//     // Vérifiez que la date est valide
-//     if (!['Accepté', 'Refusé', 'En Attente'].includes(jour)) {
-//       return res.status(400).json({
-//         message: "date invalide. Utilisez la forme JJ/MM/AA '.",
-//       });
-//     }
-  
-//     // Utilisez le modèle Audition pour trouver toutes les auditions avec le résultat spécifié
-//     Repetition.find({ date: jour })
-//       .then((repetitions) => {
-//         res.status(200).json({
-//           model: repetitions,
-//           message: `Planning du jour '${jour}'`,
-//         });
-//       })
-//       .catch((error) => {
-//         res.status(500).json({
-//           error: error.message,
-//           message: `Erreur lors de la récupération des repetitions le jour '${jour}'`,
-//         });
-//       });
-//   };
+const getPlanningByDate = async (req, res) => {
+  try {
 
+      const dateParam = req.body.date;
+  
+      // Vérifier le format de la date (JJ-MM-AA)
+      const isValidDate = moment(dateParam, "YYYY-MM-DD", true).isValid();
+      if (!isValidDate) {
+        return res.status(400).json({
+          message: "Format de date invalide. Utilisez le format AAAA-MM-JJ.",
+        });
+      }
+    const dateRepetition = new Date(dateParam);
+
+    // Récupérez les répétitions pour la date spécifiée
+    const repetitions = await Repetition.find({ date: dateRepetition });
+
+    res.status(200).json({
+      model: repetitions,
+      message: `Liste des répétitions pour le ${dateRepetition.toDateString()} récupérée avec succès!`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      message: "Problème d'extraction des répétitions pour la date spécifiée",
+    });
+  }
+};
 
   
   module.exports = {
     addRepetition,
-    getRepetition,
+    getPlanning,
     fetchRepetition,
     updateRepetition,
-    deleteRepetition 
-    //getRepetitionsJour
+    deleteRepetition, 
+    getPlanningByDate
   }

@@ -11,14 +11,18 @@ const choristeSchema = new Schema({
     required: true
   },
   pupitre: {
-    type: mongoose.Types.ObjectId,
-    required: true,
-    ref: 'Pupitre'
+    type: String,
+    enum: ['Soprano', 'Alto', 'Tenor','Basse'],
   },
+  
+  email:{type :String, required:true, unique: true},
+
   compte: { 
     type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Compte' 
+    ref: 'Compte' ,
+        required: false 
   },
+  
   
  /* statut: {
     type: String,

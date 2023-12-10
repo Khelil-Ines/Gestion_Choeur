@@ -3,7 +3,7 @@ const router = express.Router();
 const Repetition = require("../models/repetition");
 const repetitionController = require("../controllers/repetition");
 
-router.get("/",repetitionController.getRepetition)
+router.get("/",repetitionController.getPlanning)
 
 router.get("/:id",repetitionController.fetchRepetition)
 
@@ -13,8 +13,6 @@ router.patch("/:id", repetitionController.updateRepetition)
 
 router.delete("/:id", repetitionController.deleteRepetition)
 
-//router.get("/:jour",repetitionController.getRepetitionsJour)
-
-
+router.post("/date", repetitionController.getPlanningByDate);
 
   module.exports = router;

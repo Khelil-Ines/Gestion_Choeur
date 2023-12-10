@@ -5,16 +5,11 @@ const candidatSchema = mongoose.Schema({
   prenom:{type :String, required:true},
   email:{type :String, required:true, unique: true},
   pupitre: {
-    type: mongoose.Types.ObjectId,
-    required: true,
-    ref: 'Pupitre'
+    type: String,
+    enum: ['Soprano', 'Alto', 'Tenor','Basse'],
   },
   confirmation: { type: Boolean, default: false },
-  compte: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Compte', 
-    required: true 
-  },
+
 
 });
 module.exports = mongoose.model("Candidat", candidatSchema);

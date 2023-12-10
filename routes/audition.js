@@ -11,6 +11,8 @@ router.post("/", auditionController.addAudition);
 
 router.get("/candidats/:filtre", auditionController.getCandidatsFiltres);
 
+router.post("/liste", auditionController.getCandidatPupitreOrdonnes);
+
 router.post("/email-acceptation/:id", auditionController.envoyerEmailAcceptation);
 
 //router.post("/email-login/:id", auditionController.envoyerEmailLogin);

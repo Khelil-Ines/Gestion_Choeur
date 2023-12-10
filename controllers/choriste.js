@@ -1,5 +1,4 @@
 const Choriste = require("../models/choriste");
-const Pupitre = require("../models/pupitre");
 
 const fetchChoriste = (req, res) => {
     Choriste.findOne({ _id: req.params.id })
@@ -55,9 +54,9 @@ const addChoriste = (req, res) => {
   }
 
   const getChoristesByPupitre = (req, res) => {
-    const pupitreId = req.body.pupitreId;
+    const pupitreNom = req.body.pupitreNom;
   
-    Choriste.find({ pupitre: pupitreId })
+    Choriste.find({ pupitre: pupitreNom })
       .then((choristes) => {
         res.status(200).json({
           model: choristes,
@@ -72,27 +71,11 @@ const addChoriste = (req, res) => {
       });
   };
 
-//   const updateTessiture = (req, res) => {
-//     Choriste.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }).then(
-//         (choriste) => {
-//           if (!choriste) {
-//             res.status(404).json({
-//               message: "Choriste non trouvé!",
-//             });
-//           } else {
-//             res.status(200).json({
-//               model: choriste,
-//               message: "Tessiture modifiée!",
-//             });
-//           }
-//         }
-//       )
-// }
 
   module.exports = {
     addChoriste,
     getChoriste,
     fetchChoriste,
     getChoristesByPupitre,
-   //updateTessiture
+
   }
