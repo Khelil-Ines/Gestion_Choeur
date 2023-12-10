@@ -1,14 +1,42 @@
 const Concert = require("../models/concert.js");
 
 const addConcert = (req, res) => {
-  Concert.create(req.body)
-    .then((concert) => {
-      res.status(201).json({
-        model: concert,
-        message: "Concert crée!",
-      });
-    })
-    .catch((error) => res.status(400).json({ error }));
+  // Get and validate concert date
+  const concertDateString = req.body.date;
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(concertDateString)) {
+    return res
+      .status(400)
+      .send("Invalid concert date format. Please use YYYY-MM-DD format.");
+  }
+
+  const concertDate = new Date(concertDateString);
+
+  const moment = require("moment");
+
+  const dateString = req.body.date;
+  const dateObject = moment(dateString, "YYYY-MM-DD", true).toDate();
+  if (moment(dateObject).isValid()) {
+    // The date is valid
+    console.log('Parsed Date:', dateObject);
+  } else {
+    // The date is invalid
+    console.error('Invalid Date Format');
+  }
+  Concert.create({ ...req.body, date: dateObject })
+
+    .then((concert) => res.status(201).json({
+      model: concert,
+      message: "Concert crée!",
+    }))
+    .catch((error) => {
+      if (error.errors) {
+        const errors = Object.values(error.errors).map(e => e.message);
+        return res.status(400).json({ errors });
+      } else {
+        return res.status(500).json({ error: "Internal server error" });
+      }
+    });
 };
 
 const fetchConcert = (req, res) => {

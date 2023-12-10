@@ -14,4 +14,3 @@ const Concert = mongoose.model('concert', {
 });
 
 module.exports = Concert;
-
