@@ -3,31 +3,29 @@ const Audition = require("../models/audition");
 const Planning = require("../models/planning_audition");
 
 // Fonction pour créer des auditions à partir du planning
-async function refresh_audition (req, res){
-    try {
-        const plannings = await Planning.find();
+// async function refresh_audition (req, res){
+//     try {
+//         const plannings = await Planning.find();
     
-        const auditions = plannings.map(planning => ({
-          id_candidat: planning.id_candidat,
-          date_audition: planning.date_audition,
-        }));
+//         const auditions = plannings.map(planning => ({
+//           id_candidat: planning.id_candidat,
+//           date_audition: planning.date_audition,
+//         }));
     
-        const createdAuditions = await Audition.insertMany(auditions);
+//         const createdAuditions = await Audition.insertMany(auditions);
     
-        res.status(201).json({
-          model: createdAuditions,
-          message: 'Auditions created successfully!',
-        });
+//         res.status(201).json({
+//           model: createdAuditions,
+//           message: 'Auditions created successfully!',
+//         });
     
-        console.log('Auditions created successfully from planning.');
-      } catch (error) {
-        console.error('Error creating auditions:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      }
-    }
+//         console.log('Auditions created successfully from planning.');
+//       } catch (error) {
+//         console.error('Error creating auditions:', error);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//       }
+//     }
    
-      
- 
   
 const addAuditionbyAdmin = (req, res) => {
   Audition.create(req.body)
@@ -99,7 +97,7 @@ const deleteAudition = (req, res) => {
 };
 
 module.exports = {
-    refresh_audition,
+    // refresh_audition,
   addAuditionbyAdmin,
   fetchAuditions,
   updateAudition,

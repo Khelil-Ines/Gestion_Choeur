@@ -4,7 +4,7 @@ const auditionController = require("../controllers/audition")
 
 
 router.post("/", auditionController.addAuditionbyAdmin); 
-router.post("/refresh", auditionController.refresh_audition);
+// router.post("/refresh", auditionController.refresh_audition);
 router.get("/", auditionController.fetchAuditions);
 router.delete("/:id", auditionController.deleteAudition);
 router.patch("/:id", auditionController.updateAudition);

@@ -8,6 +8,12 @@ const auditionSchema = mongoose.Schema({
     appréciation :{type : String,  enum: ["A+","A", "A-","B+", "B", "B-","C+", "C", "C-"]},
     remarque : {type : String, default: ""},
     présence : {type:Boolean,default:false},
-    id_candidat: { type:String, default:null}
+    candidates: [
+        {
+          candidateId: { type: Schema.Types.ObjectId, ref: 'Candidat', required: true },
+          auditionStartTime: { type: String, required: true },
+          auditionDuration: { type: Number, required: true },
+        }
+      ]
 });
 module.exports = mongoose.model("Audition", auditionSchema);
