@@ -1,10 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
-//sur mongo local
-mongoose
-  .connect("mongodb://localhost:27017/Gestion_Choeur", )
-  .then(() => console.log("connexion a MongoDB reussie!"))
-  .catch((e) => console.log("connexion a MongoDB échouée!", e));
+const chef_router = require("./routes/chef_pupitre.js");
+
 
 const app = express();
 app.use(express.json()); 
@@ -21,6 +18,10 @@ app.use((req, res, next) => {
   next();
 });
 
-
+mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
+   useNewUrlParser: true , useUnifiedTopology:true }
+ ).then(() => console.log("connexion a MongoDB reussie!"))
+.catch((e) => console.log("connexion a MongoDB échouée!",e))
+app.use("/Add_Chef", chef_router);
 
 module.exports = app;
