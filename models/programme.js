@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
 const Programme = mongoose.model('programme', {
+
     // affiche (optionnel) 
+
  
   theme: {
     type: String,
@@ -9,6 +11,7 @@ const Programme = mongoose.model('programme', {
   },
   oeuvre : [{ type: mongoose.Schema.Types.ObjectId, ref: 'oeuvre'  }]
 });
+
 
 module.exports = Programme;
 
