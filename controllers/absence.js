@@ -86,26 +86,16 @@ exports.envoyerEmailNomination = async (req, res) => {
   }
 };
 
-exports.getAbsencesChoriste = async (req, res) => {
-  try {
-    const choriste = await Choriste.findById(req.params.id).populate('absences');
-    if (!choriste) {
-      return res.status(404).json({ message: "Choriste non trouvé" });
-    }
-    const absences = choriste.absences;
-    return res.status(200).json({ absences });
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ error: "Erreur lors de la récupération des absences." });
-  }
-};
-const seuilNomination = 3;
 
 
-
+ seuilNomination = 3;
+exports.updateSeuilElimination = (req, res) => {
+    seuilNomination = req.body.nouveauSeuil; 
+  
+    res.status(200).json({ message: 'Seuil mis à jour avec succès' });
+  };
 exports.declarerAbsence = async (req, res) => {
+    
     try {
       // Récupérer le choriste depuis la base de données
       const choriste = await Choriste.findById(req.params.id);
@@ -130,13 +120,13 @@ exports.declarerAbsence = async (req, res) => {
       choriste.absences.push(savedAbsence._id);
   
       // Mettre à jour le statut en fonction des nouvelles règles
-      if (choriste.nbr_absences >= seuilNomination + 1) {
+      if (choriste.nbr_absences > seuilNomination) {
         choriste.statut = "Eliminé";
         choriste.historiqueStatut.push({
           statut: choriste.statut,
           date: new Date(),
         });
-      } else if (choriste.nbr_absences >= seuilNomination) {
+      } else if (choriste.nbr_absences == seuilNomination) {
         choriste.statut = "Nominé";
         choriste.historiqueStatut.push({
           statut: choriste.statut,
@@ -146,17 +136,60 @@ exports.declarerAbsence = async (req, res) => {
   
       // Enregistrer les modifications dans la base de données
       const savedChoriste = await choriste.save();
+      Utilisateur.choriste = savedChoriste;
       res.status(201).json({
         message: "Absence créée!",
         choriste: savedChoriste,
       });
   
       console.log(
-        `Absence déclarée pour le choriste ${choriste.nom} ${choriste.prenom}. Nouveau statut : ${choriste.statut}`
+        `Absence déclarée pour le choriste ${choriste.nom} ${choriste.prénom}. Nouveau statut : ${choriste.statut}`
       );
     } catch (error) {
       console.error("Erreur lors de la déclaration de l'absence :", error);
       res.status(500).json({ error: "Erreur lors de la déclaration de l'absence" });
     }
   };
-  
+
+  exports.getAbsencesChoriste = async (req, res) => {
+    try {
+      const choriste = await Choriste.findById(req.params.id).populate('absences');
+      if (!choriste) {
+        return res.status(404).json({ message: "Choriste non trouvé" });
+      }
+      const absences = choriste.absences;
+      return res.status(200).json({ absences });
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ error: "Erreur lors de la récupération des absences." });
+    }
+  };
+exports.getElimines = async (req, res) => {
+    try{
+
+        const ChoristesEliminees = await Choriste.find({ statut: 'Eliminé' });
+
+        return res.status(200).json({ ChoristesEliminees });
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ error: "Erreur lors de la récupération des éliminés." });
+    }
+    };
+
+    exports.getNomines = async (req, res) => {
+        try{
+    
+            const ChoristesNominees = await Choriste.find({ statut: 'Nominé' });
+    
+            return res.status(200).json({ ChoristesNominees });
+        } catch (error) {
+          console.error(error);
+          res
+            .status(500)
+            .json({ error: "Erreur lors de la récupération des Nominés." });
+        }
+        };
