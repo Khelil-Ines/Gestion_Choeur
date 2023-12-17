@@ -3,8 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 const choristeRouter = require('./routers/choriste.js');
-const tacheMiseAJourStatut = require('./controllers/choriste.js');
-
+const absenceRouter = require('./routers/absence.js');
 
 app.use(express.json());
 
@@ -26,6 +25,7 @@ app.use((req, res, next) => {
  ).then(() => console.log("connexion a MongoDB reussie!"))
 .catch((e) => console.log("connexion a MongoDB échouée!",e))
 app.use('/choriste', choristeRouter);
+app.use('/absence', absenceRouter);
 
 
 

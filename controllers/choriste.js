@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const Choriste = require('../models/choriste');
+const Utilisateur = require('../models/utilisateur');
 
 const saisonCourante = new Date().getFullYear(); 
 
@@ -34,7 +35,8 @@ const tacheMiseAJourStatut = cron.schedule('0 0 1 10 * ', async () => {
              await Choriste.collection.updateOne({ _id: this._id }, { $set: { historiqueStatut: this.historiqueStatut }})
              choriste.historiqueStatut.push({ statut: choriste.niveau, date: new Date() });
 
-            await choriste.save();
+              savedchoriste = await choriste.save();
+              Utilisateur.Choriste = savedchoriste;
          
 
         }
@@ -49,9 +51,10 @@ tacheMiseAJourStatut.start();
 
 exports.addChoriste = (req, res) => {
     const choriste = new Choriste(req.body);
-    choriste
+    saved = choriste
       .save()
       .then(() => {
+        Utilisateur.Choriste = choriste;
         res.status(201).json({
           models: choriste,
           message: "object cree!",
@@ -115,3 +118,24 @@ exports.getstatutchoriste = async (req, res) => {
       });
     });
 };
+
+// const moment = require('moment');
+
+// Fonction pour vérifier si un choriste est en congé
+// const estEnConge = (choriste) => {
+//   const maintenant = moment();
+  
+//   // Vérifier si le choriste a des dates de congé définies
+//   if (choriste.dateDebutConge && choriste.dateFinConge) {
+//     const dateDebutConge = moment(choriste.dateDebutConge);
+//     const dateFinConge = moment(choriste.dateFinConge);
+
+//     // Vérifier si la date actuelle est pendant la période de congé
+//     if (maintenant.isBetween(dateDebutConge, dateFinConge, null, '[]')) {
+//       return true; // Le choriste est en congé
+//     }
+//   }
+
+//   return false; // Le choriste n'est pas en congé
+// };
+
