@@ -1,53 +1,57 @@
 const Compte = require('../models/compte');
-const bcrypt = require('bcrypt');
 
-const creerCompteChoriste = async (email) => {
-  try {
-    // Générer un mot de passe aléatoire
-    const motDePasseAleatoire = genererMotDePasseAleatoire();
+const addCompteChoriste = (req, res) => {
+    const newCompte = new Compte(req.body);
+    newCompte.save()
+        .then(compte => {
+            res.json(compte);
+        })
+        .catch(err => {
+            res.status(400).json({ erreur: 'Échec de la création du l\'compte' });
+        });
+  }
 
-    if (typeof motDePasseAleatoire !== 'string') {
-      throw new Error('La fonction genererMotDePasseAleatoire doit retourner une chaîne de caractères.');
-    }
-    
-    // Hasher le mot de passe
-    const motDePasseHash = await hashMotDePasse(motDePasseAleatoire);
-
-    // Créer le compte
-    const nouveauCompte = new Compte({
-      login: email,
-      motDePasse: motDePasseHash,
+  const fetchCompte = (req, res) => {
+    Compte.findOne({ _id: req.params.id })
+    .then((compte) => {
+      if (!compte) {
+        res.status(404).json({
+          message: "objet non trouvé!",
+        });
+      } else {
+        res.status(200).json({
+          model: compte,
+          message: "objet trouvé!",
+        });
+      }
+    })
+    .catch(() => {
+      res.status(400).json({
+        error: Error.message,
+        message: "Données invalides!",
+      });
     });
-
-    // Sauvegarder le compte dans la base de données
-    const compte = await nouveauCompte.save();
-
-    return compte;
-  } catch (error) {
-    console.error('Erreur lors de la création du compte choriste :', error);
-    throw error;
-  }
-};
-
-async function genererMotDePasseAleatoire(longueur) {
-  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const longueurMotDePasse = longueur || 12;
-
-  let motDePasse = '';
-  for (let i = 0; i < longueurMotDePasse; i++) {
-    const caractereAleatoire = caracteres.charAt(Math.floor(Math.random() * caracteres.length));
-    motDePasse += caractereAleatoire;
-  }
-
-  return motDePasse;
 }
 
-const coutHachage = 10;
-async function hashMotDePasse(motDePasse) {
-  return await bcrypt.hash(motDePasse, coutHachage);
-}
+  const getCompte = (req, res) => {
+    Compte.find().then((comptes) => {
+      res.status(200).json({
+        model: comptes,
+        message: "success"
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error: error.message,
+        message: "problème d'extraction"
+      });
+    });
+  };
+
 
 module.exports = {
-  creerCompteChoriste,
+  addCompteChoriste,
+  fetchCompte, 
+  getCompte
 };
 

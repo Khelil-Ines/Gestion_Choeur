@@ -5,8 +5,11 @@
     <title>Email Login</title>
   </head>
   <body>
-    <h1>Email Login</h1>
-    <p> Félicitations ! vous etes officiellement inscrit avec nous, voici votre login et mot de passe. Connectez vous sur notre plateforme </p>
+    <h1>Félicitations !</h1>
+    <p>Vous êtes officiellement inscrit avec nous, voici vos informations de connexion :</p>
+
+    <p><strong>Login :</strong> <%= login %></p>
+    <p><strong>Mot de passe :</strong> <%= motDePasse %></p>
 
     <form action="<%= link %>" method="post">
       <input type="hidden" name="token" />

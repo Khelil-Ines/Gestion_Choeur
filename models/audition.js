@@ -10,5 +10,9 @@ const auditionSchema = mongoose.Schema({
         ref: 'Candidat',
         required: true,
       },
+      pupitre: {
+        type: String,
+        enum: ['Soprano', 'Alto', 'Tenor','Basse'],
+      },
     });
 module.exports = mongoose.model("Audition", auditionSchema);

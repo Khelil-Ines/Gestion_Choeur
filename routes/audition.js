@@ -15,6 +15,8 @@ router.post("/liste", auditionController.getCandidatPupitreOrdonnes);
 
 router.post("/email-acceptation/:id", auditionController.envoyerEmailAcceptation);
 
+router.use("/confirmationCandidat/:id", auditionController.confirmationCandidat);
+
 //router.post("/email-login/:id", auditionController.envoyerEmailLogin);
 
 module.exports = router;

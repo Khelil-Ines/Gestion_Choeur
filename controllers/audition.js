@@ -1,9 +1,10 @@
 const Audition = require("../models/audition");
 const Candidat = require('../models/candidat');
-const compteController = require('../controllers/compte');
+const Compte = require('../models/compte');
 const nodemailer = require('nodemailer');
 const ejs = require("ejs");
 const path = require("path");
+const bcrypt = require('bcrypt');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -44,6 +45,23 @@ const getAudition = async (req, res) => {
   }
 };
 
+const updateCandidatResultat = (req, res) => {
+  Audition.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }).then(
+      (audition) => {
+        if (!audition) {
+          res.status(404).json({
+            message: "objet non trouvé!",
+          });
+        } else {
+          res.status(200).json({
+            model: audition,
+            message: "objet modifié!",
+          });
+        }
+      }
+    )
+}
+
 const getCandidatsFiltres = async (req, res) => {
   try {
     const filtre = req.params.filtre;
@@ -72,7 +90,7 @@ const getCandidatPupitreOrdonnes = async (req, res) => {
     const pupitreNom = req.body.pupitreNom;
 
     // Récupérez les candidats du pupitre spécifié
-    const candidats = await Candidat.find({ pupitre: pupitreNom });
+    const candidats = await Audition.find({ pupitre: pupitreNom });
 
     // Récupérez les auditions correspondantes
     const auditions = await Audition.find({ candidat: { $in: candidats.map(c => c._id) } }).populate('candidat');
@@ -104,18 +122,49 @@ const getCandidatPupitreOrdonnes = async (req, res) => {
 
 const creerChoriste = async (candidat) => {
   try {
-    // Créer le Choriste avec quelques attributs du candidat
+    const audition = await Audition.findOne({ candidat: candidat._id });
+
+    if (!audition) {
+      throw new Error('Audition non trouvée pour le candidat.');
+    }
+    // Créer le Choriste avec les attributs du candidat
     const nouveauChoriste = new Choriste({
       nom: candidat.nom,
       prenom: candidat.prenom,
-      pupitre: candidat.pupitre,
+      pupitre: audition.pupitre,
       email: candidat.email,
     });
-
     // Enregistrez le Choriste dans la base de données
     await nouveauChoriste.save();
+    
+// Créez un compte pour le Choriste
+const mdp = await genererMotDePasseAleatoire();
+console.log('Mot de passe non hashé :', mdp);
 
-    return nouveauChoriste;
+// Hasher le mot de passe
+const mdpHash = await bcrypt.hash(mdp, 10);
+console.log('Mot de passe hashé :', mdpHash);
+
+// Créer le compte
+const nouveauCompte = new Compte({
+  login: candidat.email,
+  motDePasse: mdpHash,
+
+});
+await nouveauCompte.save();
+console.log("Compte enregistré avec succès:", nouveauCompte);
+
+    // Associez l'ID du compte au champ 'compte' du Choriste
+    nouveauChoriste.compte = nouveauCompte._id;
+    
+    // Enregistrez à nouveau le Choriste avec l'ID du compte associé
+    await nouveauChoriste.save();
+
+    await envoyerEmailLogin(candidat.email, candidat.email, mdp);
+    console.log("E-mail de login envoyé avec succès.");
+
+    return { choriste: nouveauChoriste, compte: nouveauCompte } ;
+    
   } catch (error) {
     console.error('Erreur lors de la création du Choriste :', error);
     throw error;
@@ -146,19 +195,12 @@ const envoyerEmailAcceptation = async (req, res) => {
     }
 
     const adresseEmail = candidat.email;
-    const nom = req.body.nom;
-    const prenom = req.body.prenom;
     const sujet = "Félicitations ! Vous avez été accepté à la chorale.";
     const file = path.join(__dirname, "../views/acceptationmail.ejs");
     const pdf = path.join(__dirname, "../files/Reglement.pdf");
-
     ejs.renderFile(file, {
-      name: req.body.nom + " " + req.body.prenom,
-      link: "http://localhost:5000/api/acceptationmail/sauvegarderCandidat/" +
-        req.body.nom + "/" +
-        req.body.prenom + "/" +
-        candidat.email,
-    }, async (err, data) => {
+      link: `http://localhost:5000/api/audition/confirmationCandidat/${candidatId}` }, 
+      async (err, data) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ error: "Erreur lors du rendu du fichier EJS." });
@@ -176,29 +218,7 @@ const envoyerEmailAcceptation = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    // Mettre à jour le candidat pour indiquer qu'il est confirmé
-    if (candidat.token === req.body.token) {
-      candidat.confirmation = true;
-      await candidat.save();
-    }
-
-     // Créer le Choriste
-    const nouveauChoriste = await creerChoriste(candidat);
-    console.log("Nouveau Choriste créé :", nouveauChoriste);
-
-    // Supprimer le Candidat
-    await supprimerCandidat(candidatId);
-    console.log("Candidat supprimé :", candidatId);
-    
-    // Appeler la fonction pour créer le compte 
-    await compteController.creerCompteChoriste(adresseEmail);
-    console.log("Compte créé :", adresseEmail);
-    
-    return nouveauChoriste;
     });
-
-    // Envoyer le deuxième email
-    //await envoyerEmailLogin(req, res);
 
     res.status(200).json({ message: "E-mail d'acceptation envoyé avec succès." });
   } catch (error) {
@@ -207,67 +227,79 @@ const envoyerEmailAcceptation = async (req, res) => {
   }
 };
 
-// const envoyerEmailLogin = async (req, res) => {
-//   try {
-//     const candidatId = req.params.id;
-//     const candidat = await Candidat.findById(candidatId);
+const confirmationCandidat = async (req, res) => {
+  try {
+    const candidat = await Candidat.findById(req.params.id);
 
-//     if (!candidat) {
-//       return res.status(404).json({ message: "Candidat non trouvé" });
-//     }
+    // Mettre à jour le candidat pour indiquer qu'il est confirmé
+    if (candidat) {
+      if (candidat.confirmation === false) {
+        candidat.confirmation = true;
+        await candidat.save();
 
-//     const adresseEmail = candidat.email;
-//     const nom = req.body.nom;
-//     const prenom = req.body.prenom;
-//     const sujet = "Félicitations ! Vous avez confirmé votre adhésion à la chorale veuillez activer votre compte ";
-//     const file = path.join(__dirname, "../views/loginmail.ejs");
+        // Créer le Choriste
+        const nouveauChoriste = await creerChoriste(candidat);
+        console.log("Nouveau Choriste créé :", nouveauChoriste);
 
-//     // Générer un mot de passe aléatoire
-//     const motDePasse = genererMotDePasseAleatoire();
-//     // Hasher le mot de passe
-//     const motDePasseHash = await hashMotDePasse(motDePasse);
-//     // Mettre à jour le candidat avec le mot de passe haché
-//     candidat.motDePasse = motDePasseHash;
-//     await candidat.save();
+        // Supprimer le Candidat
+        await supprimerCandidat(candidat._id);
+        console.log("Candidat supprimé :", candidat._id);
 
-//     ejs.renderFile(file, {
-//       name: req.body.nom + " " + req.body.prenom,
-//       link: "http://localhost:5000/api/loginmail/sauvegarderCandidat/" +
-//         req.body.nom + "/" +
-//         req.body.prenom + "/" +
-//         candidat.email,
-//     }, async (err, data) => {
-//       if (err) {
-//         console.error(err);
-//         return res.status(500).json({ error: "Erreur lors du rendu du fichier EJS." });
-//       }
+        return res.status(200).json({ message: "Candidat confirmé avec succès." });
+      } else {
+        return res.status(400).json({ message: "Le candidat est déjà confirmé" });
+      }
+    } else {
+      return res.status(400).json({ message: "Le candidat non trouvé dans la base de données" });
+    }
+  } catch (error) {
+    console.error('Erreur lors de la confirmation du candidat :', error);
+    return res.status(500).json({ error: "Erreur lors de la confirmation du candidat" });
+  }
+};
 
-//       const mailOptions = {
-//         from: 'ayaghattas606@gmail.com',
-//         to: adresseEmail,
-//         subject: sujet,
-//         html: data,
-//       };
+async function genererMotDePasseAleatoire() {
+  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const longueurMotDePasse = 12;
 
-//       await transporter.sendMail(mailOptions);
-//       candidat.confirmation = true;
-//       await candidat.save();
+  let mdp = '';
+  for (let i = 0; i < longueurMotDePasse; i++) {
+    const caractereAleatoire = caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    mdp += caractereAleatoire;
+  }
+  return mdp;
+}
 
-//       res.status(200).json({ message: "E-mail de login envoyé avec succès." });
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Erreur lors de la recherche du candidat dans la base de données." });
-//   }
-// };
+const envoyerEmailLogin = async (adresseEmail, login, motDePasse) => {
+  const sujet = "Information de connexion à la chorale";
+  const file = path.join(__dirname, "../views/loginmail.ejs");
+  const link = "http://localhost:5000/api/compte/login";
+  
+  try {
+    const data = await ejs.renderFile(file, { login, motDePasse, link });
 
+    const mailOptions = {
+      from: 'ayaghattas606@gmail.com',
+      to: adresseEmail,
+      subject: sujet,
+      html: data,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("E-mail de login envoyé avec succès.");
+  } catch (err) {
+    console.error(err);
+    throw new Error("Erreur lors de l'envoi de l'e-mail de connexion.");
+  }
+};
 
 module.exports = {
   addAudition,
   getAudition,
   fetchAudition,
+  updateCandidatResultat,
   getCandidatsFiltres, 
   getCandidatPupitreOrdonnes,
   envoyerEmailAcceptation,
-  //envoyerEmailLogin
+  confirmationCandidat
 };
