@@ -22,7 +22,12 @@ const envoyerMail = (req, res) => {
     from: "asmabouziri299@gmail.com",
     to: email,
     subject: "Welcome !",
-    html: "<h1>welcome " + nom + " " + prenom + " !</h1>",
+    html:
+      "<h1>welcome " +
+      nom +
+      " " +
+      prenom +
+      " ! </h1> <h1> Veuillez compléter votre candidature Merci !</h1>",
   };
 
   transporter.sendMail(mailOptions, function (error, info) {
@@ -33,6 +38,28 @@ const envoyerMail = (req, res) => {
       res.status(200).send({ msg: "email sent" });
     }
   });
+
+  const cand = new Candidat({
+    nom: nom,
+    prenom: prenom,
+    email: email,
+    mailvalid: true,
+  });
+  console.log(cand);
+  cand
+    .save()
+    .then(() => {
+      res.status(201).json({
+        model: cand,
+        message: "Candidat ajouté!",
+      });
+    })
+    .catch(() => {
+      res.status(400).json({
+        error: Error.message,
+        message: "Données invalides!",
+      });
+    });
 };
 
 //envoyer un email pour valider l'email
@@ -99,18 +126,13 @@ const ValiderEtSauvgarder = (req, res) => {
     },
   });
 
-  const cand = new Candidat({
-    nom: req.params.nom,
-    prenom: req.params.prenom,
-    email: req.params.email,
-  });
-  console.log(cand);
-  cand
-    .save()
+  Candidat.findOneAndUpdate({ email: req.params.email }, req.body, {
+    new: true,
+  })
     .then(() => {
       res.status(201).json({
         model: cand,
-        message: "Candidat ajouté!",
+        message: "Détails Candidat ajouté!",
       });
       var mailOptions = {
         from: "asmabouziri299@gmail.com",
