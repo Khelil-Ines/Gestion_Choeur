@@ -25,6 +25,7 @@ app.use((req, res, next) => {
   );
   next();
 });
+
 app.use((req, res, next) => {
   console.log('Requête reçue:', req.method, req.url, req.body);
   next();
