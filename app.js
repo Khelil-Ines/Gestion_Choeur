@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const CandidatRoutes=require("./routes/candidat")
-const PlanningRoutes=require("./routes/planning")
+const PlanningRoutes=require("./routes/audition")
 //sur mongo local
 mongoose
   .connect("mongodb://localhost:27017/Choeur", {

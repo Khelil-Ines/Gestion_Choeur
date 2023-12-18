@@ -1,6 +1,6 @@
 // controllers/planningController.js
 const mongoose = require('mongoose');
-const Planning = require('../models/planning');
+const Planning = require('../models/audition');
 const Candidat = require('../models/candidat');
 const nodemailer = require('nodemailer');
 const moment = require('moment');
@@ -103,9 +103,6 @@ const genererEtEnregistrerPlanning = async (req, res, next) => {
   }
 };
 
-const envoyerEmailAuxCandidats = async (planning) => {
-  // Ajoutez le code pour envoyer des e-mails aux candidats si nécessaire
-};
 
 module.exports = {
   genererEtEnregistrerPlanning,
