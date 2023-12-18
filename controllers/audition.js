@@ -31,21 +31,23 @@ const genererEtEnregistrerPlanning = async (req, res, next) => {
       // Générez les plages horaires pour toute la journée
       while (heureDebut.isBefore(heureFin) && candidats.length > 0) {
         // Sélectionnez le nombre de candidats requis pour cette session
-        const candidatsPourSession = candidats.splice(0, Math.min(candidats.length, nbreCandidatsParHeure));
+        const candidatsPourSession = candidats.splice(0, nbreCandidatsParHeure);
 
-        const sessionPlanning = new Planning({
-          dateAudition: dateDebut.format('YYYY-MM-DD'),
-          HeureDeb: heureDebut.format('HH:mm'),
-          HeureFin: heureDebut.clone().add(1, 'hour').format('HH:mm'), // Fin de la session une heure après le début
-          candidates: candidatsPourSession.map(candidate => ({ candidateId: candidate._id })),
+        candidatsPourSession.forEach((candidat, index) => {
+          const sessionPlanning = new Planning({
+            dateAudition: dateDebut.format('YYYY-MM-DD'),
+            HeureDeb: heureDebut.format('HH:mm'),
+            HeureFin: heureDebut.clone().add(1, 'hour').format('HH:mm'),
+            candidat: candidat._id,
+          });
+
+          planning.push(sessionPlanning);
+
+          // Si c'est le dernier candidat de la session, incrémente l'heure de début pour la prochaine session
+          if (index === candidatsPourSession.length - 1) {
+            heureDebut.add(1, 'hour');
+          }
         });
-        
-        
-
-        planning.push(sessionPlanning);
-
-        // Incrémentez l'heure de début pour la prochaine session
-        heureDebut.add(1, 'hour');
       }
     }
 
@@ -59,39 +61,33 @@ const genererEtEnregistrerPlanning = async (req, res, next) => {
         pass: 'hgfr npar pidn zvje',
       }
     });
-  
+
     try {
-// Parcourez le planning et envoyez un e-mail à chaque candidat
-// Parcourez le planning et envoyez un e-mail à chaque candidat
-for (const session of planning) {
-  for (const candidat of session.candidates) {
-    // Recherche du candidat par ID
-    const candidatDetails = await Candidat.findOne({ "_id": candidat.candidateId });
+      // Parcourez le planning et envoyez un e-mail à chaque candidat
+      for (const session of planning) {
+        // Recherche du candidat par ID
+        const candidatDetails = await Candidat.findOne({ "_id": session.candidat });
 
-    // Vérifiez si l'e-mail du candidat est défini
-    if (candidatDetails && candidatDetails.mail) {
-      const destinataire = candidatDetails.mail;
-      const sujet = 'Détails de votre audition';
-      const texte = `Bonjour,\n\nVotre audition est prévue pour le ${moment(session.dateAudition).locale('fr').format('LL')} à ${session.HeureDeb}.\n\nCordialement,\nVotre Organisation`;
+        // Vérifiez si l'e-mail du candidat est défini
+        if (candidatDetails && candidatDetails.mail) {
+          const destinataire = candidatDetails.mail;
+          const sujet = 'Détails de votre audition';
+          const texte = `Bonjour,\n\nVotre audition est prévue pour le ${moment(session.dateAudition).locale('fr').format('LL')} à ${session.HeureDeb}.\n\nCordialement,\nVotre Organisation`;
 
+          // Envoie de l'e-mail
+          await transporter.sendMail({
+            from: 'ghofranemn22@gmail.com',
+            to: destinataire,
+            subject: sujet,
+            text: texte,
+          });
 
-      // Envoie de l'e-mail
-      await transporter.sendMail({
-        from: 'ghofranemn22@gmail.com',
-        to: destinataire,
-        subject: sujet,
-        text: texte,
-      });
+          console.log(`E-mail envoyé à ${destinataire} pour l'audition le ${session.dateAudition} à ${session.HeureDeb}`);
+        } else {
+          console.error("Aucun e-mail défini pour le candidat :", session.candidat);
+        }
+      }
 
-      console.log(`E-mail envoyé à ${destinataire} pour l'audition le ${session.dateAudition} à ${session.HeureDeb}`);
-    } else {
-      console.error("Aucun e-mail défini pour le candidat :", candidat.candidateId);
-    }
-  }
-}
-
-
-  
       console.log('E-mails envoyés avec succès');
     } catch (error) {
       console.error('Erreur lors de l\'envoi des e-mails :', error);
@@ -108,19 +104,8 @@ for (const session of planning) {
 };
 
 const envoyerEmailAuxCandidats = async (planning) => {
- 
+  // Ajoutez le code pour envoyer des e-mails aux candidats si nécessaire
 };
-
-
-
-
-
-
-
-
-
-
-
 
 module.exports = {
   genererEtEnregistrerPlanning,
