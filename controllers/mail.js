@@ -12,7 +12,7 @@ const envoyerMailValidation = (req, res) => {
   const token = jwt.sign({ id: Candidat._id }, "secretKey", {
     expiresIn: "5m",
   });
-  const validationLink = `http://localhost:5000/api/validermail/validate/${email}?token=${token}`;
+  const validationLink = `http://localhost:5000/api/Mail/validate/${email}?token=${token}`;
 
   var transporter = nodemailer.createTransport({
     service: "gmail",
@@ -85,7 +85,7 @@ const verifierExpirationLien = (req, res) => {
       ejs
         .renderFile(file, {
           name: req.body.nom + " " + req.body.prenom,
-          link: "http://localhost:5000/api/validerMail/formulaire/",
+          link: "http://localhost:5000/api/Mail/formulaire/",
         })
         .then((resultat) => {
           const mailOptions = {

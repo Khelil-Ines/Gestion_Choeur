@@ -2,11 +2,7 @@ const express = require("express");
 const router = express.Router();
 const validerMail = require("../controllers/validermail");
 
-router.post("/envoyermail", validerMail.envoyerMail);
-router.post("/validermail/:email", validerMail.envoyerValidationMail);
-router.post(
-  "/sauvegarderCandidat/:nom/:prenom/:email",
-  validerMail.ValiderEtSauvgarder
-);
-
+router.post("/envoyerEmailAvecExpiration", validerMail.envoyerMailValidation);
+router.patch("/sauvegarder/Candidat/:email", validerMail.SauvgarderCandidat);
+router.get("/validate/:email", validerMail.verifierExpirationLien);
 module.exports = router;

@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const validerMailRoute = require("./routes/validermail");
+const MailRoute = require("./routes/mail");
 
 //sur mongo local
 mongoose
@@ -27,5 +28,6 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/validermail", validerMailRoute);
+app.use("/api/mail", MailRoute);
 
 module.exports = app;
