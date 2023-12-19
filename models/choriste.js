@@ -1,4 +1,5 @@
 const mongoose = require ("mongoose")
+const utilisateur = require("./utilisateur")
 const historiqueStatutSchema = mongoose.Schema({
     statut: { type: String, required: true },
     date: { type: Date, default: Date.now }
@@ -15,4 +16,4 @@ const choristeSchema = mongoose.Schema(
 
     }
 )
-module.exports = mongoose.model("Choriste", choristeSchema)
+module.exports = utilisateur.discriminator("Choriste", choristeSchema)
