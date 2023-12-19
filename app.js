@@ -1,34 +1,79 @@
-const express = require("express");
-const mongoose = require("mongoose");
-
+const express = require('express');
+const mongoose = require('mongoose');
+const app = express();
+const concertRouter = require('./routers/concert');
+const oeuvreRouter = require('./routers/oeuvre');
+const programmeRouter = require('./routers/programme');
 const compositeurRoutes = require("./routes/compositeur");
 const oeuvreRoutes = require("./routes/oeuvre");
+app.use(express.json());
+
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Origin,X-Requested-With,Content,Accept,Content-Type,Authorization"
+    );
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET,POST,PUT,DELETE,PATCH,OPTIONS"
+    );
+    next();
+  });
+
+
+    mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
+   useNewUrlParser: true , useUnifiedTopology:true }
+ ).then(() => console.log("connexion a MongoDB reussie!"))
+.catch((e) => console.log("connexion a MongoDB échouée!",e))
+app.use('/concert', concertRouter);
+app.use('/oeuvre', oeuvreRouter);
+app.use('/programme', programmeRouter);
+
+module.exports = app;
+
 
 //sur mongo local
 mongoose
-  .connect("mongodb://127.0.0.1:27017/Choeur", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+
+  .connect("mongodb://localhost:27017/Gestion_Choeur", )
+
   .then(() => console.log("connexion a MongoDB reussie!"))
   .catch((e) => console.log("connexion a MongoDB échouée!", e));
 
+const express = require('express');
+const mongoose = require('mongoose');
 const app = express();
-app.use(express.json()); //pour que les données de post se mettent dans le body et va afficher le contenu de body sous forme json
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Heders",
-    "Origin,X-Requsted-With,Content,Accept,Content-Type,Authorization"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,POST,PUT,DELETE,PATCH,OPTIONS"
-  );
-  next();
-});
+const auditionRouter = require('./routers/audition');
+const planning_auditionRouter = require('./routers/planning_audition');
+const CandidatRoutes=require("./routes/candidat")
 
+app.use(express.json());
+
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Origin,X-Requested-With,Content,Accept,Content-Type,Authorization"
+    );
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET,POST,PUT,DELETE,PATCH,OPTIONS"
+    );
+    next();
+  });
+
+
+    mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
+   useNewUrlParser: true , useUnifiedTopology:true }
+ ).then(() => console.log("connexion a MongoDB reussie!"))
+.catch((e) => console.log("connexion a MongoDB échouée!",e))
+
+app.use('/audition', auditionRouter);
+app.use('/planning_audition', planning_auditionRouter);
+app.use("/candidats", CandidatRoutes);
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
 
 module.exports = app;
+
