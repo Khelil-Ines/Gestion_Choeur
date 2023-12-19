@@ -1,6 +1,6 @@
 const mongoose = require ("mongoose")
 
-const utilisateurSchema = mongoose.Schema(
+const UtilisateurSchema = mongoose.Schema(
     {      
         nom :{ type : String, required: true },
         prénom :{ type : String, required: true },
@@ -12,6 +12,6 @@ const utilisateurSchema = mongoose.Schema(
         sexe : { type: String, enum : ['Homme', 'Femme']}
     }
 )
-module.exports = mongoose.model("Utilisateur", utilisateurSchema)
+module.exports = mongoose.model("Utilisateur", UtilisateurSchema)
 
 
