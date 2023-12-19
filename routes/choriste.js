@@ -6,4 +6,14 @@ const CINMiddleware = require("../middlewares/CIN");
 router.get("/profile/:id", choristeController.getprofilchoriste);
 router.get("/statut/:id", choristeController.getstatutchoriste);
 router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
-module.exports = router;
+
+router.get("/",choristeController.getChoriste)
+
+router.get("/:id",choristeController.fetchChoriste)
+
+router.post("/liste", choristeController.getChoristesByPupitre) 
+
+router.patch("/update/:id", choristeController.updatePupitre)
+
+
+  module.exports = router;

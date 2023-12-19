@@ -1,4 +1,5 @@
 
+
 const mongoose = require ("mongoose");
 const utilisateur = require("./utilisateur");
 
@@ -17,6 +18,14 @@ const choristeSchema = mongoose.Schema(
         nbr_repetitions : {type: Number},
         nbr_absences : {type: Number, default: 0},
         absences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Absence' }],
+        compte: { 
+          type: mongoose.Schema.Types.ObjectId, 
+          ref: 'Compte' },
+        conges: [{
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Conge',
+          required: false,
+        }],
     }
 )
 module.exports = utilisateur.discriminator('Choriste', choristeSchema);

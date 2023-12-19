@@ -1,3 +1,4 @@
+
 const express = require("express");
 const mongoose = require("mongoose");
 
@@ -11,6 +12,16 @@ const chef_router=require("./routes/chef_pupitre")
 const choristeRouter = require('./routes/choriste.js');
 const absenceRouter = require('./routes/absence.js');
 app.use(express.json());
+
+const choristeRouter = require("./routes/choriste");
+const candidatRouter = require("./routes/candidat");
+const auditionRouter = require("./routes/audition");
+const repetitionRouter = require("./routes/repetition");
+const compteRouter = require("./routes/compte");
+const congeRouter = require("./routes/conge");
+
+
+
 
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -38,4 +49,15 @@ app.use("/api/Oeuvre", oeuvreRoutes);
 app.use("/Add_Chef", chef_router);
 app.use('/choriste', choristeRouter);
 app.use('/absence', absenceRouter);
+
+
+app.use("/api/choriste", choristeRouter)
+app.use("/api/candidat", candidatRouter)
+app.use("/api/audition", auditionRouter)
+app.use("/api/repetition", repetitionRouter)
+app.use("/api/compte", compteRouter)
+app.use("/api/conge", congeRouter)
+
+
+
 module.exports = app;
