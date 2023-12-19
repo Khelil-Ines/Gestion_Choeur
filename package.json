@@ -1,0 +1,38 @@
+{
+  "name": "gestion_choeur",
+  "version": "1.0.0",
+  "description": "",
+
+  "main": "server.js",
+
+  "scripts": {
+    "start": "node server",
+    "dev": "nodemon server"
+  },
+
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.1",
+    "nodemon": "^3.0.1",
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Khelil-Ines/Gestion_Choeur.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Khelil-Ines/Gestion_Choeur/issues"
+  },
+  "homepage": "https://github.com/Khelil-Ines/Gestion_Choeur#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.1"
+
+  }
+}
+}
