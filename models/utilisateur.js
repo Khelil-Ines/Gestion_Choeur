@@ -1,18 +1,15 @@
 const mongoose = require ("mongoose")
 
 const UtilisateurSchema = mongoose.Schema(
-    {
-       
-        nom :{type : String},
-        prénom : {type : String},
-        num_tel:{ type :Number},
-        CIN :{type : Number},
-        adresse: {type : String},
-        mail: {type : String},
-        date_naiss:{ type : Date},
-
-        sexe : {type : String, enum : ["Homme", "Femme"]}
-
+    {      
+        nom :{ type : String, required: true },
+        prénom :{ type : String, required: true },
+        num_tel:{ type: Number},
+        CIN :{ type: Number, unique: true},
+        adresse: { type : String},
+        mail: { type: String, unique: true},
+        date_naiss: { type: Date},
+        sexe : { type: String, enum : ['Homme', 'Femme']}
     }
 )
 module.exports = mongoose.model("Utilisateur", UtilisateurSchema)
