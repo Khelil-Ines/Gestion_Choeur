@@ -1,6 +1,6 @@
 
 const Audition = require("../models/audition");
-const Planning = require("../models/planning_audition");
+
 
 // Fonction pour créer des auditions à partir du planning
 // async function refresh_audition (req, res){

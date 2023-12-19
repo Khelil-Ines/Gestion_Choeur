@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 const auditionRouter = require('./routers/audition');
-const planning_auditionRouter = require('./routers/planning_audition');
 const CandidatRoutes=require("./routes/candidat")
 
 app.use(express.json());
@@ -27,7 +26,6 @@ app.use((req, res, next) => {
 .catch((e) => console.log("connexion a MongoDB échouée!",e))
 
 app.use('/audition', auditionRouter);
-app.use('/planning_audition', planning_auditionRouter);
 app.use("/candidats", CandidatRoutes);
 module.exports = app;
 
