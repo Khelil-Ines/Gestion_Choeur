@@ -1,5 +1,6 @@
 const Chef_Pupitre = require("../models/chef_pupitre");
 const Choriste = require("../models/choriste");
+const utilisateur = require("../models/utilisateur");
 
 
 exports.Ajouter_Chef_PupitreByID = async (req, res) => {
@@ -10,21 +11,32 @@ exports.Ajouter_Chef_PupitreByID = async (req, res) => {
             return res.status(404).send({ message: 'Choriste not found.' });
         } 
 
+        const pupitre = choriste.pupitre
+        const statut = choriste.statut
+        const CIN = choriste.CIN
+        const niveau = choriste.niveau
+        const date_adhesion=choriste.date_adhesion
+        const historiqueStatut= choriste.historiqueStatut
+        const nbr_concerts = choriste.nbr_concerts
+        const nbr_repetitions =choriste.nbr_repetitions
+
+        await Choriste.findByIdAndDelete({ _id: req.params.id });
+
         const newChefPupitre = new Chef_Pupitre({
-            tessiture : choriste.tessiture,
-            statut : choriste.statut,
-            niveau : choriste.niveau, 
-            date_adhesion:choriste.date_adhesion,
-            historiqueStatut: choriste.historiqueStatut,
-            nbr_concerts : choriste.nbr_concerts,
-            nbr_repetitions : choriste.nbr_repetitions
+            pupitre : pupitre,
+            statut : statut,
+            CIN : CIN,
+            niveau : niveau, 
+            date_adhesion:date_adhesion,
+            historiqueStatut: historiqueStatut,
+            nbr_concerts : nbr_concerts,
+            nbr_repetitions : nbr_repetitions
         });
       
-
         const savedChefPupitre = await newChefPupitre.save();
-        
 
-         choriste.Chef_Pupitre = savedChefPupitre;
+        
+        utilisateur.Chef_Pupitre = savedChefPupitre;
       
 
         res.status(200).send({ message: 'Chef de pupitre ajouté !' });
