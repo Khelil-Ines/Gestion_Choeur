@@ -77,6 +77,14 @@ exports.getprofilchoriste = async (req, res) => {
         });
       } else {
         res.status(200).json({
+            nom : choriste.nom,
+            prénom : choriste.prénom,
+            num_tel:choriste.num_tel,
+            CIN :choriste.CIN,
+            adresse: choriste.adresse,
+            mail: choriste.mail,
+            date_naiss:choriste.date_naiss,
+            sexe : choriste.sexe,
             tessiture : choriste.tessiture,
             statut : choriste.statut,
             niveau : choriste.niveau,
