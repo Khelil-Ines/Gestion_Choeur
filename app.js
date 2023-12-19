@@ -1,13 +1,11 @@
-<<<<<<< CRUD_concert
-
-
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 const concertRouter = require('./routers/concert');
 const oeuvreRouter = require('./routers/oeuvre');
 const programmeRouter = require('./routers/programme');
-
+const compositeurRoutes = require("./routes/compositeur");
+const oeuvreRoutes = require("./routes/oeuvre");
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -35,18 +33,16 @@ app.use('/programme', programmeRouter);
 module.exports = app;
 
 
-const express = require("express");
-const mongoose = require("mongoose");
 //sur mongo local
 mongoose
+
   .connect("mongodb://localhost:27017/Gestion_Choeur", )
+
   .then(() => console.log("connexion a MongoDB reussie!"))
   .catch((e) => console.log("connexion a MongoDB échouée!", e));
 
-=======
 const express = require('express');
 const mongoose = require('mongoose');
->>>>>>> main
 const app = express();
 const auditionRouter = require('./routers/audition');
 const planning_auditionRouter = require('./routers/planning_audition');
@@ -76,13 +72,8 @@ app.use((req, res, next) => {
 app.use('/audition', auditionRouter);
 app.use('/planning_audition', planning_auditionRouter);
 app.use("/candidats", CandidatRoutes);
+app.use("/api/Compositeur", compositeurRoutes);
+app.use("/api/Oeuvre", oeuvreRoutes);
+
 module.exports = app;
 
-
-
-
-<<<<<<< CRUD_concert
-module.exports = app;
-
-=======
->>>>>>> main
