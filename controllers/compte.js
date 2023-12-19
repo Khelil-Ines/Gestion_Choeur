@@ -48,10 +48,27 @@ const addCompteChoriste = (req, res) => {
     });
   };
 
+  const deleteCompte = (req, res) => { 
+    Compte.deleteOne({_id:req.params.id})
+    .then((comptes) =>
+      res.status(200).json({
+        message: "success!",
+      })
+    )
+
+    .catch(() => {
+      res.status(400).json({
+        error: Error.message,
+        message: "probleme d'extraction ",
+      });
+    });
+}
+
 
 module.exports = {
   addCompteChoriste,
   fetchCompte, 
-  getCompte
+  getCompte,
+  deleteCompte
 };
 

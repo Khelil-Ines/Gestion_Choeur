@@ -1,4 +1,5 @@
 const Candidat = require("../models/candidat");
+const Utilisateur = require("../models/utilisateur");
 
 
 const fetchCandidat = (req, res) => {
@@ -23,16 +24,19 @@ const fetchCandidat = (req, res) => {
     });
 }
 
-const addCandidat = (req, res) => { 
-    const newCandidat = new Candidat(req.body);
-    newCandidat.save()
-        .then(candidat => {
-            res.json(candidat);
-        })
-        .catch(err => {
-            res.status(400).json({ erreur: 'Échec de la création du l\'candidat' });
-        });
-  }
+const addCandidat = (req, res) => {
+  const newCandidat = new Candidat(req.body);
+
+  newCandidat.save()
+    .then(candidat => {
+      res.json(candidat);
+    })
+    .catch(err => {
+      console.error('Erreur lors de la création du candidat :', err);
+      res.status(400).json({ erreur: 'Échec de la création du candidat', message: err.message });
+    });
+};
+
   const getCandidat = (req, res) => {
     Candidat.find().then((candidats) => {
       res.status(200).json({

@@ -1,5 +1,6 @@
 const Audition = require("../models/audition");
 const Candidat = require('../models/candidat');
+const Choriste = require('../models/choriste');
 const Compte = require('../models/compte');
 const nodemailer = require('nodemailer');
 const ejs = require("ejs");
@@ -127,12 +128,30 @@ const creerChoriste = async (candidat) => {
     if (!audition) {
       throw new Error('Audition non trouvée pour le candidat.');
     }
+    const nom= candidat.nom
+    const prénom= candidat.prénom
+    const pupitre= audition.pupitre
+    const mail= candidat.mail
+    const taille= candidat.taille
+    const num_tel= candidat.num_tel
+    const CIN= candidat.CIN
+    const adresse= candidat.adresse
+    const date_naiss= candidat.date_naiss
+    const sexe= candidat.sexe
+
+    await Candidat.findByIdAndDelete ({ _id: candidat._id})
     // Créer le Choriste avec les attributs du candidat
     const nouveauChoriste = new Choriste({
-      nom: candidat.nom,
-      prenom: candidat.prenom,
+      nom: nom,
+      prénom: prénom,
       pupitre: audition.pupitre,
-      email: candidat.email,
+      mail: mail,
+      taille: taille,
+      num_tel: num_tel,
+      CIN: CIN,
+      adresse: adresse,
+      date_naiss: date_naiss,
+      sexe: sexe,
     });
     // Enregistrez le Choriste dans la base de données
     await nouveauChoriste.save();
@@ -147,7 +166,7 @@ console.log('Mot de passe hashé :', mdpHash);
 
 // Créer le compte
 const nouveauCompte = new Compte({
-  login: candidat.email,
+  login: mail,
   motDePasse: mdpHash,
 
 });
@@ -160,7 +179,7 @@ console.log("Compte enregistré avec succès:", nouveauCompte);
     // Enregistrez à nouveau le Choriste avec l'ID du compte associé
     await nouveauChoriste.save();
 
-    await envoyerEmailLogin(candidat.email, candidat.email, mdp);
+    await envoyerEmailLogin(candidat.mail, candidat.mail, mdp);
     console.log("E-mail de login envoyé avec succès.");
 
     return { choriste: nouveauChoriste, compte: nouveauCompte } ;
@@ -171,15 +190,6 @@ console.log("Compte enregistré avec succès:", nouveauCompte);
   }
 };
 
-const supprimerCandidat = async (candidatId) => {
-  try {
-    // Supprimer le candidat de la base de données
-    await Candidat.findByIdAndDelete(candidatId);
-  } catch (error) {
-    console.error('Erreur lors de la suppression du Candidat :', error);
-    throw error;
-  }
-};
 
 const envoyerEmailAcceptation = async (req, res) => {
   try {
@@ -194,7 +204,7 @@ const envoyerEmailAcceptation = async (req, res) => {
       throw new Error('Le candidat est déjà confirmé');
     }
 
-    const adresseEmail = candidat.email;
+    const adresseEmail = candidat.mail;
     const sujet = "Félicitations ! Vous avez été accepté à la chorale.";
     const file = path.join(__dirname, "../views/acceptationmail.ejs");
     const pdf = path.join(__dirname, "../files/Reglement.pdf");
@@ -242,8 +252,8 @@ const confirmationCandidat = async (req, res) => {
         console.log("Nouveau Choriste créé :", nouveauChoriste);
 
         // Supprimer le Candidat
-        await supprimerCandidat(candidat._id);
-        console.log("Candidat supprimé :", candidat._id);
+        // await supprimerCandidat(candidat._id);
+        // console.log("Candidat supprimé :", candidat._id);
 
         return res.status(200).json({ message: "Candidat confirmé avec succès." });
       } else {

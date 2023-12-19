@@ -9,4 +9,7 @@ router.get("/:id",compteController.fetchCompte)
 
 router.post("/",compteController.addCompteChoriste)
 
+router.delete("/:id", compteController.deleteCompte)
+
+
   module.exports = router;

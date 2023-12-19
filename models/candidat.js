@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
+const utilisateur = require("./utilisateur")
 
 const candidatSchema = mongoose.Schema({
-  nom:{type :String, required:true},
-  prenom:{type :String, required:true},
-  email:{type :String, required:true, unique: true},
+  connaissance__musicale : {type:String , require:true},
+  autres_activites  : {type:Boolean , require:false},
+  taille :{type:Number, require: false},
   confirmation: { type: Boolean, default: false },
 
 });
-module.exports = mongoose.model("Candidat", candidatSchema);
+module.exports = utilisateur.discriminator("Candidat", candidatSchema)

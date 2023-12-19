@@ -11,7 +11,7 @@ router.post("/",choristeController.addChoriste)
 
 router.post("/liste", choristeController.getChoristesByPupitre) 
 
-//outer.patch("/:id", choristeController.updateTessiture)
+router.patch("/update/:id", choristeController.updatePupitre)
 
 
   module.exports = router;
