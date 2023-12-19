@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const chef_router = require("./routes/chef_pupitre.js");
+const reset_router = require("./routes/reset.js");
 
 
 const app = express();
@@ -22,6 +23,8 @@ mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
    useNewUrlParser: true , useUnifiedTopology:true }
  ).then(() => console.log("connexion a MongoDB reussie!"))
 .catch((e) => console.log("connexion a MongoDB échouée!",e))
-app.use("/Add_Chef", chef_router);
 
+
+app.use("/Add_Chef", chef_router);
+app.use("/reset", reset_router);
 module.exports = app;
