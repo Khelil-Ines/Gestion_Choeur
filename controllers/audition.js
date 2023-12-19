@@ -88,13 +88,14 @@ const getCandidatsFiltres = async (req, res) => {
 
 const getCandidatPupitreOrdonnes = async (req, res) => {
   try {
-    const pupitreNom = req.body.pupitreNom;
 
     // Récupérez les candidats du pupitre spécifié
-    const candidats = await Audition.find({ pupitre: pupitreNom });
+    const candidats = await Audition.find({ pupitre: req.body.pupitre });
+    console.log(candidats);
 
     // Récupérez les auditions correspondantes
-    const auditions = await Audition.find({ candidat: { $in: candidats.map(c => c._id) } }).populate('candidat');
+    const auditions = await Audition.find({ candidat: { $in: candidats.map(c => c._id) } })
+    .populate('candidat');
 
     // Triez les candidats par résultat (Accepté, En Attente, Refusé)
     const candidatsOrdonnes = candidats.map((candidat) => {
