@@ -10,8 +10,10 @@ const UtilisateurSchema = mongoose.Schema(
         adresse: {type : String},
         mail: {type : String},
         date_naiss:{ type : Date},
-        sexe : {type : String, enum : ['Homme', 'Femme']}
+
+        sexe : {type : String, enum : ["Homme", "Femme"]}
 
     }
 )
-module.exports = mongoose.model("Utilisateur", UtilisateurSchema)
+module.exports = mongoose.model("Utilisateur", utilisateurSchema)
+
