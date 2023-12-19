@@ -8,8 +8,8 @@ const CandidatRoutes=require("./routes/candidat")
 const compositeurRoutes=require("./routes/compositeur")
 const oeuvreRoutes=require("./routes/oeuvre")
 const chef_router=require("./routes/chef_pupitre")
-const choristeRouter = require('./routers/choriste.js');
-const absenceRouter = require('./routers/absence.js');
+const choristeRouter = require('./routes/choriste.js');
+const absenceRouter = require('./routes/absence.js');
 app.use(express.json());
 
 app.use((req, res, next) => {
