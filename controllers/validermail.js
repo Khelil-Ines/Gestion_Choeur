@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const Candidat = require("../models/candidat");
 const path = require("path");
+require("dotenv").config();
 const ejs = require("ejs");
 
 const envoyerMailValidation = (req, res) => {
