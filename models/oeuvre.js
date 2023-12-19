@@ -12,4 +12,6 @@ const oeuvreSchema = mongoose.Schema({
 
 });
 
+
 module.exports = mongoose.model("Oeuvre", oeuvreSchema);
+
