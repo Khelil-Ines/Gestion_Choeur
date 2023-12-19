@@ -1,6 +1,7 @@
 
 const express = require("express");
 const mongoose = require("mongoose");
+const chef_router = require("./routes/chef_pupitre.js");
 
 
 const app = express();
