@@ -52,7 +52,6 @@ const genererPlanning = async (req, res, next) => {
 
     // Enregistrez le planning dans la base de données
     const planningEnregistre = await Planning.insertMany(planning);
-
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -243,7 +242,55 @@ const fetchPlanningByCandidat = async (req, res) => {
   }
 };
 
+const envoyerEmailAuxCandidats = async (candidatIds, dateAudition, heureDeb) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'ghofranemn22@gmail.com',
+      pass: 'hgfr npar pidn zvje',
+    }
+  });
 
+  try {
+    for (const candidatId of candidatIds) {
+      // Vérifiez si un planning existe pour ce candidat
+      const existingPlanning = await Planning.findOne({ candidat: candidatId });
+
+      if (existingPlanning) {
+        // Recherche du candidat par ID
+        const candidatDetails = await Candidat.findOne({ "_id": candidatId });
+
+        // Vérifiez si l'e-mail du candidat est défini
+        if (candidatDetails && candidatDetails.mail) {
+          const destinataire = candidatDetails.mail;
+          const sujet = 'Détails de votre nouvelle audition';
+          const texte = `Bonjour,\n\nVotre nouvelle audition est prévue pour le ${moment(dateAudition).locale('fr').format('LL')} à ${heureDeb}.\n\nCordialement,\nVotre Organisation`;
+
+          // Envoie de l'e-mail
+          await transporter.sendMail({
+            from: 'ghofranemn22@gmail.com',
+            to: destinataire,
+            subject: sujet,
+            text: texte,
+          });
+
+          console.log(`E-mail envoyé à ${destinataire} pour l'audition le ${moment(dateAudition).locale('fr').format('LL')} à ${heureDeb}`);
+        } else {
+          console.error("Aucun e-mail défini pour le candidat :", candidatId);
+        }
+      } else {
+        console.error(`Aucun planning trouvé pour le candidat ${candidatId}`);
+      }
+    }
+
+    console.log('E-mails envoyés aux candidats avec succès');
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi des e-mails aux candidats :', error);
+    throw new Error('Erreur lors de l\'envoi des e-mails aux candidats');  // Rethrow the error to handle it in the calling function
+  } finally {
+    transporter.close();
+  }
+};
 
 //generer planning pour les defaillants
 const genererPlanningDefaillants = async (req, res, next) => {
@@ -263,57 +310,58 @@ const genererPlanningDefaillants = async (req, res, next) => {
 
     const planning = [];
 
-    while (candidateIds.length > 0) {
-      // Si la plage horaire spécifiée pour une journée est terminée, passez à la journée suivante
-      if (heureDebut.isSameOrAfter(heureFin)) {
-        dateDebut = dateDebut.add(1, 'day');
-        heureDebut = moment(sessionStartTime, 'HH:mm');
-        heureFin = moment(sessionEndTime, 'HH:mm');
-      }
-
-      // Générez les plages horaires pour toute la journée
-      while (heureDebut.isBefore(heureFin) && candidateIds.length > 0) {
-        const candidatId = candidateIds.shift();
-
-        // Vérifiez si un planning existe pour ce candidat
-        const existingPlanning = await Planning.findOne({ candidat: candidatId });
-
-        if (existingPlanning) {
-          console.log(`Mise à jour pour candidat ${candidatId}`);
-          // Mettez à jour l'heure de début, l'heure de fin et la date d'audition avec celles de la nouvelle session
-          existingPlanning.HeureDeb = heureDebut.format('HH:mm');
-          existingPlanning.HeureFin = heureDebut.clone().add(1, 'hour').format('HH:mm');
-          existingPlanning.dateAudition = dateDebut.format('YYYY-MM-DD');
-          await existingPlanning.save();
-        } else {
-          console.log(`Nouvelle session pour candidat ${candidatId}`);
-          // Ajoutez une nouvelle entrée dans le planning
-          const sessionPlanning = new Planning({
-            dateAudition: dateDebut.format('YYYY-MM-DD'),
-            HeureDeb: heureDebut.format('HH:mm'),
-            HeureFin: heureDebut.clone().add(1, 'hour').format('HH:mm'),
-            candidat: candidatId,
-          });
-
-          planning.push(sessionPlanning);
+    while (heureDebut.isBefore(heureFin) && candidateIds.length > 0) {
+      const candidatesToSchedule = Math.min(nbreCandidatsParHeure, candidateIds.length);
+    
+      if (candidatesToSchedule > 0) {
+        console.log(`Scheduling ${candidatesToSchedule} candidate(s) for ${heureDebut.format('HH:mm')}`);
+    
+        for (let i = 0; i < candidatesToSchedule; i++) {
+          const candidatId = candidateIds.shift();
+    
+          // Vérifiez si un planning existe pour ce candidat
+          const existingPlanning = await Planning.findOne({ candidat: candidatId });
+    
+          if (existingPlanning) {
+            console.log(`Mise à jour pour candidat ${candidatId}`);
+            // Mettez à jour l'heure de début et la date d'audition avec celles de la nouvelle session
+            existingPlanning.HeureDeb = heureDebut.format('HH:mm');
+            existingPlanning.HeureFin = heureDebut.clone().add(1, 'hour').format('HH:mm');
+            existingPlanning.dateAudition = dateDebut.format('YYYY-MM-DD');
+            await existingPlanning.save();
+          } else {
+            console.log(`Nouvelle session pour candidat ${candidatId}`);
+            // Ajoutez une nouvelle entrée dans le planning
+            const sessionPlanning = new Planning({
+              dateAudition: dateDebut.format('YYYY-MM-DD'),
+              HeureDeb: heureDebut.format('HH:mm'),
+              candidat: candidatId,
+            });
+            
+           
+            planning.push(sessionPlanning);
+            
+          }
+    
+          console.log(`Candidate ${candidatId} scheduled for ${heureDebut.format('HH:mm')} on ${dateDebut.format('YYYY-MM-DD')}`);
         }
-
-        // Incrémente l'heure de début pour la prochaine session
-        heureDebut.add(1, 'hour');
       }
+    
+      // Incrémente l'heure de début pour la prochaine session
+      heureDebut.add(1, 'hour');
     }
-
-    // Enregistrez le planning dans la base de données
-    await Planning.insertMany(planning);
-
-    console.log('Planning généré avec succès');
-
-    res.status(201).json({ message: 'Planning généré avec succès' });
+    
+    
+    const planningEnregistre = await Planning.insertMany(planning);
+    console.log(candidateIds)
+    await envoyerEmailAuxCandidats(candidateIds, dateDebut.format('YYYY-MM-DD'), heureDebut.format('HH:mm'));
+    res.status(201).json({ message: 'Planning généré avec succès', planning: planningEnregistre });
   } catch (error) {
     console.error('Erreur lors de la génération du planning :', error);
     res.status(500).json({ message: 'Erreur lors de la génération du planning', error: error.message });
   }
 };
+
 
 
 
