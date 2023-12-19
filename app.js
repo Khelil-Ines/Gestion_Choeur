@@ -11,15 +11,12 @@ const oeuvreRoutes=require("./routes/oeuvre")
 const chef_router=require("./routes/chef_pupitre")
 const choristeRouter = require('./routes/choriste.js');
 const absenceRouter = require('./routes/absence.js');
-app.use(express.json());
-
 const candidatRouter = require("./routes/candidat");
 const repetitionRouter = require("./routes/repetition");
 const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
 
-
-
+app.use(express.json());
 
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -46,8 +43,6 @@ app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
 app.use("/Add_Chef", chef_router);
 app.use('/absence', absenceRouter);
-
-
 app.use("/api/choriste", choristeRouter)
 app.use("/api/candidat", candidatRouter)
 app.use("/api/audition", auditionRouter)
