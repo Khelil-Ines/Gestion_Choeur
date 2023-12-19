@@ -18,7 +18,7 @@ const ListerCandidats = async (req, res) => {
     const candidates = await Candidat.find()
       .skip(startIndex)
       .limit(pageSize);
-
+     
     // Récupération du nombre total de candidats pour la pagination
     const totalCandidates = await Candidat.countDocuments();
     const totalPages = Math.ceil(totalCandidates / pageSize);
@@ -26,18 +26,18 @@ const ListerCandidats = async (req, res) => {
     // Filtrage par choix arbitraire (nom, prénom, skills, experience)
     const lastNameFilter = req.query.nom;
     const firstNameFilter = req.query.prénom;
-    const musicalKnowledgeFilter = req.query.musicalKnowledge;
-    const TailleFilter = req.query.Taille;
+
+    console.log(firstNameFilter)
+
 
     const filteredCandidates = candidates.filter((candidate) => {
       return (
-        (!firstNameFilter || candidate.firstName.toLowerCase().includes(firstNameFilter.toLowerCase())) &&
-        (!lastNameFilter || candidate.lastName.toLowerCase().includes(lastNameFilter.toLowerCase())) &&
-        (!musicalKnowledgeFilter || candidate.musicalKnowledge.toLowerCase().includes(musicalKnowledgeFilter.toLowerCase())) &&
-        (!TailleFilter || candidate.Taille.includes(TailleFilter))
-      );
+        (!firstNameFilter || candidate.prénom.toLowerCase().includes(firstNameFilter.toLowerCase())) ||
+        (!lastNameFilter || candidate.nom.toLowerCase().includes(lastNameFilter.toLowerCase()))
+        
+      )
     });
-
+    console.log(filteredCandidates)
     // Retourne la liste paginée, les informations de pagination et les filtres
     res.json({
       candidates: filteredCandidates,
@@ -50,8 +50,7 @@ const ListerCandidats = async (req, res) => {
       filters: {
         firstName: firstNameFilter,
         lastName: lastNameFilter,
-        musicalKnowledge: musicalKnowledgeFilter,
-        Taille: TailleFilter,
+
       },
     });
   } catch (error) {
