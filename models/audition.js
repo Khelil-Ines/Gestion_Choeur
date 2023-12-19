@@ -13,4 +13,4 @@ const PlanningSchema = new Schema({
 
 });
 
-module.exports = mongoose.model("Planning", PlanningSchema);
+module.exports = mongoose.model("Audition", PlanningSchema);

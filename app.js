@@ -2,9 +2,10 @@ const express = require("express");
 const mongoose = require("mongoose");
 const CandidatRoutes=require("./routes/candidat")
 const PlanningRoutes=require("./routes/audition")
+const AdminRoutes=require("./routes/admin")
 //sur mongo local
 mongoose
-  .connect("mongodb://localhost:27017/Choeur", {
+  .connect("mongodb://localhost:27017/Gestion_Choeur", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -35,5 +36,5 @@ app.use((req, res, next) => {
 
 app.use("/candidats", CandidatRoutes);
 app.use("/planning", PlanningRoutes);
-
+app.use("/admin", AdminRoutes);
 module.exports = app;
