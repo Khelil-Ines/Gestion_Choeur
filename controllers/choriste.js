@@ -148,7 +148,7 @@ exports.getstatutchoriste = async (req, res) => {
 // };
 
 
-const fetchChoriste = (req, res) => {
+exports.fetchChoriste = (req, res) => {
     Choriste.findOne({ _id: req.params.id })
     .then((choriste) => {
       if (!choriste) {
@@ -170,7 +170,7 @@ const fetchChoriste = (req, res) => {
     });
 }
 
-const addChoriste = (req, res) => { 
+exports.addChoriste = (req, res) => { 
   const newChoriste = new Choriste(req.body);
   newChoriste.save()
       .then(choriste => {
@@ -181,7 +181,7 @@ const addChoriste = (req, res) => {
       });
 }
   
-const getChoriste = (req, res) => {
+exports.getChoriste = (req, res) => {
   Choriste.find()
     .then((choristes) => {
       res.status(200).json({
@@ -198,7 +198,7 @@ const getChoriste = (req, res) => {
 };
 
 
-  const getChoristesByPupitre = (req, res) => {
+  exports.getChoristesByPupitre = (req, res) => {
     const pupitreNom = req.body.pupitreNom;
   
     Choriste.find({ pupitre: pupitreNom })
@@ -216,7 +216,7 @@ const getChoriste = (req, res) => {
       });
   };
 
-  const updatePupitre = async (req, res)=> {
+  exports.updatePupitre = async (req, res)=> {
     try {
       const nouveauPupitre = req.body.nouveauPupitre;
   
@@ -251,11 +251,4 @@ const getChoriste = (req, res) => {
 
 
 
-  module.exports = {
-    addChoriste,
-    getChoriste,
-    fetchChoriste,
-    getChoristesByPupitre,
-    updatePupitre,
 
-  }

@@ -13,9 +13,7 @@ const choristeRouter = require('./routes/choriste.js');
 const absenceRouter = require('./routes/absence.js');
 app.use(express.json());
 
-const choristeRouter = require("./routes/choriste");
 const candidatRouter = require("./routes/candidat");
-const auditionRouter = require("./routes/audition");
 const repetitionRouter = require("./routes/repetition");
 const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
@@ -47,7 +45,6 @@ app.use("/candidats", CandidatRoutes);
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
 app.use("/Add_Chef", chef_router);
-app.use('/choriste', choristeRouter);
 app.use('/absence', absenceRouter);
 
 
