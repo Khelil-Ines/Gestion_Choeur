@@ -3,6 +3,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const CandidatRoutes=require("./routes/candidat")
 const PlanningRoutes=require("./routes/audition")
+const ChoristeRoutes=require("./routes/choriste")
+const RepRoutes =require("./routes/repetition")
 //sur mongo local
 mongoose
   .connect("mongodb://localhost:27017/Gestion_Choeur", {
@@ -40,4 +42,6 @@ app.use((req, res, next) => {
 
 app.use("/candidats", CandidatRoutes);
 app.use("/planning", PlanningRoutes);
+app.use("/choriste", ChoristeRoutes);
+app.use("/rep", RepRoutes);
 module.exports = app;

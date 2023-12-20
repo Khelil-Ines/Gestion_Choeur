@@ -1,0 +1,10 @@
+const express = require("express");
+const router = express.Router();
+const auth=require('../middelware/auth')
+const UserController = require("../controllers/choriste");
+
+router.post("/signup",UserController.signup)
+router.post("/login",UserController.login)
+router.post("/presenceRep/:idRepetition/:link",auth.verifyToken,UserController.presence)
+
+module.exports = router;
