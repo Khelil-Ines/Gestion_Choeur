@@ -3,7 +3,7 @@ const router = express.Router();
 const notifrepController = require("../controllers/notifrepetition");
 
 router.get(
-  "/rappel/:repetitions",
+  "/rappel/:repetitions/:heure/:jar",
   notifrepController.envoyerNotification
 );
 
