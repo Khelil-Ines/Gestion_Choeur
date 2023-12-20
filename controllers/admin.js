@@ -1,41 +1,35 @@
-const cron = require('node-cron');
-const Candidat = require("../models/candidat");
 const moment = require('moment-timezone');
+const Candidat = require('../models/candidat');
 
-const notifierAdmin = async () => {
+const notifierAdmin = async (io) => {
   try {
-    const timeZone = 'Europe/Paris'; // Spécifiez le fuseau horaire
+    console.log("hello")
+    const timeZone = 'Europe/Paris';
     const currentDate = moment().tz(timeZone);
-    const yesterdayTenPM = moment().subtract(1, 'days').set({ hours: 21, minutes: 15, seconds: 0, milliseconds: 0 }).tz(timeZone);
-    const todayTenPM = moment().set({ hours: 22, minutes: 10, seconds: 0, milliseconds: 0 }).tz(timeZone);
+    const yesterdayTenAM = moment().subtract(1, 'days').set({ hours: 12, minutes: 0, seconds: 0, milliseconds: 0 }).tz(timeZone);
+    const todayTenAM = moment().set({ hours: 12, minutes: 30, seconds: 0, milliseconds: 0 }).tz(timeZone);
 
-    // Recherchez les nouvelles candidatures ajoutées entre hier 21h15 et aujourd'hui 21h15
+    // Recherchez les candidats créés entre hier 10h00 et aujourd'hui 10h00
     const newCandidats = await Candidat.find({
-      createdAt: { $gte: yesterdayTenPM.toDate(), $lt: todayTenPM.toDate() },
-    });
+      createdAt: { $gte: yesterdayTenAM.toDate(), $lt: todayTenAM.toDate() },
+    }).lean();
 
-    console.log('Nouvelles candidatures ajoutées :', newCandidats);
+    console.log('Nouveaux candidats depuis hier 10h00 jusqu\'à aujourd\'hui 10h00 :');
+
+    // Afficher chaque candidature
+    newCandidats.forEach(candidat => {
+      console.log(`ID: ${candidat._id}, Nom: ${candidat.nom}, Prénom: ${candidat.prénom}, ...`); // Ajoutez d'autres champs si nécessaire
+    });
     
     if (newCandidats.length > 0) {
       // Émettez une notification ou faites ce que vous devez faire avec les nouvelles candidatures
-      io.emit('notification', { message: `Nouvelles candidatures ajoutées le ${currentDate.format('DD/MM/YYYY HH:mm:ss')}` });
+      io.emit('notification', { message: `Nouveaux candidats ajoutés le ${currentDate.format('DD/MM/YYYY HH:mm:ss')}` });
     } else {
-      console.log('Aucune nouvelle candidature depuis la dernière notification');
+      console.log('Aucun nouveau candidat depuis la dernière notification');
     }
-
-    lastCronRun = currentDate;
   } catch (error) {
     console.error('Erreur lors de la notification de l\'administrateur :', error.message);
   }
 };
 
-// Planification de la tâche quotidienne à 21:00
-cron.schedule('0 21 * * *', async () => {
-  console.log('Exécution de la notification quotidienne à 21:00...');
-  await notifierAdmin();
-});
-
-
-module.exports = {
-    notifierAdmin: notifierAdmin,
-  };
+module.exports = { notifierAdmin };

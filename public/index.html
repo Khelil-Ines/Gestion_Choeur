@@ -12,10 +12,10 @@
   <script>
     const socket = io();
 
-    socket.on('notification', (message) => {
+    socket.on('notification', (data) => {
       const notificationsList = document.getElementById('notifications');
       const listItem = document.createElement('li');
-      listItem.textContent = message;
+      listItem.textContent = data.message;
       notificationsList.appendChild(listItem);
     });
   </script>

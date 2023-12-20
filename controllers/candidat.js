@@ -1,5 +1,5 @@
 const Candidat = require("../models/candidat");
-
+const moment = require('moment-timezone');
 const ListerCandidats = async (req, res) => {
   try {
     // Vérification des paramètres de pagination
@@ -59,6 +59,33 @@ const ListerCandidats = async (req, res) => {
   }
 };
 
+const addCandidat = (req, res) => {
+  try {
+    // Récupérer les données du candidat depuis le corps de la requête
+    const candidatData = req.body;
+
+    // Ajouter la date de création avec le fuseau horaire "Europe/Paris"
+    candidatData.createdAt = moment().tz('Europe/Paris').toDate();
+
+    // Créer une nouvelle instance de Candidat
+    const newCandidat = new Candidat(candidatData);
+
+    // Enregistrer le candidat dans la base de données
+    newCandidat.save()
+      .then(candidat => {
+        res.json(candidat);
+      })
+      .catch(err => {
+        console.error('Erreur lors de la création du candidat :', err);
+        res.status(400).json({ erreur: 'Échec de la création du candidat', message: err.message });
+      });
+  } catch (error) {
+    console.error('Erreur lors de la création du candidat :', error);
+    res.status(500).json({ erreur: 'Erreur lors de la création du candidat', message: error.message });
+  }
+};
+
 module.exports = {
   ListerCandidats: ListerCandidats,
+  addCandidat:addCandidat
 };

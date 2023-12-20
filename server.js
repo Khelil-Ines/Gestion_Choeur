@@ -1,13 +1,14 @@
 const http = require("http")
 const express = require('express');
 const app = require("./app")
+const cron = require('node-cron');
 const socketIO = require('socket.io');
 const port = process.env.PORT ||  3000
 app.set("port" , port ) // non utilisable
 const server = http.createServer(app)
 const io = socketIO(server);
 app.use(express.static('public'));
-
+const {notifierAdmin} = require("./controllers/admin");
 server.listen(port , () => {
     console.log("listening on" + port)
 })
@@ -25,12 +26,8 @@ io.on('connection', (socket) => {
   });
 });
 
-// Simuler l'ajout de nouvelles candidatures tous les jours à 10h
-setInterval(() => {
-  const currentDate = new Date();
-  if (currentDate.getHours() === 21 && currentDate.getMinutes() === 15) {
-    const newNotification = `Nouvelles candidatures ajoutées le ${currentDate.toLocaleString()}`;
-    notifications.push(newNotification);
-    io.emit('notification', newNotification);
-  }
-}, 60000); 
+// Planifiez la tâche quotidienne à 10:00
+cron.schedule('30 12 * * *', async () => {
+  console.log('Exécution de la notification quotidienne à 10:00...');
+  await notifierAdmin(io);
+});
