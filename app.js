@@ -1,7 +1,6 @@
 
 const express = require("express");
 const mongoose = require("mongoose");
-const chef_router = require("./routes/chef_pupitre.js");
 
 
 const app = express();
@@ -23,7 +22,7 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader(
       "Access-Control-Allow-Headers",
-      "Origin,X-Requested-With,Content,Accept,Content-Type,Authorization"
+      "Origin,X-Requested-With,Content,Accept,Content-Tpe,Authorization"
     );
     res.setHeader(
       "Access-Control-Allow-Methods",
