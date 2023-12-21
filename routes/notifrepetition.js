@@ -6,5 +6,9 @@ router.get(
   "/rappel/:repetitions/:heure/:jar",
   notifrepController.envoyerNotification
 );
+router.get(
+  "/changes/:nh/:nl",
+  notifrepController.envoyerNotificationChangement
+);
 
 module.exports = router;

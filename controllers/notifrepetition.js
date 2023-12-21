@@ -1,9 +1,9 @@
 const cron = require("node-cron");
 const choriste = require("../models/choriste");
+const Utilisateur = require("../models/utilisateur");
 const moment = require("moment");
 
 let notif;
-
 const envoyerNotification = (req, res) => {
   const repetitions = req.params.repetitions;
   const heure = req.params.heure;
@@ -39,6 +39,34 @@ const envoyerNotification = (req, res) => {
   notif.start();
 };
 
+
+
+
+let notiff;
+const envoyerNotificationChangement = async (req, res) => {
+  const nouvelHoraire = req.params.nh;
+  const nouveauLieu = req.params.nl;
+  
+  const maintenant = new Date();
+  const heureActuelle = maintenant.getHours();
+  const minuteActuelle = maintenant.getMinutes() + 1;
+
+  notiff = cron.schedule(
+    `${minuteActuelle} ${heureActuelle} * * *`,
+    () => {
+      console.log(
+        `Changement d'horaire : ${nouvelHoraire}h, Nouveau lieu : ${nouveauLieu}`
+      );
+    },
+    {
+      scheduled: false,
+    }
+  );
+
+  notiff.start();
+};
+
 module.exports = {
   envoyerNotification,
+  envoyerNotificationChangement,
 };
