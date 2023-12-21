@@ -127,23 +127,23 @@ exports.getstatutchoriste = async (req, res) => {
     });
 };
 
-// const moment = require('moment');
+const moment = require('moment');
 
-// Fonction pour vérifier si un choriste est en congé
-// const estEnConge = (choriste) => {
-//   const maintenant = moment();
+//Fonction pour vérifier si un choriste est en congé
+const estEnConge = (choriste) => {
+  const maintenant = moment();
   
-//   // Vérifier si le choriste a des dates de congé définies
-//   if (choriste.dateDebutConge && choriste.dateFinConge) {
-//     const dateDebutConge = moment(choriste.dateDebutConge);
-//     const dateFinConge = moment(choriste.dateFinConge);
+  // Vérifier si le choriste a des dates de congé définies
+  if (choriste.dateDebutConge && choriste.dateFinConge) {
+    const dateDebutConge = moment(choriste.dateDebutConge);
+    const dateFinConge = moment(choriste.dateFinConge);
 
-//     // Vérifier si la date actuelle est pendant la période de congé
-//     if (maintenant.isBetween(dateDebutConge, dateFinConge, null, '[]')) {
-//       return true; // Le choriste est en congé
-//     }
-//   }
+    // Vérifier si la date actuelle est pendant la période de congé
+    if (maintenant.isBetween(dateDebutConge, dateFinConge, null, '[]')) {
+      return true; // Le choriste est en congé
+    }
+  }
 
-//   return false; // Le choriste n'est pas en congé
-// };
+  return false; // Le choriste n'est pas en congé
+};
 
