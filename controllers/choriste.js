@@ -115,9 +115,9 @@ const presence = async (req, res) => {
 };
 
 //presence_concert
-const presence_concert = async (req, res) => {
+const presenceConcert = async (req, res) => {
   try {
-    const { idRepetition, link } = req.params;
+    const { idConcert, link } = req.params;
 
     // Vérifiez le token dans le header de la requête
     const token = req.headers.authorization.split(" ")[1];
@@ -127,35 +127,42 @@ const presence_concert = async (req, res) => {
       const userId = decodedToken.userId;
 
       // Recherchez la répétition par son ID
-      const repetition = await Repetition.findById(idRepetition);
+      const concert = await Concert.findById(idConcert);
 
-      if (!repetition) {
-        return res.status(404).json({ erreur: "Répétition non trouvée" });
+      if (!concert) {
+        return res.status(404).json({ erreur: "concert non trouvée" });
       }
 
       // Vérification si le lien correspond
-      if (repetition.link !== link) {
+      if (concert.link !== link) {
         return res
           .status(401)
-          .json({ erreur: "Lien incorrect pour cette répétition" });
+          .json({ erreur: "Lien incorrect pour cet concert" });
       }
 
-      if (repetition.liste_Presents.includes(userId)) {
+      if (!concert.liste_Abs.includes(userId) && !concert.liste_Presents.includes(userId)) {
         return res
           .status(409)
-          .json({ erreur: "Le choriste est déjà présent à cette répétition" });
+          .json({ erreur: "Le choriste n'est pas disponible pour ce concert" });
+      }
+
+
+      if (concert.liste_Presents.includes(userId)) {
+        return res
+          .status(409)
+          .json({ erreur: "Le choriste est déja présent pour ce concert" });
       }
 
       // Supprimer l'ID du choriste de la liste d'absence s'il est présent
-      repetition.liste_Abs = repetition.liste_Abs.filter(
+      concert.liste_Abs = concert.liste_Abs.filter(
         (absentId) => absentId.toString() !== userId.toString()
       );
 
       // Ajout de l'ID du choriste à la liste de présence
-      repetition.liste_Presents.push(userId);
+      concert.liste_Presents.push(userId);
 
       // Sauvegarde de la répétition mise à jour
-      await repetition.save();
+      await concert.save();
 
       res.json({ message: "Présence ajoutée avec succès" });
     } catch (error) {
@@ -353,4 +360,4 @@ const presence_concert = async (req, res) => {
 // };
 
 
-module.exports = { login, signup, presence ,presence_concert};
+module.exports = { login, signup, presence ,presenceConcert};
