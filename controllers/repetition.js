@@ -1,4 +1,5 @@
 const Repetition = require("../models/repetition");
+const Concert = require("../models/concert");
 const moment = require("moment");
 
 const fetchRepetition = (req, res) => {
@@ -110,6 +111,40 @@ const getPlanningByDate = async (req, res) => {
   }
 };
 
+
+
+
+ const createRepetition = async (req, res) => {
+    try {
+      const concert = await Concert.findById(req.body.concert);
+      
+      if (concert) {
+        const participants = [];
+        for (let j = 0; j < req.body.pupitres.length; j++) {      
+          const element = req.body.pupitres[j];
+          const pupitre = await Pupitre.findById(element.pupitre);
+          if (pupitre) {
+            const len = (element.pourcentage / 100) * pupitre.membres.length;
+            for (let i = 0; i < len; i++) {
+              participants.push(pupitre.membres[i]);
+            }
+          } else {
+            return res.status(404).json({ error: "pupitre not found" });
+          }
+        };
+        const repetition = new Repetition({
+          ...req.body,
+          participants: participants,
+        });
+        const savedrepetition = await repetition.save();
+        res.status(201).json({payload:savedrepetition});
+      } else {
+        return res.status(404).json({ error: "concert not found" });
+      }
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
   
   module.exports = {
     addRepetition,
