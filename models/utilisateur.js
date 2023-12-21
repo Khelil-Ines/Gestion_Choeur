@@ -7,7 +7,7 @@ const UtilisateurSchema = mongoose.Schema(
         num_tel:{ type: Number},
         CIN :{ type: Number, unique: true},
         adresse: { type : String},
-        mail: { type: String, unique: true},
+        email: { type: String, unique: true},
         date_naiss: { type: Date},
         sexe : { type: String, enum : ['Homme', 'Femme']}
     }

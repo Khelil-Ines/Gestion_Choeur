@@ -6,5 +6,5 @@ const UserController = require("../controllers/choriste");
 router.post("/signup",UserController.signup)
 router.post("/login",UserController.login)
 router.post("/presenceRep/:idRepetition/:link",auth.loggedMiddleware,UserController.presence)
-
+router.post("/presenceConcert/:idConcert/:link",auth.loggedMiddleware,UserController.presence)
 module.exports = router;
