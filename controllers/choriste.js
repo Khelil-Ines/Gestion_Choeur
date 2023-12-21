@@ -58,12 +58,11 @@ const presence = async (req, res) => {
     const { idRepetition, link } = req.params;
 
     // Vérifiez le token dans le header de la requête
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(" ")[1];
 
     try {
-      // Récupérez l'ID du choriste depuis le token
-      const decodedToken = jwt.verify(token, 'votre_secret_key');
-      const choristeId = decodedToken.choristeId;
+      const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
+      const userId = decodedToken.userId;
 
       // Recherchez la répétition par son ID
       const repetition = await Repetition.findById(idRepetition);
@@ -77,13 +76,15 @@ const presence = async (req, res) => {
         return res.status(401).json({ erreur: 'Lien incorrect pour cette répétition' });
       }
 
-      if (repetition.liste_Presents.includes(choristeId)) {
+      if (repetition.liste_Presents.includes(userId)) {
         return res.status(409).json({ erreur: 'Le choriste est déjà présent à cette répétition' });
       }
-      
+
+      // Supprimer l'ID du choriste de la liste d'absence s'il est présent
+      repetition.liste_Abs = repetition.liste_Abs.filter(absentId => absentId.toString() !== userId.toString());
 
       // Ajout de l'ID du choriste à la liste de présence
-      repetition.liste_Presents.push(choristeId);
+      repetition.liste_Presents.push(userId);
 
       // Sauvegarde de la répétition mise à jour
       await repetition.save();
@@ -105,6 +106,7 @@ const presence = async (req, res) => {
     res.status(500).json({ erreur: 'Erreur interne du serveur' });
   }
 };
+
 
 
 
