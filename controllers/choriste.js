@@ -254,8 +254,7 @@ const confirmDispo = async (req, res) => {
   const { userId, idConcert, uniqueToken } = req.params;
 
   try {
-    // Logique de confirmation ici...
-    // Par exemple, mettez à jour la confirmationStatus du choriste
+
     const choriste = await User.findById(userId);
     const concert = await Concert.findById(idConcert);
 
