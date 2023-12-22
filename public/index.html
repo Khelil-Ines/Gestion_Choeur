@@ -8,6 +8,7 @@
 <body>
   <h1>Notification Admin</h1>
   <ul id="notifications"></ul>
+  <ul id="candidates"></ul> <!-- Nouveau conteneur pour les coordonnées des candidats -->
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
@@ -17,6 +18,17 @@
       const listItem = document.createElement('li');
       listItem.textContent = data.message;
       notificationsList.appendChild(listItem);
+    });
+
+    socket.on('newCandidature', (data) => {
+      const candidatesList = document.getElementById('candidates');
+      const candidateItem = document.createElement('li');
+
+      // Afficher les coordonnées des candidats
+      data.candidatures.forEach(candidature => {
+        candidateItem.textContent = `ID: ${candidature._id}, Nom: ${candidature.nom}, Prénom: ${candidature.prénom}, ...`;
+        candidatesList.appendChild(candidateItem.cloneNode(true));
+      });
     });
   </script>
 </body>

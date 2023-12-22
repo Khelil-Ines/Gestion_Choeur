@@ -1,6 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const RepController = require("../controllers/repetition");
+const repetitionController = require("../controllers/repetition");
+
+router.get("/",repetitionController.getPlanning)
+router.get("/:id",repetitionController.fetchRepetition)
+router.patch("/:id", repetitionController.updateRepetition)
+router.delete("/:id", repetitionController.deleteRepetition)
+router.post("/date", repetitionController.getPlanningByDate);
 //find tout
-router.post("/add", RepController.addRepetition);
+router.post("/add", repetitionController.addRepetition);
 module.exports = router;
+
