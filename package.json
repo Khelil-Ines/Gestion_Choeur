@@ -7,27 +7,29 @@
     "start": "node server",
     "dev": "nodemon server"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Khelil-Ines/Gestion_Choeur.git"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Khelil-Ines/Gestion_Choeur/issues"
-  },
-  "homepage": "https://github.com/Khelil-Ines/Gestion_Choeur#readme",
   "dependencies": {
-    "axios": "^1.6.2",
+    "bcrypt": "^5.1.1",
+    "ejs": "^3.1.9",
     "express": "^4.18.2",
-    "lodash": "^4.17.21",
+    "jsonwebtoken": "^9.0.2",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
     "mongoose": "^8.0.1",
     "node-cron": "^3.0.3",
+    "nodejs-nodemailer-outlook": "^1.2.4",
     "nodemailer": "^6.9.7",
-    "socket.io": "^4.7.2",
-    "uuid": "^9.0.1"
-  }
+    "nodemon": "^3.0.1",
+    "socket.io": "^4.7.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Khelil-Ines/Gestion_Choeur.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Khelil-Ines/Gestion_Choeur/issues"
+  },
+  "homepage": "https://github.com/Khelil-Ines/Gestion_Choeur#readme"
 }

@@ -10,3 +10,4 @@ const CandidatSchema = mongoose.Schema({
 });
 
 module.exports = utilisateur.discriminator("Candidat", CandidatSchema);
+
