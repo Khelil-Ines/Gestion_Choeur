@@ -13,6 +13,7 @@ server.listen(port , () => {
     console.log("listening on" + port)
 })
 
+
 const notifications = [];
 
 io.on('connection', (socket) => {
@@ -27,7 +28,8 @@ io.on('connection', (socket) => {
 });
 
 // Planifiez la tâche quotidienne à 10:00
-cron.schedule('30 12 * * *', async () => {
+cron.schedule('0 10 * * *', async () => {
   console.log('Exécution de la notification quotidienne à 10:00...');
   await notifierAdmin(io);
 });
+
