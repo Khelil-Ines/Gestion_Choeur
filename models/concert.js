@@ -1,21 +1,14 @@
+// Modèle Concert
 const mongoose = require('mongoose');
 
-const Concert = mongoose.model('concert', {
-    // affiche (optionnel) 
-  date: {
-    type: Date,
-    //required: true
-  },
-  lieu: {
-    type: String,
-    required: true
-  },
-
+const ConcertSchema = mongoose.Schema({
+  date: { type: Date },
+  lieu: { type: String, required: true },
+  saison: { type: String, required: true }, // Ajoutez ce champ pour suivre la saison
   liste_Presents: { type: Array, default: [], required: false },
-
-  //disponible
   liste_Abs: { type: Array, default: [], required: false },
   link: { type: String, required: true },
+  programme : [{ type: mongoose.Schema.Types.ObjectId, ref: 'programme'  }]
 });
 
-module.exports = Concert;
+module.exports = mongoose.model('Concert', ConcertSchema);

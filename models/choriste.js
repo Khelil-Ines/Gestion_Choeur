@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+// Modèle Choriste
+const mongoose = require('mongoose');
 
 const ChoristeSchema = mongoose.Schema({
   email: { type: String, required: true },
@@ -9,8 +10,7 @@ const ChoristeSchema = mongoose.Schema({
   concertsParticipes: [
     {
       concertId: { type: mongoose.Schema.Types.ObjectId, ref: 'Concert' },
-      date: { type: Date },
-      lieu: { type: String },
+    
     }
   ]
 });
