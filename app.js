@@ -1,6 +1,19 @@
 
 const express = require("express");
 const mongoose = require("mongoose");
+
+
+
+//sur mongo local
+mongoose
+  .connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("connexion a MongoDB reussie!"))
+  .catch((e) => console.log("connexion a MongoDB échouée!", e));
+
+
 const app = express();
 const auditionRouter = require('./routes/audition');
 const compositeurRoutes=require("./routes/compositeur")
@@ -12,12 +25,7 @@ const candidatRouter = require("./routes/candidat");
 const repetitionRouter = require("./routes/repetition");
 const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
-
-mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
-  useNewUrlParser: true , useUnifiedTopology:true }
-).then(() => console.log("connexion a MongoDB reussie!"))
-.catch((e) => console.log("connexion a MongoDB échouée!",e))
-
+const validerMailRoute = require("./routes/validermail");
 
 app.use(express.json());
 
@@ -39,6 +47,7 @@ app.use((req, res, next) => {
 
 
 
+
 app.use((req, res, next) => {
   console.log('Requête reçue:', req.method, req.url, req.body);
   next();
@@ -46,7 +55,7 @@ app.use((req, res, next) => {
  
 
 
-
+app.use("/api/validermail", validerMailRoute);
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
 app.use("/Add_Chef", chef_router);
@@ -59,3 +68,4 @@ app.use("/api/compte", compteRouter)
 app.use("/api/conge", congeRouter)
 
 module.exports = app;
+
