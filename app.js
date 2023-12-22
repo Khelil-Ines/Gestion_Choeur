@@ -1,7 +1,6 @@
 
 const express = require("express");
 const mongoose = require("mongoose");
-const chef_router = require("./routes/chef_pupitre.js");
 
 
 const app = express();
@@ -32,10 +31,15 @@ app.use((req, res, next) => {
     next();
   });
 
-  mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
-    useNewUrlParser: true , useUnifiedTopology:true }
-  ).then(() => console.log("connexion a MongoDB reussie!"))
- .catch((e) => console.log("connexion a MongoDB échouée!",e))
+//   mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
+//     useNewUrlParser: true , useUnifiedTopology:true }
+//   ).then(() => console.log("connexion a MongoDB reussie!"))
+//  .catch((e) => console.log("connexion a MongoDB échouée!",e))
+
+ mongoose.connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority",
+      { useNewUrlParser : true, useUnifiedTopology: true } )
+       .then(() => console.log("Connexion a MongoDB réussie !"))
+       .catch((e) => console.log("Connexion a MongoDB échouée!", e ))
 
 
 app.use('/audition', auditionRouter);
