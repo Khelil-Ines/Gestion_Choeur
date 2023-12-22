@@ -1,6 +1,7 @@
 const Concert = require("../models/concert.js");
 const crypto = require('crypto');
 
+
 const addConcert = (req, res) => {
   // Get and validate concert date
   const concertDateString = req.body.date;
@@ -108,10 +109,3 @@ module.exports = {
   updateConcert,
   deleteConcert,
 }
-
-
-
-
-
-
-
