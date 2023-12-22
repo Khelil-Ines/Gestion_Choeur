@@ -3,10 +3,12 @@ const router = express.Router();
 const choristeController = require("../controllers/choriste");
 const CINMiddleware = require("../middlewares/CIN");
 
-router.get("/statut/:id", choristeController.getstatutchoriste);
+
 
 router.get("/profile/:id", choristeController.getprofilchoriste);
-router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
+router.get("/statut/:id", choristeController.getstatutchoriste);
+// router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
+router.post("/", choristeController.addChoriste);
 
 router.get("/",choristeController.getChoriste)
 

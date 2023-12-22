@@ -1,5 +1,6 @@
 const Candidat = require("../models/candidat");
-const Utilisateur = require("../models/utilisateur");
+const moment = require('moment-timezone');
+
 
 const ListerCandidats = async (req, res) => {
   try {
@@ -7,7 +8,7 @@ const ListerCandidats = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 5;
 
-    if (page < 1 || pageSize < 1) {
+   if (page < 1 || pageSize < 1) {
       return res.status(400).json({
         error: "Les paramètres de pagination doivent être des valeurs positives.",
       });
@@ -58,8 +59,8 @@ const ListerCandidats = async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Erreur lors de la récupération des candidats." });
   }
-};
 
+}
 
 
 
@@ -85,18 +86,7 @@ const fetchCandidat = (req, res) => {
     });
 }
 
-const addCandidat = (req, res) => {
-  const newCandidat = new Candidat(req.body);
 
-  newCandidat.save()
-    .then(candidat => {
-      res.json(candidat);
-    })
-    .catch(err => {
-      console.error('Erreur lors de la création du candidat :', err);
-      res.status(400).json({ erreur: 'Échec de la création du candidat', message: err.message });
-    });
-};
 
   const getCandidat = (req, res) => {
     Candidat.find().then((candidats) => {
@@ -149,13 +139,39 @@ const getCandidatsByPupitre = (req, res) => {
 };
 
 
-  
-  module.exports = {
-    addCandidat,
-    getCandidat,
-    fetchCandidat,
-    updateCandidat,
-    getCandidatsByPupitre,
-    ListerCandidats
 
-    }
+const addCandidat = (req, res) => {
+  try {
+    // Récupérer les données du candidat depuis le corps de la requête
+    const candidatData = req.body;
+
+    // Ajouter la date de création avec le fuseau horaire "Europe/Paris"
+    candidatData.createdAt = moment().tz('Europe/Paris').toDate();
+
+    // Créer une nouvelle instance de Candidat
+    const newCandidat = new Candidat(candidatData);
+
+    // Enregistrer le candidat dans la base de données
+    newCandidat.save()
+      .then(candidat => {
+        res.json(candidat);
+      })
+      .catch(err => {
+        console.error('Erreur lors de la création du candidat :', err);
+        res.status(400).json({ erreur: 'Échec de la création du candidat', message: err.message });
+      });
+  } catch (error) {
+    console.error('Erreur lors de la création du candidat :', error);
+    res.status(500).json({ erreur: 'Erreur lors de la création du candidat', message: error.message });
+  }
+};
+
+
+module.exports = {
+  addCandidat,
+  getCandidat,
+  fetchCandidat,
+  updateCandidat,
+  getCandidatsByPupitre,
+  ListerCandidats,
+  }

@@ -3,9 +3,19 @@ const express = require("express");
 const mongoose = require("mongoose");
 
 
+
+//sur mongo local
+mongoose
+  .connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("connexion a MongoDB reussie!"))
+  .catch((e) => console.log("connexion a MongoDB échouée!", e));
+
+
 const app = express();
 const auditionRouter = require('./routes/audition');
-const CandidatRoutes=require("./routes/candidat")
 const compositeurRoutes=require("./routes/compositeur")
 const oeuvreRoutes=require("./routes/oeuvre")
 const chef_router=require("./routes/chef_pupitre")
@@ -15,30 +25,37 @@ const candidatRouter = require("./routes/candidat");
 const repetitionRouter = require("./routes/repetition");
 const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
+const validerMailRoute = require("./routes/validermail");
 
 app.use(express.json());
 
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Origin,X-Requested-With,Content,Accept,Content-Tpe,Authorization"
-    );
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET,POST,PUT,DELETE,PATCH,OPTIONS"
-    );
-    next();
-  });
 
-  mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
-    useNewUrlParser: true , useUnifiedTopology:true }
-  ).then(() => console.log("connexion a MongoDB reussie!"))
- .catch((e) => console.log("connexion a MongoDB échouée!",e))
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin,X-Requsted-With,Content,Accept,Content-Type,Authorization"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,DELETE,PATCH,OPTIONS"
+  );
+  next();
+});
 
 
-app.use('/audition', auditionRouter);
-app.use("/candidats", CandidatRoutes);
+
+
+
+
+app.use((req, res, next) => {
+  console.log('Requête reçue:', req.method, req.url, req.body);
+  next();
+});
+ 
+
+
+app.use("/api/validermail", validerMailRoute);
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
 app.use("/Add_Chef", chef_router);
@@ -50,6 +67,5 @@ app.use("/api/repetition", repetitionRouter)
 app.use("/api/compte", compteRouter)
 app.use("/api/conge", congeRouter)
 
-
-
 module.exports = app;
+
