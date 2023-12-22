@@ -38,4 +38,3 @@ module.exports = utilisateur.discriminator('Choriste', choristeSchema);
 
 
 
-

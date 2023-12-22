@@ -15,8 +15,7 @@ const Concert = mongoose.model('concert', {
 
   //disponible
   liste_Abs: { type: Array, default: [], required: false },
+
   link: { type: String, required: true },
-
-});
-
+})
 module.exports = Concert;
