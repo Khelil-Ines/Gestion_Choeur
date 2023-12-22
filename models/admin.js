@@ -6,6 +6,6 @@ const adminSchema = mongoose.Schema(
     {
     }
 )
-module.exports = utilisateur.discriminator('Admin', adminSchema);
 
+module.exports = utilisateur.discriminator('Admin', adminSchema);
 

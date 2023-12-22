@@ -1,19 +1,25 @@
 const express = require("express");
 const router = express.Router();
-const candidatController = require("../controllers/candidat");
+const CandidatController = require("../controllers/candidat");
 
 //find tout
-router.get("/", candidatController.ListerCandidats);
+router.get("/", CandidatController.ListerCandidats);
 
 
-router.get("/",candidatController.getCandidat)
+router.get("/",CandidatController.getCandidat)
 
-router.get("/:id",candidatController.fetchCandidat)
+router.get("/:id",CandidatController.fetchCandidat)
 
-router.post("/",candidatController.addCandidat)
+router.post("/",CandidatController.addCandidat)
 
-router.patch("/:id", candidatController.updateCandidat)
+router.patch("/:id", CandidatController.updateCandidat)
 
-router.post("/liste", candidatController.getCandidatsByPupitre)
+router.post("/liste", CandidatController.getCandidatsByPupitre)
 
-  module.exports = router;
+
+
+
+
+router.get("/", CandidatController.ListerCandidats);
+router.post("/add", CandidatController.addCandidat);
+module.exports = router;
