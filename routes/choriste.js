@@ -8,7 +8,8 @@ const CINMiddleware = require("../middlewares/CIN");
 
 router.get("/profile/:id", choristeController.getprofilchoriste);
 router.get("/statut/:id", choristeController.getstatutchoriste);
-router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
+// router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
+router.post("/", choristeController.addChoriste);
 
 router.get("/",choristeController.getChoriste)
 
