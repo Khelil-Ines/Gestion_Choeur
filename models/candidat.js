@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const moment = require('moment');
+const utilisateur = require("./utilisateur");
 
 const candidatSchema = mongoose.Schema({
   nom: { type: String, required: true },
@@ -8,5 +10,9 @@ const candidatSchema = mongoose.Schema({
   autres_activites: { type: Boolean, required: true },
   Taille: { type: Number, required: true },
   confirmation: { type: Boolean },
+  createdAt: { type: Date, default: () => moment().toDate() },
 });
-module.exports = mongoose.model("Candidat", candidatSchema);
+
+module.exports = utilisateur.discriminator("Candidat", CandidatSchema);
+
+
