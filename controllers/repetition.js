@@ -59,6 +59,20 @@ const deleteRepetition = (req, res) => {
       });
     });
 }
+const getPlanning = (req, res) => {
+  Repetition.find().then((repetitions) => {
+    res.status(200).json({
+      model: repetitions,
+      message: "success"
+    });
+  })
+  .catch((error) => {
+    res.status(500).json({
+      error: error.message,
+      message: "problème d'extraction"
+    });
+  });
+}
 
 const getPlanningByDate = async (req, res) => {
   try {
@@ -123,6 +137,7 @@ const addRepetition = async (req, res) => {
     updateRepetition,
     deleteRepetition, 
     getPlanningByDate,
+    getPlanning,
   }
 
 

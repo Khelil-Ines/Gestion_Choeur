@@ -131,10 +131,10 @@ exports.getstatutchoriste = async (req, res) => {
     });
 };
 
-const moment = require('moment');
+
 
 //Fonction pour vérifier si un choriste est en congé
-const estEnConge = (choriste) => {
+exports.estEnConge = (choriste) => {
   const maintenant = moment();
   
   // Vérifier si le choriste a des dates de congé définies
@@ -251,7 +251,7 @@ exports.getChoriste = (req, res) => {
   };
   
 
-const signup = (req, res, next) => {
+exports.signup = (req, res, next) => {
   bcrypt
     .hash(req.body.password, 10)
     .then((hash) => {
@@ -273,7 +273,7 @@ const signup = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
-const login = (req, res, next) => {
+exports.login = (req, res, next) => {
   User.findOne({ email: req.body.email })
     .then((user) => {
       if (!user) {
@@ -302,7 +302,7 @@ const login = (req, res, next) => {
 
 
 
-const presence = async (req, res) => {
+exports.presence = async (req, res) => {
   try {
     const { idRepetition, link } = req.params;
 
@@ -359,5 +359,4 @@ const presence = async (req, res) => {
 
 
 
-module.exports = { login, signup , presence };
 
