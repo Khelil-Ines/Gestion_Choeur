@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const Repetition = require("../models/repetition");
 const repetitionController = require("../controllers/repetition");
 
 router.get("/",repetitionController.getPlanning)
@@ -15,4 +14,7 @@ router.delete("/:id", repetitionController.deleteRepetition)
 
 router.post("/date", repetitionController.getPlanningByDate);
 
-  module.exports = router;
+//find tout
+router.post("/add", repetitionController.addRepetition);
+module.exports = router;
+

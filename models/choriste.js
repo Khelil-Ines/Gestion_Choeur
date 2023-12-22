@@ -1,5 +1,3 @@
-
-
 const mongoose = require ("mongoose");
 const utilisateur = require("./utilisateur");
 
@@ -29,4 +27,5 @@ const choristeSchema = mongoose.Schema(
     }
 )
 module.exports = utilisateur.discriminator('Choriste', choristeSchema);
+
 
