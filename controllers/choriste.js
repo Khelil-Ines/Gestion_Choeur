@@ -11,6 +11,7 @@ const signup = (req, res, next) => {
     .then((hash) => {
       const user = new User({
         email: req.body.email,
+        pupitre: req.body.pupitre,
         password: hash,
       });
       user
@@ -130,27 +131,20 @@ const presenceConcert = async (req, res) => {
       const concert = await Concert.findById(idConcert);
 
       if (!concert) {
-        return res.status(404).json({ erreur: "concert non trouvée" });
+        return res.status(404).json({ erreur: "Concert non trouvé" });
       }
 
       // Vérification si le lien correspond
       if (concert.link !== link) {
-        return res
-          .status(401)
-          .json({ erreur: "Lien incorrect pour cet concert" });
+        return res.status(401).json({ erreur: "Lien incorrect pour cet concert" });
       }
 
       if (!concert.liste_Abs.includes(userId) && !concert.liste_Presents.includes(userId)) {
-        return res
-          .status(409)
-          .json({ erreur: "Le choriste n'est pas disponible pour ce concert" });
+        return res.status(409).json({ erreur: "Le choriste n'est pas disponible pour ce concert" });
       }
 
-
       if (concert.liste_Presents.includes(userId)) {
-        return res
-          .status(409)
-          .json({ erreur: "Le choriste est déja présent pour ce concert" });
+        return res.status(409).json({ erreur: "Le choriste est déjà présent pour ce concert" });
       }
 
       // Supprimer l'ID du choriste de la liste d'absence s'il est présent
@@ -160,6 +154,11 @@ const presenceConcert = async (req, res) => {
 
       // Ajout de l'ID du choriste à la liste de présence
       concert.liste_Presents.push(userId);
+
+      // Mise à jour de la liste des concerts participés du choriste
+      const choriste = await User.findById(userId);
+      choriste.concertsParticipes.push(idConcert);
+      await choriste.save();
 
       // Sauvegarde de la répétition mise à jour
       await concert.save();
@@ -181,6 +180,29 @@ const presenceConcert = async (req, res) => {
     res.status(500).json({ erreur: "Erreur interne du serveur" });
   }
 };
+
+
+// Fonction pour extraire l'ID du choriste à partir du token
+const getUserIdFromToken = (authorizationHeader) => {
+  const token = authorizationHeader.split(" ")[1];
+  const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
+  return decodedToken.userId;
+};
+
+// Fonction pour vérifier la disponibilité du choriste pour ce concert
+const isChoristeAvailable = (concert, userId) => {
+  return concert.liste_Abs.includes(userId) || concert.liste_Presents.includes(userId);
+};
+
+// Fonction pour mettre à jour la liste d'absence et de présence
+const updatePresenceList = (concert, userId) => {
+  // Supprimer l'ID du choriste de la liste d'absence s'il est présent
+  concert.liste_Abs = concert.liste_Abs.filter(absentId => absentId.toString() !== userId.toString());
+
+  // Ajouter l'ID du choriste à la liste de présence
+  concert.liste_Presents.push(userId);
+};
+
 
 
 // const setDispo = async (req, res) => {
