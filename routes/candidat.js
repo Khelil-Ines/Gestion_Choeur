@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const candidatController = require("../controllers/candidat");
+const CandidatController = require("../controllers/candidat");
 
 //find tout
 router.get("/", candidatController.ListerCandidats);
@@ -16,4 +16,10 @@ router.patch("/:id", candidatController.updateCandidat)
 
 router.post("/liste", candidatController.getCandidatsByPupitre)
 
-  module.exports = router;
+
+
+
+
+router.get("/", CandidatController.ListerCandidats);
+router.post("/add", CandidatController.addCandidat);
+module.exports = router;

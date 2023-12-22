@@ -12,5 +12,7 @@ const UtilisateurSchema = mongoose.Schema(
         sexe : { type: String, enum : ['Homme', 'Femme']}
     }
 )
+
 module.exports = mongoose.model("Utilisateur", UtilisateurSchema)
+
 

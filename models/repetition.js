@@ -11,6 +11,7 @@ const repetitionSchema = mongoose.Schema({
   prcPupitre2: { type: Number, required: false },
   prcPupitre3: { type: Number, required: false },
   prcPupitre4: { type: Number, required: false },
+  link: { type: String, required: true }
 
 });
 module.exports = mongoose.model("Repetition", repetitionSchema);
