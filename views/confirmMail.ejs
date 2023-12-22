@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Email Confirmation</title>
+  </head>
+  <body>
+    <h1>Email Validé</h1>
+    <p>
+      Vous avez validé votre mail.Veuillez continier votre candidature, Merci !
+    </p>
+
+    <form action="<%= link %>" method="post">
+      <input type="hidden" name="token" />
+      <button type="submit">Continuer Candidature</button>
+    </form>
+  </body>
+</html>

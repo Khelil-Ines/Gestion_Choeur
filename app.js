@@ -1,23 +1,29 @@
+
 const express = require("express");
-
 const mongoose = require("mongoose");
-const CandidatRoutes=require("./routes/candidat")
-const PlanningRoutes=require("./routes/audition")
-const ChoristeRoutes=require("./routes/choriste")
-const RepRoutes =require("./routes/repetition")
-const ConcertRoutes = require("./routes/concertt")
-//sur mongo local
-mongoose
-  .connect("mongodb://localhost:27017/Gestion_Choeur", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("connexion a MongoDB reussie!"))
-  .catch((e) => console.log("connexion a MongoDB échouée!", e));
-
 const app = express();
-app.use(express.json()); //pour que les données de post se mettent dans le body et va afficher le contenu de body sous forme json
+const auditionRouter = require('./routes/audition');
+const compositeurRoutes=require("./routes/compositeur")
+const oeuvreRoutes=require("./routes/oeuvre")
+const chef_router=require("./routes/chef_pupitre")
+const choristeRouter = require('./routes/choriste.js');
+const absenceRouter = require('./routes/absence.js');
+const candidatRouter = require("./routes/candidat");
+const repetitionRouter = require("./routes/repetition");
+const compteRouter = require("./routes/compte");
+const congeRouter = require("./routes/conge");
+const ConcertRouter= require("./routes/concert");
+
+mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
+  useNewUrlParser: true , useUnifiedTopology:true }
+).then(() => console.log("connexion a MongoDB reussie!"))
+.catch((e) => console.log("connexion a MongoDB échouée!",e))
+
+
+app.use(express.json());
+
 app.use((req, res, next) => {
+
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Headers",
@@ -38,12 +44,22 @@ app.use((req, res, next) => {
   console.log('Requête reçue:', req.method, req.url, req.body);
   next();
 });
+ 
 
 
 
-app.use("/candidats", CandidatRoutes);
-app.use("/planning", PlanningRoutes);
-app.use("/choriste", ChoristeRoutes);
-app.use("/rep", RepRoutes);
-app.use("/concert", ConcertRoutes);
+
+
+app.use("/api/Compositeur", compositeurRoutes);
+app.use("/api/Oeuvre", oeuvreRoutes);
+app.use("/Add_Chef", chef_router);
+app.use('/absence', absenceRouter);
+app.use("/api/choriste", choristeRouter)
+app.use("/api/candidat", candidatRouter)
+app.use("/api/audition", auditionRouter)
+app.use("/api/repetition", repetitionRouter)
+app.use("/api/compte", compteRouter)
+app.use("/api/conge", congeRouter)
+app.use("/api/concert", ConcertRouter);
+
 module.exports = app;
