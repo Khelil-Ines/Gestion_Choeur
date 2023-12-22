@@ -10,7 +10,13 @@ const Concert = mongoose.model('concert', {
     type: String,
     required: true
   },
-  programme : [{ type: mongoose.Schema.Types.ObjectId, ref: 'programme'  }]
+  programme : [{ type: mongoose.Schema.Types.ObjectId, ref: 'programme'  }],
+  liste_Presents: { type: Array, default: [], required: false },
+
+  //disponible
+  liste_Abs: { type: Array, default: [], required: false },
+  link: { type: String, required: true },
+
 });
 
 module.exports = Concert;

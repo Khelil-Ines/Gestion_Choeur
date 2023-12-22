@@ -1,8 +1,10 @@
 const Concert = require("../models/concert.js");
+const crypto = require('crypto');
 
 const addConcert = (req, res) => {
   // Get and validate concert date
   const concertDateString = req.body.date;
+  const randomLink = crypto.randomBytes(5).toString('hex');
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   if (!dateRegex.test(concertDateString)) {
     return res
@@ -23,7 +25,7 @@ const addConcert = (req, res) => {
     // The date is invalid
     console.error('Invalid Date Format');
   }
-  Concert.create({ ...req.body, date: dateObject })
+  Concert.create({ ...req.body, date: dateObject , link: randomLink,})
 
     .then((concert) => res.status(201).json({
       model: concert,
@@ -38,6 +40,10 @@ const addConcert = (req, res) => {
       }
     });
 };
+
+
+
+
 
 const fetchConcert = (req, res) => {
   Concert.find().populate("programme")
@@ -101,4 +107,11 @@ module.exports = {
   fetchConcert,
   updateConcert,
   deleteConcert,
-};
+}
+
+
+
+
+
+
+
