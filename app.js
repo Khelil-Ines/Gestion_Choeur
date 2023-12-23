@@ -31,7 +31,7 @@ app.use((req, res, next) => {
 });
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/Gestion_Choeur", {
+  .connect("mongodb://127.0.0.1:27017/Choeur", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
