@@ -5,6 +5,9 @@ const ejs = require("ejs");
 const path = require("path");
 const choriste = require("../models/choriste");
 const Absence = require("../models/absence");
+const Repetition = require("../models/repetition");
+const Concert = require("../models/concert");
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -94,23 +97,31 @@ exports.updateSeuilElimination = (req, res) => {
   
     res.status(200).json({ message: 'Seuil mis à jour avec succès' });
   };
-exports.declarerAbsence = async (req, res) => {
+exports.declarerAbsenceRepetition = async (req, res) => {
+  try {
+    // Find the latest repetition
+    const latestRepetition = await Repetition.findOne().sort({ date: -1 });
+
+    if (!latestRepetition) {
+      console.error('No repetition found.');
+      return;
+    }
     
-    try {
-      // Récupérer le choriste depuis la base de données
-      const choriste = await Choriste.findById(req.params.id);
+    for (const choristeId of latestRepetition.liste_Abs) {
+      const choriste = await Choriste.findById(choristeId);
+
       if (!choriste) {
-        return res.status(404).json({ message: "Choriste non trouvé" });
+        console.error(`Choriste with ID ${choristeId} not found.`);
+        continue; // Move to the next iteration if choriste not found
       }
-      
       // Incrémenter le compteur d'absences
       choriste.nbr_absences++;
   
       // Créer une nouvelle absence
       const newAbsence = new Absence({
-        Type: req.body.Type,
-        raison: req.body.raison,
-        Date: Date.now(),
+        Type: "Repetition",
+        raison: raison,
+        Date: latestRepetition.date,
       });
   
       // Enregistrer l'absence dans la base de données
@@ -145,11 +156,76 @@ exports.declarerAbsence = async (req, res) => {
       console.log(
         `Absence déclarée pour le choriste ${choriste.nom} ${choriste.prénom}. Nouveau statut : ${choriste.statut}`
       );
-    } catch (error) {
+    }} catch (error) {
       console.error("Erreur lors de la déclaration de l'absence :", error);
       res.status(500).json({ error: "Erreur lors de la déclaration de l'absence" });
     }
-  };
+  }
+
+  exports.declarerAbsenceConcert = async (req, res) => {
+    try {
+      // Find the latest repetition
+      const latestConcert = await Concert.findOne().sort({ date: -1 });
+  
+      if (!latestConcert) {
+        console.error('No concert found.');
+        return;
+      }
+      
+      for (const choristeId of latestConcert.liste_Abs) {
+        const choriste = await Choriste.findById(choristeId);
+  
+        if (!choriste) {
+          console.error(`Choriste with ID ${choristeId} not found.`);
+          continue; // Move to the next iteration if choriste not found
+        }
+        // Incrémenter le compteur d'absences
+        choriste.nbr_absences++;
+    
+        // Créer une nouvelle absence
+        const newAbsence = new Absence({
+          Type: "Concert",
+          raison: raison,
+          Date: latestConcert.date,
+        });
+    
+        // Enregistrer l'absence dans la base de données
+        const savedAbsence = await newAbsence.save();
+    
+        // Ajouter l'absence à la liste des absences du choriste
+        choriste.absences.push(savedAbsence._id);
+    
+        // Mettre à jour le statut en fonction des nouvelles règles
+        if (choriste.nbr_absences > seuilNomination) {
+          choriste.statut = "Eliminé";
+          choriste.historiqueStatut.push({
+            statut: choriste.statut,
+            date: new Date(),
+          });
+        } else if (choriste.nbr_absences == seuilNomination) {
+          choriste.statut = "Nominé";
+          choriste.historiqueStatut.push({
+            statut: choriste.statut,
+            date: new Date(),
+          });
+        }
+    
+        // Enregistrer les modifications dans la base de données
+        const savedChoriste = await choriste.save();
+        Utilisateur.choriste = savedChoriste;
+        res.status(201).json({
+          message: "Absence créée!",
+          choriste: savedChoriste,
+        });
+    
+        console.log(
+          `Absence déclarée pour le choriste ${choriste.nom} ${choriste.prénom}. Nouveau statut : ${choriste.statut}`
+        );
+      }} catch (error) {
+        console.error("Erreur lors de la déclaration de l'absence :", error);
+        res.status(500).json({ error: "Erreur lors de la déclaration de l'absence" });
+      }
+    }
 
   exports.getAbsencesChoriste = async (req, res) => {
     try {
