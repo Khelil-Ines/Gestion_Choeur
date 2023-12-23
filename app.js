@@ -14,10 +14,7 @@ const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
 const ConcertRouter= require("./routes/concert");
 
-mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
-  useNewUrlParser: true , useUnifiedTopology:true }
-).then(() => console.log("connexion a MongoDB reussie!"))
-.catch((e) => console.log("connexion a MongoDB échouée!",e))
+
 
 
 app.use(express.json());
