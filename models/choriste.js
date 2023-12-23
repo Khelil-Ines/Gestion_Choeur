@@ -8,7 +8,7 @@ const historiqueStatutSchema = mongoose.Schema({
 const choristeSchema = mongoose.Schema(
     {
         pupitre :{type : String, enum: ['Soprano','Alto','Basse','Tenor'], required: true},
-        statut :{type : String, enum: ['Actif','En_Congé','Eliminé'], default: 'Actif'},
+        statut :{type : String, enum: ['Actif','En_Congé','Eliminé', "Eliminé_D"], default: 'Actif'},
         niveau : {type : String, enum : ['Junior','Choriste', 'Sénior', 'Vétéran'], default: 'Junior'}, 
         date_adhesion:{type: Date},
         historiqueStatut: [historiqueStatutSchema],

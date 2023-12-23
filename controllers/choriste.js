@@ -61,11 +61,11 @@ exports.addChoriste = (req, res) => {
     saved = choriste
       .save()
       .then(() => {
-        Utilisateur.Choriste = choriste;
         res.status(201).json({
           models: choriste,
           message: "object cree!",
         });
+        Utilisateur.Choriste = saved;
       })
       .catch((error) => {
         
@@ -177,16 +177,7 @@ exports.fetchChoriste = (req, res) => {
     });
 }
 
-exports.addChoriste = (req, res) => { 
-  const newChoriste = new Choriste(req.body);
-  newChoriste.save()
-      .then(choriste => {
-          res.json(choriste);
-      })
-      .catch(err => {
-          res.status(400).json({ erreur: 'Échec de la création du l\'choriste' });
-      });
-}
+
   
 exports.getChoriste = (req, res) => {
   Choriste.find()
