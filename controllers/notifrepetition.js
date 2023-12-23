@@ -1,23 +1,18 @@
 const cron = require("node-cron");
 const choriste = require("../models/choriste");
-const Utilisateur = require("../models/utilisateur");
+const Répetition = require("../models/repetition");
 const moment = require("moment");
 
 let notif;
 const envoyerNotification = async (req, res) => {
-  const repetitions = req.params.repetitions;
-  const heure = req.params.heure;
-  const joursavantrep = req.params.jar;
+  const { repetitions, heure, minute, jar } = req.params;
 
-  //date et heure de l'envoie
-  const dateCible = moment("2023-12-23T00:00:00.000+00:00"); // Date de répétition
-  const nJoursAvant = dateCible.subtract(joursavantrep, "days");
-  const jour = nJoursAvant.date();
-  const mois = nJoursAvant.month() + 1; // Les mois vont de 0 à 11
+  const dateCible = moment("2023-12-25T00:00:00.000+00:00");
+  const nJoursAvant = dateCible.subtract(jar, "days");
+  let jour = nJoursAvant.date();
+  const mois = nJoursAvant.month() + 1;
 
-  //Choriste
   const choristesConcernes = await choriste.find({ statut: "Actif" });
-  console.log(choristesConcernes);
 
   if (notif) {
     notif.stop();
@@ -25,15 +20,16 @@ const envoyerNotification = async (req, res) => {
 
   let count = 0;
   notif = cron.schedule(
-    `0 ${heure} ${jour} ${mois} *`, // Syntaxe du cron : seconde minute heure jour mois *
+    `${minute} ${heure} ${jour} ${mois} *`,
     () => {
       count++;
+      jour++;
       choristesConcernes.forEach((choriste) => {
         console.log(
-          `Rappelez-vous ! Vous avez une répétition le ..... (fois ${count}/${repetitions})`
+          `M./Mme ${choriste.nom}, Rappelez-vous ! Vous avez une répétition le ... (fois ${count}/${repetitions})`
         );
       });
-      
+
       if (count >= repetitions) {
         notif.stop();
         count = 0;
@@ -49,9 +45,10 @@ const envoyerNotification = async (req, res) => {
 
 ///////////////////////////////////////////////////////////////////////////
 let notiff;
-const envoyerNotificationChangement = async (req, res) => {
+const envoyerNotificationChangementRépetition = async (req, res) => {
   const nouvelHoraire = req.params.nh;
   const nouveauLieu = req.params.nl;
+
   const maintenant = new Date();
   const heureActuelle = maintenant.getHours();
   const minuteActuelle = maintenant.getMinutes() + 1;
@@ -71,7 +68,31 @@ const envoyerNotificationChangement = async (req, res) => {
   notiff.start();
 };
 
+///////////////////////////////////////////////////////////
+const envoyerNotificationChangementAutre = async (req, res) => {
+  const { changement, message } = req.body;
+  console.log(changement);
+  console.log(message);
+
+  const maintenant = new Date();
+  let heureActuelle = maintenant.getHours();
+  let minuteActuelle = maintenant.getMinutes() + 1;
+
+  const notific = cron.schedule(
+    `${minuteActuelle} ${heureActuelle} * * *`,
+    () => {
+      console.log(`Changement de: ${changement}, Message: ${message}`);
+    },
+    {
+      scheduled: true,
+    }
+  );
+
+  notific.start();
+};
+
 module.exports = {
   envoyerNotification,
-  envoyerNotificationChangement,
+  envoyerNotificationChangementRépetition,
+  envoyerNotificationChangementAutre,
 };
