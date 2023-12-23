@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const moment = require('moment');
 const utilisateur = require("./utilisateur");
 
-const candidatSchema = mongoose.Schema({
+const CandidatSchema = mongoose.Schema({
   nom: { type: String, required: true },
   prenom: { type: String, required: true },
   email: { type: String, required: true },
