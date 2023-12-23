@@ -24,7 +24,16 @@ const choristeSchema = mongoose.Schema(
           ref: 'Conge',
           required: false,
         }],
-    }
-)
+        confirmationStatus: { type: String, default: 'En attente de confirmation' },
+        oneTimeToken: { type: String },
+        concertsParticipes: [
+          {
+            concertId: { type: mongoose.Schema.Types.ObjectId, ref: 'Concert' },
+            date: { type: Date },
+            lieu: { type: String },
+          }
+        ]
+      });
 module.exports = utilisateur.discriminator('Choriste', choristeSchema);
+
 

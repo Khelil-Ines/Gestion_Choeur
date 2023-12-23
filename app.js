@@ -12,7 +12,13 @@ const candidatRouter = require("./routes/candidat");
 const repetitionRouter = require("./routes/repetition");
 const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
-const validerMailRoute = require("./routes/validermail");
+const ConcertRouter= require("./routes/concert");
+
+mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
+  useNewUrlParser: true , useUnifiedTopology:true }
+).then(() => console.log("connexion a MongoDB reussie!"))
+.catch((e) => console.log("connexion a MongoDB échouée!",e))
+
 
 app.use(express.json());
 
@@ -35,7 +41,6 @@ mongoose.connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mong
        .then(() => console.log("Connexion a MongoDB réussie !"))
        .catch((e) => console.log("Connexion a MongoDB échouée!", e ))
 
-
 app.use((req, res, next) => {
   console.log('Requête reçue:', req.method, req.url, req.body);
   next();
@@ -43,7 +48,9 @@ app.use((req, res, next) => {
  
 
 
-app.use("/api/validermail", validerMailRoute);
+
+
+
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
 app.use("/Add_Chef", chef_router);
@@ -54,6 +61,6 @@ app.use("/api/audition", auditionRouter)
 app.use("/api/repetition", repetitionRouter)
 app.use("/api/compte", compteRouter)
 app.use("/api/conge", congeRouter)
+app.use("/api/concert", ConcertRouter);
 
 module.exports = app;
-
