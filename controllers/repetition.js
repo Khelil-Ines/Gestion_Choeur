@@ -115,7 +115,8 @@ const addRepetition = async (req, res) => {
 
     // Récupérer tous les IDs des choristes (supposons que le modèle Choriste a un champ _id)
     const choristes = await Choriste.find({}, '_id');
-
+    
+ 
     // Ajouter les IDs des choristes à la liste d'absence de la nouvelle répétition
     repetition.liste_Abs = choristes.map(choriste => choriste._id);
 
@@ -128,6 +129,7 @@ const addRepetition = async (req, res) => {
     res.status(400).json({ erreur: 'Échec de la création de la répétition' });
   }
 };
+
 
 
   

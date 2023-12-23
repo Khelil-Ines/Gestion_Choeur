@@ -77,8 +77,8 @@ const genererPlanning = async (req, res, next) => {
         });
 
         // Vérifiez si l'e-mail du candidat est défini
-        if (candidatDetails && candidatDetails.mail) {
-          const destinataire = candidatDetails.mail;
+        if (candidatDetails && candidatDetails.email) {
+          const destinataire = candidatDetails.email;
           const sujet = "Détails de votre audition";
           const texte = `Bonjour,\n\nVotre audition est prévue pour le ${moment(
             session.dateAudition

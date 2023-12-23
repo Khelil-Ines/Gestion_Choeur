@@ -14,10 +14,7 @@ const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
 const ConcertRouter= require("./routes/concert");
 
-mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur",{
-  useNewUrlParser: true , useUnifiedTopology:true }
-).then(() => console.log("connexion a MongoDB reussie!"))
-.catch((e) => console.log("connexion a MongoDB échouée!",e))
+
 
 
 app.use(express.json());
@@ -36,9 +33,10 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
-
+mongoose.connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority",
+      { useNewUrlParser : true, useUnifiedTopology: true } )
+       .then(() => console.log("Connexion a MongoDB réussie !"))
+       .catch((e) => console.log("Connexion a MongoDB échouée!", e ))
 
 app.use((req, res, next) => {
   console.log('Requête reçue:', req.method, req.url, req.body);
