@@ -1,6 +1,7 @@
 
 const Planning = require('../models/audition');
 const moment = require('moment');
+const Audition = require('../models/audition');
 const Candidat = require('../models/candidat');
 const Audition = require('../models/audition');
 const Choriste = require('../models/choriste');
