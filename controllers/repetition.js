@@ -1,5 +1,6 @@
 const Repetition = require("../models/repetition");
-//const Concert = require("../models/concert");
+const Choriste = require("../models/choriste");
+const crypto = require('crypto');
 const moment = require("moment");
 
 const fetchRepetition = (req, res) => {
@@ -23,32 +24,6 @@ const fetchRepetition = (req, res) => {
       });
     });
 }
-
-const addRepetition = (req, res) => { 
-    const newRepetition = new Repetition(req.body);
-    newRepetition.save()
-        .then(repetition => {
-            res.json(repetition);
-        })
-        .catch(err => {
-            res.status(400).json({ erreur: 'Échec de la création du l\'repetition' });
-        });
-  }
-
-  const getPlanning = (req, res) => {
-    Repetition.find().then((repetitions) => {
-      res.status(200).json({
-        model: repetitions,
-        message: "success"
-      });
-    })
-    .catch((error) => {
-      res.status(500).json({
-        error: error.message,
-        message: "problème d'extraction"
-      });
-    });
-  }
 
   const updateRepetition = (req, res) => {
     Repetition.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }).then(
@@ -81,6 +56,20 @@ const deleteRepetition = (req, res) => {
         message: "probleme d'extraction ",
       });
     });
+}
+const getPlanning = (req, res) => {
+  Repetition.find().then((repetitions) => {
+    res.status(200).json({
+      model: repetitions,
+      message: "success"
+    });
+  })
+  .catch((error) => {
+    res.status(500).json({
+      error: error.message,
+      message: "problème d'extraction"
+    });
+  });
 }
 
 const getPlanningByDate = async (req, res) => {
@@ -116,47 +105,46 @@ const getPlanningByDate = async (req, res) => {
     });
   }
 };
+const addRepetition = async (req, res) => {
+  try {
+    const randomLink = crypto.randomBytes(5).toString('hex');
+    const newRepetition = new Repetition({
+      ...req.body,
+      link: randomLink,
+    });
 
+    // Sauvegarder la nouvelle répétition
+    const repetition = await newRepetition.save();
 
+    // Récupérer tous les IDs des choristes (supposons que le modèle Choriste a un champ _id)
+    const choristes = await Choriste.find({}, '_id');
 
+    // Ajouter les IDs des choristes à la liste d'absence de la nouvelle répétition
+    repetition.liste_Abs = choristes.map(choriste => choriste._id);
 
-//  const createRepetition = async (req, res) => {
-//     try {
-//       const concert = await Concert.findById(req.body.concert);
-      
-//       if (concert) {
-//         const participants = [];
-//         for (let j = 0; j < req.body.pupitres.length; j++) {      
-//           const element = req.body.pupitres[j];
-//           const pupitre = await Pupitre.findById(element.pupitre);
-//           if (pupitre) {
-//             const len = (element.pourcentage / 100) * pupitre.membres.length;
-//             for (let i = 0; i < len; i++) {
-//               participants.push(pupitre.membres[i]);
-//             }
-//           } else {
-//             return res.status(404).json({ error: "pupitre not found" });
-//           }
-//         };
-//         const repetition = new Repetition({
-//           ...req.body,
-//           participants: participants,
-//         });
-//         const savedrepetition = await repetition.save();
-//         res.status(201).json({payload:savedrepetition});
-//       } else {
-//         return res.status(404).json({ error: "concert not found" });
-//       }
-//     } catch (error) {
-//       res.status(400).json({ error: error.message });
-//     }
-//   }
+    // Sauvegarder à nouveau la répétition mise à jour
+    await repetition.save();
+
+    res.json(repetition);
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la répétition :', error);
+    res.status(400).json({ erreur: 'Échec de la création de la répétition' });
+  }
+};
+
   
   module.exports = {
     addRepetition,
-    getPlanning,
     fetchRepetition,
     updateRepetition,
     deleteRepetition, 
-    getPlanningByDate
+    getPlanningByDate,
+    getPlanning,
   }
+
+
+
+
+
+
+

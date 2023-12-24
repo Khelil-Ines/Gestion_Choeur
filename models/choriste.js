@@ -34,4 +34,6 @@ const choristeSchema = mongoose.Schema(
           }
         ]
       });
+
 module.exports = utilisateur.discriminator('Choriste', choristeSchema);
+

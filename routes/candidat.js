@@ -1,19 +1,25 @@
 const express = require("express");
 const router = express.Router();
-const Candidat = require("../models/candidat");
-const candidatController = require("../controllers/candidat");
+const CandidatController = require("../controllers/candidat");
 
-router.get("/",candidatController.getCandidat)
+//find tout
+router.get("/", CandidatController.ListerCandidats);
 
-router.get("/:id",candidatController.fetchCandidat)
+router.get("/",CandidatController.getCandidat)
 
-router.post("/",candidatController.addCandidat)
+router.get("/:id",CandidatController.fetchCandidat)
 
-router.patch("/:id", candidatController.updateCandidat)
+router.post("/",CandidatController.addCandidat)
 
-router.post("/liste", candidatController.getCandidatsByPupitre)
+router.patch("/:id", CandidatController.updateCandidat)
+
+router.post("/liste", CandidatController.getCandidatsByPupitre)
 
 router.post("/saison", candidatController.getCandidatsBySaison)
 
+router.get("/", CandidatController.ListerCandidats);
 
-  module.exports = router;
+router.post("/add", CandidatController.addCandidat);
+
+module.exports = router;
+

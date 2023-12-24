@@ -1,13 +1,16 @@
 const mongoose = require("mongoose");
 const moment = require('moment');
-const utilisateur = require("./utilisateur")
 
-const candidatSchema = mongoose.Schema({
-  connaissance__musicale : {type:String , require:true},
-  autres_activites  : {type:Boolean , require:false},
-  Taille :{type:Number, require: false},
-  confirmation: { type: Boolean, default: false },
+const utilisateur = require("./utilisateur");
+
+const CandidatSchema = mongoose.Schema({
+  
+  connaissance_musicale: { type: String, required: true },
+  autres_activites: { type: Boolean, required: true },
+  Taille: { type: Number, required: true },
+  confirmation: { type: Boolean},
   createdAt: { type: Date, default: () => moment().toDate() },
-
 });
-module.exports = utilisateur.discriminator("Candidat", candidatSchema)
+
+module.exports = utilisateur.discriminator("Candidat", CandidatSchema);
+
