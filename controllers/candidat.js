@@ -1,7 +1,6 @@
 const Candidat = require("../models/candidat");
 const moment = require('moment-timezone');
 
-
 const ListerCandidats = async (req, res) => {
   try {
     // Vérification des paramètres de pagination
@@ -62,8 +61,6 @@ const ListerCandidats = async (req, res) => {
 
 }
 
-
-
 const fetchCandidat = (req, res) => {
     Candidat.findOne({ _id: req.params.id })
     .then((candidat) => {
@@ -85,8 +82,6 @@ const fetchCandidat = (req, res) => {
       });
     });
 }
-
-
 
   const getCandidat = (req, res) => {
     Candidat.find().then((candidats) => {
@@ -205,5 +200,5 @@ module.exports = {
   updateCandidat,
   getCandidatsByPupitre,
   ListerCandidats,
-  getCandidatsBySaison
+  getCandidatsBySaison,
   }

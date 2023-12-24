@@ -15,7 +15,7 @@ router.patch("/:id", CandidatController.updateCandidat)
 
 router.post("/liste", CandidatController.getCandidatsByPupitre)
 
-router.post("/saison", candidatController.getCandidatsBySaison)
+router.post("/saison", CandidatController.getCandidatsBySaison)
 
 router.get("/", CandidatController.ListerCandidats);
 

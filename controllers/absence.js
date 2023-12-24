@@ -1,12 +1,8 @@
 const Choriste = require("../models/choriste");
 const Utilisateur = require("../models/utilisateur");
-const Absence = require("../models/absence");
-
-
 const nodemailer = require("nodemailer");
 const ejs = require("ejs");
 const path = require("path");
-const choriste = require("../models/choriste");
 const Absence = require("../models/absence");
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -89,8 +85,6 @@ exports.envoyerEmailNomination = async (req, res) => {
   }
 };
 
-
-
  seuilNomination = 3;
 exports.updateSeuilElimination = (req, res) => {
     seuilNomination = req.body.nouveauSeuil; 
@@ -155,8 +149,6 @@ exports.declarerAbsence = async (req, res) => {
       console.error("Erreur lors de la déclaration de l'absence :", error);
       res.status(500).json({ error: "Erreur lors de la déclaration de l'absence" });
     }
-
-  };
 
   };
 
