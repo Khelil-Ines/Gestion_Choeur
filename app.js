@@ -1,8 +1,6 @@
 
 const express = require("express");
 const mongoose = require("mongoose");
-<<<<<<< HEAD
-//sur mongo local
 mongoose
 .connect("mongodb://127.0.0.1:27017/Choeur", {
     useNewUrlParser: true,
@@ -11,8 +9,6 @@ mongoose
   .then(() => console.log("connexion a MongoDB reussie!"))
   .catch((e) => console.log("connexion a MongoDB échouée!", e));
 
-=======
->>>>>>> origin/main
 const app = express();
 const auditionRouter = require('./routes/audition');
 const compositeurRoutes=require("./routes/compositeur")
@@ -44,11 +40,6 @@ app.use((req, res, next) => {
   );
   next();
 });
-
-mongoose.connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority",
-      { useNewUrlParser : true, useUnifiedTopology: true } )
-       .then(() => console.log("Connexion a MongoDB réussie !"))
-       .catch((e) => console.log("Connexion a MongoDB échouée!", e ))
 
 app.use((req, res, next) => {
   console.log('Requête reçue:', req.method, req.url, req.body);
