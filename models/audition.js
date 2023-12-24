@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
 const auditionSchema = mongoose.Schema({
-  résultat:{type :String, enum: ["En Attente", "Accepté", "Refusé"]},
-  pupitre :{ type : String, enum: ["Basse", "Alto", "Tenor", "Soprano"]},
-    Extrait_chanté : { type : String},
-    appréciation :{type : String,  enum: ["A+","A", "A-","B+", "B", "B-","C+", "C", "C-"]},
+  résultat:{type :String, enum: ["En Attente", "Accepté", "Refusé"] , required: true},
+  pupitre :{ type : String, enum: ["Basse", "Alto", "Tenor", "Soprano"], required: true},
+    Extrait_chanté : { type : String, required: true},
+    appréciation :{type : String,  enum: ["A+","A", "A-","B+", "B", "B-","C+", "C", "C-"] , required: true},
     remarque : {type : String, default: ""},
     présence : {type:Boolean,default:false},
     candidat: {

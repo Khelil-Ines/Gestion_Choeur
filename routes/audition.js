@@ -2,12 +2,11 @@ const express = require('express');
 const router = express.Router();
 const planningController = require('../controllers/audition');
 
-
+router.post("/", planningController.addAudition);
 router.delete("/:id", planningController.deleteAudition);
 router.patch("/:id", planningController.updateAudition);
 router.get("/", planningController.getAudition);
 router.get("/:id", planningController.fetchAudition);
-router.post("/", planningController.addAudition);
 router.get("/candidats/:filtre", planningController.getCandidatsFiltres);
 router.post("/liste", planningController.getCandidatPupitreOrdonnes);
 router.post("/email-acceptation/:id", planningController.envoyerEmailAcceptation);
