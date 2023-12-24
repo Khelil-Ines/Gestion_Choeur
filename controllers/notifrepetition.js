@@ -3,47 +3,41 @@ const choriste = require("../models/choriste");
 const Répetition = require("../models/repetition");
 const moment = require("moment");
 
+//Rappel de répétition selon des paramétres
 let notif;
 const envoyerNotification = async (req, res) => {
   const { repetitions, heure, minute, jar } = req.params;
+  const listerep = await Répetition.find();
 
-  const dateCible = moment("2023-12-25T00:00:00.000+00:00");
-  const nJoursAvant = dateCible.subtract(jar, "days");
-  let jour = nJoursAvant.date();
-  const mois = nJoursAvant.month() + 1;
-
-  const choristesConcernes = await choriste.find({ statut: "Actif" });
-
-  if (notif) {
-    notif.stop();
-  }
-
-  let count = 0;
-  notif = cron.schedule(
-    `${minute} ${heure} ${jour} ${mois} *`,
-    () => {
-      count++;
-      jour++;
-      choristesConcernes.forEach((choriste) => {
+  listerep.forEach((rep) => {
+    const dateCible = moment(rep.date);
+    const nJoursAvant = dateCible.subtract(jar, "days");
+    let jour = nJoursAvant.date();
+    const mois = nJoursAvant.month() + 1;
+    let count = 0;
+    notif = cron.schedule(
+      `${minute} ${heure} ${jour} ${mois} *`,
+      () => {
+        count++;
         console.log(
-          `M./Mme ${choriste.nom}, Rappelez-vous ! Vous avez une répétition le ... (fois ${count}/${repetitions})`
+          `M./Mme , Rappelez-vous ! Vous avez une répétition le ${rep.date}  a ${rep.heureDebut}h (fois ${count}/${repetitions})`
         );
-      });
 
-      if (count >= repetitions) {
-        notif.stop();
-        count = 0;
+        if (count >= repetitions) {
+          notif.stop();
+          count = 0;
+        }
+      },
+      {
+        scheduled: false,
       }
-    },
-    {
-      scheduled: false,
-    }
-  );
+    );
 
-  notif.start();
+    notif.start();
+  });
 };
 
-///////////////////////////////////////////////////////////////////////////
+//Changement horaire ou lieu de répatition
 let notiff;
 const envoyerNotificationChangementRépetition = async (req, res) => {
   const nouvelHoraire = req.params.nh;
@@ -68,7 +62,7 @@ const envoyerNotificationChangementRépetition = async (req, res) => {
   notiff.start();
 };
 
-///////////////////////////////////////////////////////////
+//Changement autre que les répetitions
 const envoyerNotificationChangementAutre = async (req, res) => {
   const { changement, message } = req.body;
   console.log(changement);
