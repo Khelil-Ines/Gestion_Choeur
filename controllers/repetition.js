@@ -25,8 +25,6 @@ const fetchRepetition = (req, res) => {
     });
 }
 
-
-
   const updateRepetition = (req, res) => {
     Repetition.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }).then(
         (repetition) => {
@@ -76,20 +74,25 @@ const getPlanning = (req, res) => {
 
 const getPlanningByDate = async (req, res) => {
   try {
+    const dateParam = req.body.date;
 
-      const dateParam = req.body.date;
-  
-      // Vérifier le format de la date (JJ-MM-AA)
-      const isValidDate = moment(dateParam, "YYYY-MM-DD", true).isValid();
-      if (!isValidDate) {
-        return res.status(400).json({
-          message: "Format de date invalide. Utilisez le format AAAA-MM-JJ.",
-        });
-      }
+    // Vérifier le format de la date (AAAA-MM-JJ)
+    const isValidDate = moment(dateParam, "YYYY-MM-DD", true).isValid();
+    if (!isValidDate) {
+      return res.status(400).json({
+        message: "Format de date invalide. Utilisez le format AAAA-MM-JJ.",
+      });
+    }
+
     const dateRepetition = new Date(dateParam);
 
     // Récupérez les répétitions pour la date spécifiée
-    const repetitions = await Repetition.find({ date: dateRepetition });
+    const repetitions = await Repetition.find({
+      date: {
+        $gte: moment(dateRepetition).startOf("day").toDate(),
+        $lte: moment(dateRepetition).endOf("day").toDate(),
+      },
+    });
 
     res.status(200).json({
       model: repetitions,
@@ -128,7 +131,6 @@ const addRepetition = async (req, res) => {
     res.status(400).json({ erreur: 'Échec de la création de la répétition' });
   }
 };
-
 
   
   module.exports = {

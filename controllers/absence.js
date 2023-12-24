@@ -1,5 +1,8 @@
 const Choriste = require("../models/choriste");
 const Utilisateur = require("../models/utilisateur");
+const Absence = require("../models/absence");
+
+
 const nodemailer = require("nodemailer");
 const ejs = require("ejs");
 const path = require("path");
@@ -94,6 +97,7 @@ exports.updateSeuilElimination = (req, res) => {
   
     res.status(200).json({ message: 'Seuil mis à jour avec succès' });
   };
+
 exports.declarerAbsence = async (req, res) => {
     
     try {
@@ -119,6 +123,7 @@ exports.declarerAbsence = async (req, res) => {
       // Ajouter l'absence à la liste des absences du choriste
       choriste.absences.push(savedAbsence._id);
   
+
       // Mettre à jour le statut en fonction des nouvelles règles
       if (choriste.nbr_absences > seuilNomination) {
         choriste.statut = "Eliminé";
@@ -133,6 +138,7 @@ exports.declarerAbsence = async (req, res) => {
           date: new Date(),
         });
       }
+
   
       // Enregistrer les modifications dans la base de données
       const savedChoriste = await choriste.save();
@@ -149,6 +155,9 @@ exports.declarerAbsence = async (req, res) => {
       console.error("Erreur lors de la déclaration de l'absence :", error);
       res.status(500).json({ error: "Erreur lors de la déclaration de l'absence" });
     }
+
+  };
+
   };
 
   exports.getAbsencesChoriste = async (req, res) => {
@@ -193,3 +202,4 @@ exports.getElimines = async (req, res) => {
             .json({ error: "Erreur lors de la récupération des Nominés." });
         }
         };
+
