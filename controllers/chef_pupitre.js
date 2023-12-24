@@ -10,7 +10,8 @@ exports.Ajouter_Chef_PupitreByID = async (req, res) => {
         if (!choriste) {
             return res.status(404).send({ message: 'Choriste not found.' });
         } 
-
+        const nom = choriste.nom
+        const prénom = choriste.prénom
         const pupitre = choriste.pupitre
         const statut = choriste.statut
         const CIN = choriste.CIN
@@ -23,6 +24,8 @@ exports.Ajouter_Chef_PupitreByID = async (req, res) => {
         await Choriste.findByIdAndDelete({ _id: req.params.id });
 
         const newChefPupitre = new Chef_Pupitre({
+            nom : nom,
+            prénom : prénom,
             pupitre : pupitre,
             statut : statut,
             CIN : CIN,

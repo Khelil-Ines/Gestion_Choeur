@@ -68,6 +68,7 @@ const finCongeStatut = cron.schedule("* * * * * ", async () => {
   }
 });
 finCongeStatut.start();
+
 module.exports = {
   addConge,
 };
