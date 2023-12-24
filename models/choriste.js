@@ -12,8 +12,8 @@ const choristeSchema = mongoose.Schema(
         niveau : {type : String, enum : ['Junior','Choriste', 'Sénior', 'Vétéran'], default: 'Junior'}, 
         date_adhesion:{type: Date},
         historiqueStatut: [historiqueStatutSchema],
-        nbr_concerts : {type: Number},
-        nbr_repetitions : {type: Number},
+        nbr_concerts : {type: Number, default: 0},
+        nbr_repetitions : {type: Number, default: 0},
         nbr_absences : {type: Number, default: 0},
         absences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Absence' , required: false,}],
         compte: { 
@@ -34,6 +34,15 @@ const choristeSchema = mongoose.Schema(
           }
         ]
       });
+      choristeSchema.methods.incrementRepetitions = function () {
+        this.nbr_repetitions += 1;
+        return this.save();
+      };
+
+      choristeSchema.methods.incrementConcert = function () {
+        this.nbr_concerts += 1;
+        return this.save();
+      };
 module.exports = utilisateur.discriminator('Choriste', choristeSchema);
 
 

@@ -4,6 +4,8 @@ const auth=require('../middelware/auth')
 const choristeController = require("../controllers/choriste");
 const CINMiddleware = require("../middlewares/CIN");
 
+
+router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
 router.post("/setDispo/:idConcert",auth.loggedMiddleware,choristeController.setDispo);
 router.get('/confirm-dispo/:userId/:idConcert/:uniqueToken', choristeController.confirmDispo);
 router.post("/login", choristeController.login);
@@ -32,5 +34,8 @@ router.get("/statut/:id", choristeController.getstatutchoriste);
 
 router.get("/lister/:idConcert",choristeController.Lister_choriste_toutchoeur)
 router.get("/pupitre/:idConcert/:pupitre",choristeController.Lister_choriste_pupitre)
+
+
+router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
 module.exports = router;
 
