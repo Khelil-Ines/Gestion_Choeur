@@ -10,4 +10,3 @@ router.post("/date", repetitionController.getPlanningByDate);
 //find tout
 router.post("/add", repetitionController.addRepetition);
 module.exports = router;
-
