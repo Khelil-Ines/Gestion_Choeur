@@ -87,6 +87,38 @@ const getCandidatsByPupitre = (req, res) => {
     });
 };
 
+const getCandidatsBySaison = async (req, res) => {
+  try {
+    const yearParam = req.body.year;
+
+    // Vérifier si l'année est un nombre à quatre chiffres
+    if (!/^\d{4}$/.test(yearParam)) {
+      return res.status(400).json({
+        message: "Format d'année invalide. Utilisez une année à quatre chiffres.",
+      });
+    }
+
+    const year = parseInt(yearParam);
+
+    // Récupérez les candidats pour l'année spécifiée
+    const candidats = await Candidat.find({
+      $expr: {
+        $eq: [{ $year: "$date_postulation" }, year],
+      },
+    });
+
+    res.status(200).json({
+      model: candidats,
+      message: `Liste des candidats de la saison ${year} récupérée avec succès!`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      message: "Problème d'extraction des candidats pour l'année spécifiée",
+    });
+  }
+};
+
 
   
   module.exports = {
@@ -94,5 +126,6 @@ const getCandidatsByPupitre = (req, res) => {
     getCandidat,
     fetchCandidat,
     updateCandidat,
-    getCandidatsByPupitre
+    getCandidatsByPupitre,
+    getCandidatsBySaison
     }

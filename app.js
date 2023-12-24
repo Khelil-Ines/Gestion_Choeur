@@ -7,6 +7,8 @@ const auditionRouter = require("./routes/audition");
 const repetitionRouter = require("./routes/repetition");
 const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
+const absenceRouter = require("./routes/absence");
+
 
 
 
@@ -37,6 +39,7 @@ app.use("/api/audition", auditionRouter)
 app.use("/api/repetition", repetitionRouter)
 app.use("/api/compte", compteRouter)
 app.use("/api/conge", congeRouter)
+app.use("/api/absence", absenceRouter)
 
 
 

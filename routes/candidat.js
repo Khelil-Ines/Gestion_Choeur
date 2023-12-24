@@ -13,4 +13,7 @@ router.patch("/:id", candidatController.updateCandidat)
 
 router.post("/liste", candidatController.getCandidatsByPupitre)
 
+router.post("/saison", candidatController.getCandidatsBySaison)
+
+
   module.exports = router;

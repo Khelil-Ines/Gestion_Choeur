@@ -1,5 +1,5 @@
 const Repetition = require("../models/repetition");
-const Concert = require("../models/concert");
+//const Concert = require("../models/concert");
 const moment = require("moment");
 
 const fetchRepetition = (req, res) => {
@@ -34,6 +34,7 @@ const addRepetition = (req, res) => {
             res.status(400).json({ erreur: 'Échec de la création du l\'repetition' });
         });
   }
+
   const getPlanning = (req, res) => {
     Repetition.find().then((repetitions) => {
       res.status(200).json({
@@ -84,20 +85,25 @@ const deleteRepetition = (req, res) => {
 
 const getPlanningByDate = async (req, res) => {
   try {
+    const dateParam = req.body.date;
 
-      const dateParam = req.body.date;
-  
-      // Vérifier le format de la date (JJ-MM-AA)
-      const isValidDate = moment(dateParam, "YYYY-MM-DD", true).isValid();
-      if (!isValidDate) {
-        return res.status(400).json({
-          message: "Format de date invalide. Utilisez le format AAAA-MM-JJ.",
-        });
-      }
+    // Vérifier le format de la date (AAAA-MM-JJ)
+    const isValidDate = moment(dateParam, "YYYY-MM-DD", true).isValid();
+    if (!isValidDate) {
+      return res.status(400).json({
+        message: "Format de date invalide. Utilisez le format AAAA-MM-JJ.",
+      });
+    }
+
     const dateRepetition = new Date(dateParam);
 
     // Récupérez les répétitions pour la date spécifiée
-    const repetitions = await Repetition.find({ date: dateRepetition });
+    const repetitions = await Repetition.find({
+      date: {
+        $gte: moment(dateRepetition).startOf("day").toDate(),
+        $lte: moment(dateRepetition).endOf("day").toDate(),
+      },
+    });
 
     res.status(200).json({
       model: repetitions,
@@ -114,37 +120,37 @@ const getPlanningByDate = async (req, res) => {
 
 
 
- const createRepetition = async (req, res) => {
-    try {
-      const concert = await Concert.findById(req.body.concert);
+//  const createRepetition = async (req, res) => {
+//     try {
+//       const concert = await Concert.findById(req.body.concert);
       
-      if (concert) {
-        const participants = [];
-        for (let j = 0; j < req.body.pupitres.length; j++) {      
-          const element = req.body.pupitres[j];
-          const pupitre = await Pupitre.findById(element.pupitre);
-          if (pupitre) {
-            const len = (element.pourcentage / 100) * pupitre.membres.length;
-            for (let i = 0; i < len; i++) {
-              participants.push(pupitre.membres[i]);
-            }
-          } else {
-            return res.status(404).json({ error: "pupitre not found" });
-          }
-        };
-        const repetition = new Repetition({
-          ...req.body,
-          participants: participants,
-        });
-        const savedrepetition = await repetition.save();
-        res.status(201).json({payload:savedrepetition});
-      } else {
-        return res.status(404).json({ error: "concert not found" });
-      }
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  }
+//       if (concert) {
+//         const participants = [];
+//         for (let j = 0; j < req.body.pupitres.length; j++) {      
+//           const element = req.body.pupitres[j];
+//           const pupitre = await Pupitre.findById(element.pupitre);
+//           if (pupitre) {
+//             const len = (element.pourcentage / 100) * pupitre.membres.length;
+//             for (let i = 0; i < len; i++) {
+//               participants.push(pupitre.membres[i]);
+//             }
+//           } else {
+//             return res.status(404).json({ error: "pupitre not found" });
+//           }
+//         };
+//         const repetition = new Repetition({
+//           ...req.body,
+//           participants: participants,
+//         });
+//         const savedrepetition = await repetition.save();
+//         res.status(201).json({payload:savedrepetition});
+//       } else {
+//         return res.status(404).json({ error: "concert not found" });
+//       }
+//     } catch (error) {
+//       res.status(400).json({ error: error.message });
+//     }
+//   }
   
   module.exports = {
     addRepetition,
