@@ -78,8 +78,8 @@ const genererPlanning = async (req, res, next) => {
         });
 
         // Vérifiez si l'e-mail du candidat est défini
-        if (candidatDetails && candidatDetails.mail) {
-          const destinataire = candidatDetails.mail;
+        if (candidatDetails && candidatDetails.email) {
+          const destinataire = candidatDetails.email;
           const sujet = "Détails de votre audition";
           const texte = `Bonjour,\n\nVotre audition est prévue pour le ${moment(
             session.dateAudition
@@ -649,7 +649,7 @@ const creerChoriste = async (candidat) => {
     const nom= candidat.nom
     const prénom= candidat.prénom
     const pupitre= audition.pupitre
-    const mail= candidat.mail
+    const email= candidat.email
     const taille= candidat.taille
     const num_tel= candidat.num_tel
     const CIN= candidat.CIN
@@ -663,7 +663,7 @@ const creerChoriste = async (candidat) => {
       nom: nom,
       prénom: prénom,
       pupitre: audition.pupitre,
-      mail: mail,
+      email: email,
       taille: taille,
       num_tel: num_tel,
       CIN: CIN,
@@ -684,7 +684,7 @@ console.log('Mot de passe hashé :', mdpHash);
 
 // Créer le compte
 const nouveauCompte = new Compte({
-  login: mail,
+  login: email,
   motDePasse: mdpHash,
 
 });
@@ -697,7 +697,7 @@ console.log("Compte enregistré avec succès:", nouveauCompte);
     // Enregistrez à nouveau le Choriste avec l'ID du compte associé
     await nouveauChoriste.save();
 
-    await envoyerEmailLogin(candidat.mail, candidat.mail, mdp);
+    await envoyerEmailLogin(candidat.email, candidat.email, mdp);
     console.log("E-mail de login envoyé avec succès.");
 
     return { choriste: nouveauChoriste, compte: nouveauCompte } ;
@@ -722,7 +722,7 @@ const envoyerEmailAcceptation = async (req, res) => {
       throw new Error('Le candidat est déjà confirmé');
     }
 
-    const adresseEmail = candidat.mail;
+    const adresseEmail = candidat.email;
     const sujet = "Félicitations ! Vous avez été accepté à la chorale.";
     const file = path.join(__dirname, "../views/acceptationmail.ejs");
     const pdf = path.join(__dirname, "../files/Reglement.pdf");
