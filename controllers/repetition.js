@@ -2,9 +2,10 @@ const Repetition = require("../models/repetition");
 const Choriste = require("../models/choriste");
 const crypto = require('crypto');
 const moment = require("moment");
+const axios = require("axios");
 
 const fetchRepetition = (req, res) => {
-    Repetition.findOne({ _id: req.params.id })
+  Repetition.findOne({ _id: req.params.id })
     .then((repetition) => {
       if (!repetition) {
         res.status(404).json({
@@ -23,27 +24,63 @@ const fetchRepetition = (req, res) => {
         message: "Données invalides!",
       });
     });
-}
+};
 
-  const updateRepetition = (req, res) => {
-    Repetition.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }).then(
-        (repetition) => {
-          if (!repetition) {
-            res.status(404).json({
-              message: "objet non trouvé!",
-            });
-          } else {
-            res.status(200).json({
-              model: repetition,
-              message: "objet modifié!",
-            });
-          }
-        }
-      )
-}
 
-const deleteRepetition = (req, res) => { 
-    Repetition.deleteOne({_id:req.params.id})
+const addRepetition = (req, res) => {
+  const newRepetition = new Repetition(req.body);
+  newRepetition
+    .save()
+    .then((repetition) => {
+      res.json(repetition);
+    })
+    .catch((err) => {
+      res.status(400).json({ erreur: "Échec de la création du l'repetition" });
+    });
+};
+
+const getPlanning = (req, res) => {
+  Repetition.find()
+    .then((repetitions) => {
+      res.status(200).json({
+        model: repetitions,
+        message: "success",
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error: error.message,
+        message: "problème d'extraction",
+      });
+    });
+};
+
+const updateRepetition = (req, res) => {
+  Repetition.findOneAndUpdate({ _id: req.params.id }, req.body, {
+    new: true,
+  }).then((repetition) => {
+    if (!repetition) {
+      res.status(404).json({
+        message: "objet non trouvé!",
+      });
+    } else {
+      res.status(200).json({
+        model: repetition,
+        message: "objet modifié!",
+      });
+      axios.get(
+        "http://localhost:5000/api/notifrep/changes/" +
+          repetition.heureDebut +
+          "/" +
+          repetition.lieu
+      );
+    }
+  });
+};
+
+
+const deleteRepetition = (req, res) => {
+  Repetition.deleteOne({ _id: req.params.id })
     .then((repetitions) =>
       res.status(200).json({
         message: "success!",
@@ -56,6 +93,8 @@ const deleteRepetition = (req, res) => {
         message: "probleme d'extraction ",
       });
     });
+};
+
 }
 const getPlanning = (req, res) => {
   Repetition.find().then((repetitions) => {
@@ -72,11 +111,11 @@ const getPlanning = (req, res) => {
   });
 }
 
+
 const getPlanningByDate = async (req, res) => {
   try {
     const dateParam = req.body.date;
-
-    // Vérifier le format de la date (AAAA-MM-JJ)
+    // Vérifier le format de la date (JJ-MM-AA)
     const isValidDate = moment(dateParam, "YYYY-MM-DD", true).isValid();
     if (!isValidDate) {
       return res.status(400).json({
@@ -133,19 +172,12 @@ const addRepetition = async (req, res) => {
   }
 };
 
-
-  module.exports = {
-    addRepetition,
-    fetchRepetition,
-    updateRepetition,
-    deleteRepetition, 
-    getPlanningByDate,
-    getPlanning,
-  }
-
-
-
-
-
-
+module.exports = {
+  addRepetition,
+  getPlanning,
+  fetchRepetition,
+  updateRepetition,
+  deleteRepetition,
+  getPlanningByDate,
+};
 
