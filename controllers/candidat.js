@@ -1,5 +1,5 @@
 const Candidat = require("../models/candidat");
-const Utilisateur = require("../models/utilisateur");
+const moment = require('moment-timezone');
 
 const ListerCandidats = async (req, res) => {
   try {
@@ -7,7 +7,7 @@ const ListerCandidats = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 5;
 
-    if (page < 1 || pageSize < 1) {
+   if (page < 1 || pageSize < 1) {
       return res.status(400).json({
         error: "Les paramètres de pagination doivent être des valeurs positives.",
       });
@@ -58,10 +58,8 @@ const ListerCandidats = async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Erreur lors de la récupération des candidats." });
   }
-};
 
-
-
+}
 
 const fetchCandidat = (req, res) => {
     Candidat.findOne({ _id: req.params.id })
@@ -84,19 +82,6 @@ const fetchCandidat = (req, res) => {
       });
     });
 }
-
-const addCandidat = (req, res) => {
-  const newCandidat = new Candidat(req.body);
-
-  newCandidat.save()
-    .then(candidat => {
-      res.json(candidat);
-    })
-    .catch(err => {
-      console.error('Erreur lors de la création du candidat :', err);
-      res.status(400).json({ erreur: 'Échec de la création du candidat', message: err.message });
-    });
-};
 
   const getCandidat = (req, res) => {
     Candidat.find().then((candidats) => {
@@ -148,14 +133,72 @@ const getCandidatsByPupitre = (req, res) => {
     });
 };
 
+const getCandidatsBySaison = async (req, res) => {
+  try {
+    const yearParam = req.body.year;
 
-  
-  module.exports = {
-    addCandidat,
-    getCandidat,
-    fetchCandidat,
-    updateCandidat,
-    getCandidatsByPupitre,
-    ListerCandidats
-
+    // Vérifier si l'année est un nombre à quatre chiffres
+    if (!/^\d{4}$/.test(yearParam)) {
+      return res.status(400).json({
+        message: "Format d'année invalide. Utilisez une année à quatre chiffres.",
+      });
     }
+
+    const year = parseInt(yearParam);
+
+    // Récupérez les candidats pour l'année spécifiée
+    const candidats = await Candidat.find({
+      $expr: {
+        $eq: [{ $year: "$createdAt" }, year],
+      },
+    });
+
+    res.status(200).json({
+      model: candidats,
+      message: `Liste des candidats de la saison ${year} récupérée avec succès!`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      message: "Problème d'extraction des candidats pour l'année spécifiée",
+    });
+  }
+};
+
+
+const addCandidat = (req, res) => {
+  try {
+    // Récupérer les données du candidat depuis le corps de la requête
+    const candidatData = req.body;
+
+    // Ajouter la date de création avec le fuseau horaire "Europe/Paris"
+    candidatData.createdAt = moment().tz('Europe/Paris').toDate();
+
+    // Créer une nouvelle instance de Candidat
+    const newCandidat = new Candidat(candidatData);
+
+    // Enregistrer le candidat dans la base de données
+    newCandidat.save()
+      .then(candidat => {
+        res.json(candidat);
+      })
+      .catch(err => {
+        console.error('Erreur lors de la création du candidat :', err);
+        res.status(400).json({ erreur: 'Échec de la création du candidat', message: err.message });
+      });
+  } catch (error) {
+    console.error('Erreur lors de la création du candidat :', error);
+    res.status(500).json({ erreur: 'Erreur lors de la création du candidat', message: error.message });
+  }
+};
+
+
+module.exports = {
+  addCandidat,
+  getCandidat,
+  fetchCandidat,
+  updateCandidat,
+  getCandidatsByPupitre,
+  ListerCandidats,
+  getCandidatsBySaison,
+  }
