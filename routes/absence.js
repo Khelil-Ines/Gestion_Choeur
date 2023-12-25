@@ -16,5 +16,4 @@ router.get("/elimines", absenceController.getElimines);
 router.get("/nomines", absenceController.getNomines);
 router.get("/:id", absenceController.getAbsencesChoriste);
 
-
 module.exports = router;

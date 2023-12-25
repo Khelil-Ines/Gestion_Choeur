@@ -3,7 +3,7 @@ const express = require('express');
 const app = require("./app")
 const cron = require('node-cron');
 const socketIO = require('socket.io');
-const port = process.env.PORT ||  3000
+const port = process.env.PORT ||  5000
 app.set("port" , port ) // non utilisable
 const server = http.createServer(app)
 const io = socketIO(server);

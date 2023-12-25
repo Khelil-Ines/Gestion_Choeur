@@ -10,4 +10,3 @@ const absenceSchema = mongoose.Schema(
 )
 module.exports = mongoose.model("Absence", absenceSchema)
 
-
