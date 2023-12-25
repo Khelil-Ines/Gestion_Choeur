@@ -1,6 +1,7 @@
 
 const Planning = require('../models/audition');
 const moment = require('moment');
+const Audition = require('../models/audition');
 const Candidat = require('../models/candidat');
 const Choriste = require('../models/choriste');
 const Compte = require('../models/compte');
@@ -77,8 +78,8 @@ const genererPlanning = async (req, res, next) => {
         });
 
         // Vérifiez si l'e-mail du candidat est défini
-        if (candidatDetails && candidatDetails.mail) {
-          const destinataire = candidatDetails.mail;
+        if (candidatDetails && candidatDetails.email) {
+          const destinataire = candidatDetails.email;
           const sujet = "Détails de votre audition";
           const texte = `Bonjour,\n\nVotre audition est prévue pour le ${moment(
             session.dateAudition
@@ -587,27 +588,43 @@ const getCandidatsFiltres = async (req, res) => {
 
 const getCandidatPupitreOrdonnes = async (req, res) => {
   try {
-
     // Récupérez les candidats du pupitre spécifié
-    const candidats = await Audition.find({ pupitre: req.body.pupitre });
-    console.log(candidats);
-
-    // Récupérez les auditions correspondantes
-    const auditions = await Audition.find({ candidat: { $in: candidats.map(c => c._id) } })
-    .populate('candidat');
+    const candidats = await Audition.find({ pupitre: req.body.pupitre }).populate('candidat');
 
     // Triez les candidats par résultat (Accepté, En Attente, Refusé)
-    const candidatsOrdonnes = candidats.map((candidat) => {
-      const audition = auditions.find((aud) => aud.candidat.equals(candidat._id));
-      return { candidat, résultat: audition ? audition.résultat : 'En Attente' };
-    });
-
-    candidatsOrdonnes.sort((a, b) => {
+    const candidatsTries = candidats.sort((a, b) => {
       const resultatA = a.résultat || 'En Attente';
       const resultatB = b.résultat || 'En Attente';
 
       return ['Accepté', 'En Attente', 'Refusé'].indexOf(resultatA) - ['Accepté', 'En Attente', 'Refusé'].indexOf(resultatB);
     });
+
+    // Initialisez la liste des résultats
+    const resultats = [];
+
+    // Parcourez les candidats triés
+    candidatsTries.forEach(candidat => {
+      // Ajoutez les candidats acceptés à la liste
+      if (candidat.résultat === 'Accepté') {
+        resultats.push(candidat);
+      }
+
+      // Ajoutez les candidats en attente à la liste
+      else if (candidat.résultat === 'En Attente') {
+        resultats.push(candidat);
+      }
+
+      // Ajoutez les candidats refusés à la liste
+      else {
+        resultats.push(candidat);
+      }
+    });
+
+    // Retournez la liste ordonnée
+    const candidatsOrdonnes = resultats.map(audition => ({
+      candidat: audition.candidat,
+      résultat: audition.résultat || 'En Attente',
+    }));
 
     res.status(200).json({
       model: candidatsOrdonnes,
@@ -621,6 +638,7 @@ const getCandidatPupitreOrdonnes = async (req, res) => {
   }
 };
 
+
 const creerChoriste = async (candidat) => {
   try {
     const audition = await Audition.findOne({ candidat: candidat._id });
@@ -631,7 +649,7 @@ const creerChoriste = async (candidat) => {
     const nom= candidat.nom
     const prénom= candidat.prénom
     const pupitre= audition.pupitre
-    const mail= candidat.mail
+    const email= candidat.email
     const taille= candidat.taille
     const num_tel= candidat.num_tel
     const CIN= candidat.CIN
@@ -645,7 +663,7 @@ const creerChoriste = async (candidat) => {
       nom: nom,
       prénom: prénom,
       pupitre: audition.pupitre,
-      mail: mail,
+      email: email,
       taille: taille,
       num_tel: num_tel,
       CIN: CIN,
@@ -666,7 +684,7 @@ console.log('Mot de passe hashé :', mdpHash);
 
 // Créer le compte
 const nouveauCompte = new Compte({
-  login: mail,
+  login: email,
   motDePasse: mdpHash,
 
 });
@@ -679,7 +697,7 @@ console.log("Compte enregistré avec succès:", nouveauCompte);
     // Enregistrez à nouveau le Choriste avec l'ID du compte associé
     await nouveauChoriste.save();
 
-    await envoyerEmailLogin(candidat.mail, candidat.mail, mdp);
+    await envoyerEmailLogin(candidat.email, candidat.email, mdp);
     console.log("E-mail de login envoyé avec succès.");
 
     return { choriste: nouveauChoriste, compte: nouveauCompte } ;
@@ -704,7 +722,7 @@ const envoyerEmailAcceptation = async (req, res) => {
       throw new Error('Le candidat est déjà confirmé');
     }
 
-    const adresseEmail = candidat.mail;
+    const adresseEmail = candidat.email;
     const sujet = "Félicitations ! Vous avez été accepté à la chorale.";
     const file = path.join(__dirname, "../views/acceptationmail.ejs");
     const pdf = path.join(__dirname, "../files/Reglement.pdf");

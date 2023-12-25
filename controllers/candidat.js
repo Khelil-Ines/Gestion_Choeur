@@ -1,7 +1,6 @@
 const Candidat = require("../models/candidat");
 const moment = require('moment-timezone');
 
-
 const ListerCandidats = async (req, res) => {
   try {
     // Vérification des paramètres de pagination
@@ -62,8 +61,6 @@ const ListerCandidats = async (req, res) => {
 
 }
 
-
-
 const fetchCandidat = (req, res) => {
     Candidat.findOne({ _id: req.params.id })
     .then((candidat) => {
@@ -85,8 +82,6 @@ const fetchCandidat = (req, res) => {
       });
     });
 }
-
-
 
   const getCandidat = (req, res) => {
     Candidat.find().then((candidats) => {
@@ -138,6 +133,37 @@ const getCandidatsByPupitre = (req, res) => {
     });
 };
 
+const getCandidatsBySaison = async (req, res) => {
+  try {
+    const yearParam = req.body.year;
+
+    // Vérifier si l'année est un nombre à quatre chiffres
+    if (!/^\d{4}$/.test(yearParam)) {
+      return res.status(400).json({
+        message: "Format d'année invalide. Utilisez une année à quatre chiffres.",
+      });
+    }
+
+    const year = parseInt(yearParam);
+
+    // Récupérez les candidats pour l'année spécifiée
+    const candidats = await Candidat.find({
+      $expr: {
+        $eq: [{ $year: "$createdAt" }, year],
+      },
+    });
+
+    res.status(200).json({
+      model: candidats,
+      message: `Liste des candidats de la saison ${year} récupérée avec succès!`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      message: "Problème d'extraction des candidats pour l'année spécifiée",
+    });
+  }
+};
 
 
 const addCandidat = (req, res) => {
@@ -174,4 +200,5 @@ module.exports = {
   updateCandidat,
   getCandidatsByPupitre,
   ListerCandidats,
+  getCandidatsBySaison,
   }

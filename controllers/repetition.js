@@ -2,9 +2,10 @@ const Repetition = require("../models/repetition");
 const Choriste = require("../models/choriste");
 const crypto = require('crypto');
 const moment = require("moment");
+const axios = require("axios");
 
 const fetchRepetition = (req, res) => {
-    Repetition.findOne({ _id: req.params.id })
+  Repetition.findOne({ _id: req.params.id })
     .then((repetition) => {
       if (!repetition) {
         res.status(404).json({
@@ -23,29 +24,63 @@ const fetchRepetition = (req, res) => {
         message: "Données invalides!",
       });
     });
-}
+};
 
 
+const addRepetition = (req, res) => {
+  const newRepetition = new Repetition(req.body);
+  newRepetition
+    .save()
+    .then((repetition) => {
+      res.json(repetition);
+    })
+    .catch((err) => {
+      res.status(400).json({ erreur: "Échec de la création du l'repetition" });
+    });
+};
 
-  const updateRepetition = (req, res) => {
-    Repetition.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }).then(
-        (repetition) => {
-          if (!repetition) {
-            res.status(404).json({
-              message: "objet non trouvé!",
-            });
-          } else {
-            res.status(200).json({
-              model: repetition,
-              message: "objet modifié!",
-            });
-          }
-        }
-      )
-}
+const getPlanning = (req, res) => {
+  Repetition.find()
+    .then((repetitions) => {
+      res.status(200).json({
+        model: repetitions,
+        message: "success",
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        error: error.message,
+        message: "problème d'extraction",
+      });
+    });
+};
 
-const deleteRepetition = (req, res) => { 
-    Repetition.deleteOne({_id:req.params.id})
+const updateRepetition = (req, res) => {
+  Repetition.findOneAndUpdate({ _id: req.params.id }, req.body, {
+    new: true,
+  }).then((repetition) => {
+    if (!repetition) {
+      res.status(404).json({
+        message: "objet non trouvé!",
+      });
+    } else {
+      res.status(200).json({
+        model: repetition,
+        message: "objet modifié!",
+      });
+      axios.get(
+        "http://localhost:5000/api/notifrep/changes/" +
+          repetition.heureDebut +
+          "/" +
+          repetition.lieu
+      );
+    }
+  });
+};
+
+
+const deleteRepetition = (req, res) => {
+  Repetition.deleteOne({ _id: req.params.id })
     .then((repetitions) =>
       res.status(200).json({
         message: "success!",
@@ -58,6 +93,8 @@ const deleteRepetition = (req, res) => {
         message: "probleme d'extraction ",
       });
     });
+};
+
 }
 const getPlanning = (req, res) => {
   Repetition.find().then((repetitions) => {
@@ -74,22 +111,27 @@ const getPlanning = (req, res) => {
   });
 }
 
+
 const getPlanningByDate = async (req, res) => {
   try {
+    const dateParam = req.body.date;
+    // Vérifier le format de la date (JJ-MM-AA)
+    const isValidDate = moment(dateParam, "YYYY-MM-DD", true).isValid();
+    if (!isValidDate) {
+      return res.status(400).json({
+        message: "Format de date invalide. Utilisez le format AAAA-MM-JJ.",
+      });
+    }
 
-      const dateParam = req.body.date;
-  
-      // Vérifier le format de la date (JJ-MM-AA)
-      const isValidDate = moment(dateParam, "YYYY-MM-DD", true).isValid();
-      if (!isValidDate) {
-        return res.status(400).json({
-          message: "Format de date invalide. Utilisez le format AAAA-MM-JJ.",
-        });
-      }
     const dateRepetition = new Date(dateParam);
 
     // Récupérez les répétitions pour la date spécifiée
-    const repetitions = await Repetition.find({ date: dateRepetition });
+    const repetitions = await Repetition.find({
+      date: {
+        $gte: moment(dateRepetition).startOf("day").toDate(),
+        $lte: moment(dateRepetition).endOf("day").toDate(),
+      },
+    });
 
     res.status(200).json({
       model: repetitions,
@@ -115,7 +157,8 @@ const addRepetition = async (req, res) => {
 
     // Récupérer tous les IDs des choristes (supposons que le modèle Choriste a un champ _id)
     const choristes = await Choriste.find({}, '_id');
-
+    
+ 
     // Ajouter les IDs des choristes à la liste d'absence de la nouvelle répétition
     repetition.liste_Abs = choristes.map(choriste => choriste._id);
 
@@ -129,20 +172,12 @@ const addRepetition = async (req, res) => {
   }
 };
 
-
-  
-  module.exports = {
-    addRepetition,
-    fetchRepetition,
-    updateRepetition,
-    deleteRepetition, 
-    getPlanningByDate,
-    getPlanning,
-  }
-
-
-
-
-
-
+module.exports = {
+  addRepetition,
+  getPlanning,
+  fetchRepetition,
+  updateRepetition,
+  deleteRepetition,
+  getPlanningByDate,
+};
 
