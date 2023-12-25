@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 mongoose
-  .connect("mongodb://127.0.0.1:27017/Choeur", {
+  .connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

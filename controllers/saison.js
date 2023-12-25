@@ -27,7 +27,10 @@ const getSaison = async (req, res) => {
       },
     });
     const candidat = await Candidat.find({
-      
+      createdAt: {
+        $gte: new Date(`${saison}-01-01T00:00:00.000Z`),
+        $lte: new Date(`${saison}-12-31T23:59:59.999Z`),
+      },
     });
     console.log(candidat);
 
