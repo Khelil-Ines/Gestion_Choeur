@@ -311,6 +311,9 @@ exports.getChoriste = (req, res) => {
   
         // Sauvegarde de la répétition mise à jour
         await repetition.save();
+
+        // Incrémentation du nombre de répétitions dans le modèle Choriste
+        await choriste.incrementRepetitions();
   
         res.json({ message: 'Présence ajoutée avec succès' });
       } catch (error) {
@@ -390,6 +393,9 @@ exports.presenceConcert = async (req, res) => {
 
       // Sauvegarde de la répétition mise à jour
       await concert.save();
+
+       // Incrémentation du nombre de répétitions dans le modèle Choriste
+       await choriste.incrementConcert();
       
       choriste.confirmationStatus = "En attente de confirmation";
       await choriste.save();
@@ -617,6 +623,55 @@ exports.updatePresenceList = (concert, userId) => {
 
   // Ajouter l'ID du choriste à la liste de présence
   concert.liste_Presents.push(userId);
+};
+
+
+exports.getHistoriqueActivite = async (req, res) => {
+  try {
+    // Obtenez l'ID du choriste à partir du token dans le header
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
+    const compteId = decodedToken.userId;
+
+    // Recherchez le choriste par son ID
+    const choriste = await Choriste.findOne({ compte: compteId });
+
+    if (!choriste) {
+      return res.status(404).json({ erreur: 'Choriste non trouvé' });
+    }
+
+    // Récupérez l'historique du choriste (nombre de répétitions, concerts, etc.)
+    const historique = {
+      nbr_repetitions: choriste.nbr_repetitions,
+      nbr_concerts: choriste.nbr_concerts,
+      concerts_participes: [],
+    };
+
+    // Pour chaque concert auquel le choriste a participé, récupérez les détails
+    for (const concertInfo of choriste.concertsParticipes) {
+      const concert = await Concert.findById(concertInfo);
+
+      if (concert) {
+        historique.concerts_participes.push({
+          date: concert.date,
+          lieu: concert.lieu,
+          programme: concert.programme, // Mettez à jour selon votre modèle Programme
+        });
+      }
+    }
+
+    res.json({ historique });
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'historique :', error);
+
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ erreur: 'Token invalide' });
+    } else if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ erreur: 'Token expiré' });
+    } else {
+      return res.status(500).json({ erreur: 'Erreur interne du serveur' });
+    }
+  }
 };
 
 
