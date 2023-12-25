@@ -13,7 +13,7 @@ const repetitionRouter = require("./routes/repetition");
 const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
 const notifrepetition = require("./routes/notifrepetition.js");
-const ConcertRouter= require("./routes/concert");
+const ConcertRouter = require("./routes/concert");
 
 app.use(express.json());
 
@@ -33,27 +33,28 @@ app.use("/api/Oeuvre", oeuvreRoutes);
 app.use("/Add_Chef", chef_router);
 app.use("/absence", absenceRouter);
 app.use("/api/choriste", choristeRouter);
-app.use("/api/candidat", candidatRouter);
+app.use("/api/candidat", CandidatRoutes);
 app.use("/api/repetition", repetitionRouter);
 app.use("/api/compte", compteRouter);
 app.use("/api/conge", congeRouter);
 app.use("/api/notifrep", notifrepetition);
 app.use("/api/concert", ConcertRouter);
 
-
-mongoose.connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority",
-      { useNewUrlParser : true, useUnifiedTopology: true } )
-       .then(() => console.log("Connexion a MongoDB réussie !"))
-       .catch((e) => console.log("Connexion a MongoDB échouée!", e ))
+mongoose
+  .connect(
+    "mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority",
+    { useNewUrlParser: true, useUnifiedTopology: true }
+  )
+  .then(() => console.log("Connexion a MongoDB réussie !"))
+  .catch((e) => console.log("Connexion a MongoDB échouée!", e));
 
 // mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur"
 //  ).then(() => console.log("connexion a MongoDB reussie!"))
 // .catch((e) => console.log("connexion a MongoDB échouée!",e))
 
 app.use((req, res, next) => {
-  console.log('Requête reçue:', req.method, req.url, req.body);
+  console.log("Requête reçue:", req.method, req.url, req.body);
   next();
 });
 
 module.exports = app;
-
