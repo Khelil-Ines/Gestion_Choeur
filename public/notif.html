@@ -1,0 +1,21 @@
+<!-- Inclure Socket.IO côté client -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
+<script>
+  const socket = io('http://localhost:3000/notif');
+
+  // Gestionnaire d'événements pour les notifications de modification
+  socket.on('modificationNotification', (data) => {
+    console.log('Notification de modification reçue:', data.message);
+    // Implémentez votre logique pour traiter la notification (par exemple, afficher une alerte)
+    alert(data.message);
+  });
+
+  // Fonction pour envoyer une notification de modification côté client
+  function envoyerNotificationModification() {
+    const pupitre = 'Soprano'; // Remplacez par le pupitre approprié
+    const message = 'Modification de tessiture';
+    socket.emit('loginChefPupitre', pupitre);
+    socket.emit('envoyerNotificationModification', { pupitre, message });
+  }
+</script>

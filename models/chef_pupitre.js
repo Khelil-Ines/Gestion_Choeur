@@ -12,7 +12,8 @@ const chef_pupitreSchema = new mongoose.Schema({
     date_adhesion:{type: Date},
     historiqueStatut: [historiqueStatutSchema],
     nbr_concerts : {type: Number},
-    nbr_repetitions : {type: Number}
+    nbr_repetitions : {type: Number},
+   
 });
 
 const chef_pupitre = utilisateur.discriminator('Chef_Pupitre', chef_pupitreSchema);

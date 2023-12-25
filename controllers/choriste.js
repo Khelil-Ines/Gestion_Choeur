@@ -8,6 +8,7 @@ const crypto = require("crypto");
 const Repetition = require("../models/repetition");
 const Concert = require("../models/concert");
 const nodemailer = require("nodemailer");
+const Chef_Pupitre = require("../models/chef_pupitre");
 const jwt = require("jsonwebtoken");
 const saisonCourante = new Date().getFullYear(); 
 
@@ -245,6 +246,7 @@ exports.getChoriste = (req, res) => {
   
       // Enregistrez les modifications dans la base de données
       await choriste.save();
+     
   
       return res.status(200).json({ choriste, message: 'Tessiture mise à jour avec succès.' });
     } catch (error) {
@@ -766,29 +768,33 @@ exports.Lister_choriste_pupitre = async (req, res) => {
 };
 
 
-exports.login = (req, res, next) => {
-  User.findOne({ login: req.body.login })
-    .then((user) => {
-      if (!user) {
-        return res
-          .status(401)
-          .json({ message: "Login ou mot passe incorrecte" });
-      }
-      bcrypt
-        .compare(req.body.motDePasse, user.motDePasse)
-        .then((valid) => {
-          if (!valid) {
-            return res
-              .status(401)
-              .json({ message: "Login ou mot passe incorrecte" });
-          }
-          res.status(200).json({
-            token: jwt.sign({ userId: user._id }, "RANDOM_TOKEN_SECRET", {
-              expiresIn: "24h",
-            }),
-          });
-        })
-        .catch((error) => res.status(500).json({ error }));
-    })
-    .catch((error) => res.status(500).json({ error }));
+exports.login = async (req, res, next) => {
+  const { login, motDePasse } = req.body;
+
+  try {
+    const user = await User.findOne({ login });
+
+    if (!user) {
+      return res.status(401).json({ message: 'Login ou mot de passe incorrect' });
+    }
+
+    const validPassword = await bcrypt.compare(motDePasse, user.motDePasse);
+
+    if (!validPassword) {
+      return res.status(401).json({ message: 'Login ou mot de passe incorrect' });
+    }
+
+    // Mettez à jour l'état de connexion
+    console.log(user)
+    user.etatConnexion = "true";
+    await user.save();
+
+    res.status(200).json({
+      token: jwt.sign({ userId: user._id }, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' }),
+    });
+  } catch (error) {
+    console.error('Erreur lors de la connexion :', error);
+    res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
 };
+
