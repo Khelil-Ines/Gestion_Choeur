@@ -1,4 +1,4 @@
-const liste_audition = require("../models/liste_audition");
+const Candidature = require("../models/candidature");
 const Choriste = require("../models/choriste");
 const Repetition = require("../models/repetition");
 const Concert = require("../models/concert");
@@ -20,6 +20,7 @@ const getSaison = async (req, res) => {
         $lte: new Date(`${saison}-12-31T23:59:59.999Z`),
       },
     });
+
     const concert = await Concert.find({
       date: {
         $gte: new Date(`${saison}-01-01T00:00:00.000Z`),
@@ -49,14 +50,14 @@ const getSaison = async (req, res) => {
   }
 };
 
-const lancerAudition = (req, res) => {
-  const listeAud = new liste_audition(req.body);
-  listeAud
+const lancerCandidature = (req, res) => {
+  const candidature = new Candidature(req.body);
+  candidature
     .save()
     .then(() => {
       res.status(201).json({
-        model: listeAud,
-        message: "audition lancé!",
+        model: candidature,
+        message: "candidature lancée!",
       });
     })
     .catch(() => {
@@ -67,4 +68,57 @@ const lancerAudition = (req, res) => {
     });
 };
 
-module.exports = { lancerAudition, getSaison };
+const updateCandidature = (req, res) => {
+  Candidature.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
+    .then((cand) => {
+      if (!cand) {
+        res.status(404).json({
+          message: "Candidature non trouvé!",
+        });
+      } else {
+        res.status(200).json({
+          Candidature: cand,
+          message: "Candidature modifié!",
+        });
+      }
+    })
+    .catch(() => {
+      res.status(400).json({
+        error: Error.message,
+        message: "Données invalides!",
+      });
+    });
+};
+
+const candidatureEstOuverte = async (req, res) => {
+  try {
+    const candidature = await Candidature.findById(req.params.id);
+
+    if (!candidature) {
+      return res.status(404).json({ message: "Candidature introuvable" });
+    }
+
+    const dateActuelle = new Date();
+    const dateDebut = candidature.dateDebut;
+    const dateFin = candidature.dateFin;
+    console.log(dateActuelle);
+    console.log(dateDebut);
+    console.log(dateActuelle >= dateDebut && dateActuelle <= dateFin);
+
+    if (dateActuelle >= dateDebut && dateActuelle <= dateFin) {
+      res.json({ candidatureOuverte: true });
+    } else {
+      res.json({ candidatureOuverte: false });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = {
+  lancerCandidature,
+  getSaison,
+  candidatureEstOuverte,
+  updateCandidature,
+};
