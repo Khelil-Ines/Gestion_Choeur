@@ -4,30 +4,37 @@ const utilisateur = require("./utilisateur");
 const historiqueStatutSchema = mongoose.Schema({
   statut: { type: String, required: true },
   date: { type: Date, default: Date.now },
-  statut: { type: String, required: true },
 });
 
 const presenceManuelleSchema = mongoose.Schema({
   date: { type: Date, default: Date.now },
   raison: { type: String, required: true },
-  type: { type: String ,  required: true },
-
+  type: { type: String, required: true },
 });
 
 const choristeSchema = mongoose.Schema({
-  pupitre: { type: String, enum: ["Soprano", "Alto", "Basse", "Tenor"], required: true },
-  statut: { type: String, enum: ["Actif", "En_Congé", "Eliminé"], default: 'Actif' },
-  niveau: { type: String, enum: ['Junior', 'Choriste', 'Sénior', 'Vétéran'], default: 'Junior' },
+  pupitre: {
+    type: String,
+    enum: ['Soprano', 'Alto', 'Basse', 'Tenor'],
+    required: true,
+  },
+  statut: {
+    type: String,
+    enum: ['Actif', 'En_Congé', 'Eliminé'],
+    default: 'Actif',
+  },
+  niveau: {
+    type: String,
+    enum: ['Junior', 'Choriste', 'Sénior', 'Vétéran'],
+    default: 'Junior',
+  },
   date_adhesion: { type: Date },
   historiqueStatut: [historiqueStatutSchema],
-  nbr_concerts: { type: Number, default: 0 },
-  nbr_repetitions: { type: Number, default: 0 },
+  nbr_concerts: { type: Number },
+  nbr_repetitions: { type: Number },
   nbr_absences: { type: Number, default: 0 },
   absences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Absence', required: false }],
-  compte: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Compte'
-  },
+  compte: { type: mongoose.Schema.Types.ObjectId, ref: 'Compte' },
   conges: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Conge',
@@ -35,14 +42,12 @@ const choristeSchema = mongoose.Schema({
   }],
   confirmationStatus: { type: String, default: 'En attente de confirmation' },
   oneTimeToken: { type: String },
-  concertsParticipes: [
-    {
-      concertId: { type: mongoose.Schema.Types.ObjectId, ref: 'Concert' },
-      date: { type: Date },
-      lieu: { type: String },
-    }
-  ],
-  presencesManuelles: [presenceManuelleSchema], // Ajout du champ pour stocker les présences manuelles
+  concertsParticipes: [{
+    concertId: { type: mongoose.Schema.Types.ObjectId, ref: 'Concert' },
+    date: { type: Date },
+    lieu: { type: String },
+  }],
+  presencesManuelles: [presenceManuelleSchema],
 });
 
 // Méthode pour incrémenter le nombre de répétitions

@@ -89,7 +89,7 @@ exports.getprofilchoriste = async (req, res) => {
             num_tel:choriste.num_tel,
             CIN :choriste.CIN,
             adresse: choriste.adresse,
-            mail: choriste.mail,
+            email: choriste.email,
             date_naiss:choriste.date_naiss,
             sexe : choriste.sexe,
             tessiture : choriste.tessiture,
