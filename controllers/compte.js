@@ -1,4 +1,6 @@
 const Compte = require('../models/compte');
+const Choriste = require('../models/choriste');
+const Utilisateur = require('../models/utilisateur');
 
 const addCompteChoriste = (req, res) => {
     const newCompte = new Compte(req.body);
@@ -50,7 +52,7 @@ const addCompteChoriste = (req, res) => {
 
   const deleteCompte = (req, res) => { 
     Compte.deleteOne({_id:req.params.id})
-    .then((comptes) =>
+    .then((compte) =>
       res.status(200).json({
         message: "success!",
       })
@@ -65,10 +67,56 @@ const addCompteChoriste = (req, res) => {
 }
 
 
+const EliminerChoriste = async (req, res) => {
+  try {
+    // Find the choriste
+    const choriste = await Choriste.findById(req.params.id);
+    console.log(choriste._id);
+    if (!choriste) {
+       res.status(404).json({
+        message: "Choriste non trouvé!",
+      });
+    }else{
+
+    // Get the compte ID associated with the choriste
+    const c = choriste.compte;
+    console.log(choriste.compte);
+    // Delete the compte
+    const deletedCompteResult  = await Compte.deleteOne({ _id: c });
+    if (deletedCompteResult.deletedCount === 0) {
+       res.status(404).json({
+        message: "Compte non trouvé!",
+      });
+    }
+    // Update choriste status and historiqueStatut
+    choriste.statut = "Eliminé_D";
+    choriste.Compte = null;
+    choriste.historiqueStatut.push({
+      statut: choriste.statut,
+      date: new Date()
+    });
+    // Enregistrer les modifications dans la base de données
+    const savedChoriste = await choriste.save();
+    Utilisateur.choriste = savedChoriste;
+    return res.status(201).json({
+      message: "Choriste éliminé pour une raison disciplinaire!"
+    });
+  }
+  } catch (error) {
+    console.error("Erreur lors de l'élimination du choriste :", error);
+    res.status(500).json({
+      error: "Erreur!!",
+    });
+  }
+};
+
+
+
 module.exports = {
   addCompteChoriste,
   fetchCompte, 
   getCompte,
-  deleteCompte
+  deleteCompte,
+  EliminerChoriste
 };
 

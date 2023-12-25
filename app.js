@@ -46,6 +46,10 @@ mongoose.connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mong
        .then(() => console.log("Connexion a MongoDB réussie !"))
        .catch((e) => console.log("Connexion a MongoDB échouée!", e ))
 
+// mongoose.connect("mongodb://127.0.0.1:27017/Gestion_Choeur"
+//  ).then(() => console.log("connexion a MongoDB reussie!"))
+// .catch((e) => console.log("connexion a MongoDB échouée!",e))
+
 app.use((req, res, next) => {
   console.log('Requête reçue:', req.method, req.url, req.body);
   next();
