@@ -21,8 +21,8 @@ const tacheMiseAJourStatut = cron.schedule('0 0 1 10 * ', async () => {
         const choristes = await Choriste.find();
        
 
-        // Mettre à jour le statut pour chaque choriste
-        for (const choriste of choristes) {
+          // Mettre à jour le statut pour chaque choriste
+          for (const choriste of choristes) {
       
 
             if (choriste.date_adhesion.getFullYear() === saisonCourante) {
@@ -44,9 +44,13 @@ const tacheMiseAJourStatut = cron.schedule('0 0 1 10 * ', async () => {
 
               savedchoriste = await choriste.save();
               Utilisateur.Choriste = savedchoriste;
-         
-
-        }
+      
+          // Après la mise à jour du statut, émettez une notification au socket spécifique du choriste
+          const choristeSocket = choristesSockets[choriste._id];
+          if (choristeSocket) {
+              choristeSocket.emit('notification', { message: 'Votre statut a été mis à jour.' });
+          }
+      }
 
         console.log('Mise à jour réussie pour tous les choristes');
     } catch (error) {
@@ -278,7 +282,7 @@ exports.signup = (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
-  User.findOne({ email: req.body.email })
+  User.findOne({ login: req.body.login })
     .then((user) => {
       if (!user) {
         return res
@@ -286,7 +290,7 @@ exports.login = (req, res, next) => {
           .json({ message: "Login ou mot passe incorrecte" });
       }
       bcrypt
-        .compare(req.body.password, user.password)
+        .compare(req.body.motDePasse, user.motDePasse)
         .then((valid) => {
           if (!valid) {
             return res
