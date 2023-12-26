@@ -1,7 +1,6 @@
 
 const Planning = require('../models/audition');
 const moment = require('moment');
-const Audition = require('../models/audition');
 const Candidat = require('../models/candidat');
 const Choriste = require('../models/choriste');
 const Compte = require('../models/compte');
@@ -656,7 +655,7 @@ const creerChoriste = async (candidat) => {
     const adresse= candidat.adresse
     const date_naiss= candidat.date_naiss
     const sexe= candidat.sexe
-
+    const Taille= candidat.Taille
     await Candidat.findByIdAndDelete ({ _id: candidat._id})
     // Créer le Choriste avec les attributs du candidat
     const nouveauChoriste = new Choriste({
@@ -670,6 +669,7 @@ const creerChoriste = async (candidat) => {
       adresse: adresse,
       date_naiss: date_naiss,
       sexe: sexe,
+      Taille: Taille,
     });
     // Enregistrez le Choriste dans la base de données
     await nouveauChoriste.save();

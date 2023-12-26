@@ -28,6 +28,7 @@ const choristeSchema = mongoose.Schema({
     enum: ['Junior', 'Choriste', 'Sénior', 'Vétéran'],
     default: 'Junior',
   },
+  Taille : {type : Number, required: true},
   date_adhesion: { type: Date },
   historiqueStatut: [historiqueStatutSchema],
   nbr_concerts: { type: Number },
