@@ -17,5 +17,12 @@ const Concert = mongoose.model('concert', {
   liste_Abs: { type: Array, default: [], required: false },
 
   link: { type: String, required: true },
+
+  placements: {
+    soprano: [[Object]],
+    alto: [[Object]],
+    tenor: [[Object]],
+    basse: [[Object]],
+  },
 })
 module.exports = Concert;
