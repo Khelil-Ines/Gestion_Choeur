@@ -21,6 +21,7 @@ const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
 const ConcertRouter = require("./routes/concert");
 const SaisonRouter = require("./routes/saison.js");
+const liste_presence_concert = require("./routes/liste_present_concert.js");
 
 app.use(express.json());
 
@@ -54,5 +55,6 @@ app.use("/api/compte", compteRouter);
 app.use("/api/conge", congeRouter);
 app.use("/api/concert", ConcertRouter);
 app.use("/api/saison", SaisonRouter);
+app.use("/api/presenceConcert", liste_presence_concert);
 
 module.exports = app;
