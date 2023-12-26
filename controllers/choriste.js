@@ -45,6 +45,12 @@ const tacheMiseAJourStatut = cron.schedule('0 0 1 10 * ', async () => {
               savedchoriste = await choriste.save();
               Utilisateur.Choriste = savedchoriste;
       
+          // Après la mise à jour du statut, émettez une notification au socket spécifique du choriste
+          const choristeSocket = choristesSockets[choriste._id];
+          if (choristeSocket) {
+              choristeSocket.emit('notification', { message: 'Votre statut a été mis à jour.' });
+          }
+      }
 
         console.log('Mise à jour réussie pour tous les choristes');
     } catch (error) {
@@ -173,17 +179,6 @@ exports.fetchChoriste = (req, res) => {
         message: "Données invalides!",
       });
     });
-}
-
-exports.addChoriste = (req, res) => { 
-  const newChoriste = new Choriste(req.body);
-  newChoriste.save()
-      .then(choriste => {
-          res.json(choriste);
-      })
-      .catch(err => {
-          res.status(400).json({ erreur: 'Échec de la création du l\'choriste' });
-      });
 }
   
 exports.getChoriste = (req, res) => {

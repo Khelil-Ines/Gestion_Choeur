@@ -1,5 +1,8 @@
 const Concert = require("../models/concert.js");
 const crypto = require('crypto');
+const _ = require('lodash');
+const Choriste = require('../models/choriste');
+const mongoose = require('mongoose');
 
 
 const addConcert = (req, res) => {
@@ -103,9 +106,92 @@ const deleteConcert = (req, res) => {
     });
 };
 
+
+
+
+// 1. Fonction de tri par taille
+const trierParTaille = (a, b) => b.Taille - a.Taille;
+
+// 2. Diviser la scène en sous-matrices de (2,3) pour chaque pupitre
+const sceneDivisee = _.chunk(Array.from({ length: 20 }), 4); // 4 rangées x 4 places
+
+// 3. Attribuer des places aux choristes
+const attribuerPlaces = (listeChoristes, pupitre) => {
+
+  const choristesTriés = listeChoristes.filter(choriste => choriste.pupitre === pupitre).sort(trierParTaille);
+  console.log('Choristes triés :', choristesTriés);
+  let index = 0;
+  for (let i = 0; i < sceneDivisee.length; i++) {
+    for (let j = 0; j < sceneDivisee[i].length; j++) {
+      if (index < choristesTriés.length) {
+        const placeAttribuee = {
+          nom: choristesTriés[index].nom,
+          taille: choristesTriés[index].Taille,
+          pupitre
+        };
+        sceneDivisee[i][j] = placeAttribuee;
+        console.log(`Place attribuée à ${placeAttribuee.nom} (${placeAttribuee.taille} cm) - Pupitre: ${placeAttribuee.pupitre}`);
+        index++;
+      } else {
+        console.error(`Erreur : Tous les choristes n'ont pas été attribués. Index : ${index} Choristes restants : ${choristesTriés.slice(index)}`);
+        return; // Ajoutez cette ligne pour sortir de la fonction si tous les choristes ont été attribués
+      }
+    }
+  }
+};
+
+
+
+const attribuerPlacesAuxChoristesPresentAuConcert = async (req, res) => {
+  try {
+    // Assurez-vous que le corps de la demande est analysé en tant qu'objet JSON
+    const { concertId } = req.body;
+    console.log('ID de concert reçu :', concertId);
+
+    const concert = await Concert.findById(concertId);
+    if (!concert) {
+      console.error('Concert non trouvé.');
+      return;
+    }
+
+    // Nettoyez les IDs des choristes présents
+    const choristesPresentIds = concert.liste_Presents.map(String);  
+
+    const choristesPresent = await Choriste.find({ _id: { $in: choristesPresentIds } });
+    console.log('Choristes présents :', choristesPresent);
+
+
+    // Attribuer des places aux choristes présents
+    attribuerPlaces(choristesPresent, 'Soprano');
+    attribuerPlaces(choristesPresent, 'Alto');
+    attribuerPlaces(choristesPresent, 'Tenor');
+    attribuerPlaces(choristesPresent, 'Basse');
+
+    // Mettez à jour la liste_Presents dans le document du concert
+    sceneDivisee.forEach(row => {
+      console.log(row.map(place => (place ? `${place.nom} (${place.taille} cm) ${place.pupitre}` : '______')).join('\t'));
+    });
+      await concert.save();
+
+    console.log('Places attribuées avec succès aux choristes présents.');
+  } catch (error) {
+    console.error('Erreur lors de l\'attribution des places aux choristes présents :', error);
+  }
+}
+
+
+
+// Affichage de la scèneDivisee en tant que matrice avec les noms des choristes
+console.log("Matrice de la scène :");
+sceneDivisee.forEach(row => {
+  console.log(row.map(place => (place ? `${place.nom} (${place.Taille} cm) ${place.pupitre}` : '______')).join('\t'));
+});
+
+
 module.exports = {
   addConcert,
   fetchConcert,
   updateConcert,
   deleteConcert,
+  attribuerPlacesAuxChoristesPresentAuConcert
 }
