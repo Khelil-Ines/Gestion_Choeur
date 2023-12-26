@@ -2,7 +2,6 @@
 const Planning = require('../models/audition');
 const moment = require('moment');
 const Candidat = require('../models/candidat');
-const Audition = require('../models/audition');
 const Choriste = require('../models/choriste');
 const Compte = require('../models/compte');
 const nodemailer = require('nodemailer');
@@ -78,8 +77,8 @@ const genererPlanning = async (req, res, next) => {
         });
 
         // Vérifiez si l'e-mail du candidat est défini
-        if (candidatDetails && candidatDetails.mail) {
-          const destinataire = candidatDetails.mail;
+        if (candidatDetails && candidatDetails.email) {
+          const destinataire = candidatDetails.email;
           const sujet = "Détails de votre audition";
           const texte = `Bonjour,\n\nVotre audition est prévue pour le ${moment(
             session.dateAudition

@@ -3,13 +3,12 @@ const router = express.Router();
 const CandidatController = require("../controllers/candidat");
 
 //find tout
-router.get("/", CandidatController.ListerCandidats);
+
 
 router.get("/",CandidatController.getCandidat)
 
 router.get("/:id",CandidatController.fetchCandidat)
 
-router.post("/",CandidatController.addCandidat)
 
 router.patch("/:id", CandidatController.updateCandidat)
 
