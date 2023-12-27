@@ -10,6 +10,7 @@ router.get("/:id",repetitionController.fetchRepetition)
 router.patch("/:id", repetitionController.updateRepetition)
 router.delete("/:id", repetitionController.deleteRepetition)
 router.post("/date", repetitionController.getPlanningByDate);
+router.post('/ajouter', repetitionController.repetitionPourcentage);
 
 module.exports = router;
 
