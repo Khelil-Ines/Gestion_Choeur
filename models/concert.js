@@ -12,12 +12,12 @@ const Concert = mongoose.model("concert", {
   },
   programme: [{ type: mongoose.Schema.Types.ObjectId, ref: "programme" }],
   liste_Presents: { type: Array, default: [], required: false },
-  liste_final: { type: [String], default: [] }, // Les absents sont également identifiés par leur nom
-  nbr_participant: {
-    soprano: { type: Number, default: 0 },
-    alto: { type: Number, default: 0 },
-    tenor: { type: Number, default: 0 },
-    basse: { type: Number, default: 0 },
+  liste_final: { type: Array, default: [], required: false },
+  participant_par_pupitre: {
+    Soprano: { type: Array, default: [] },
+    Alto: { type: Array, default: [] },
+    Tenor: { type: Array, default: [] },
+    Basse: { type: Array, default: [] },
   },
   seuil_présence: { type: Number },
   //disponible
