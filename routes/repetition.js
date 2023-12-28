@@ -13,4 +13,3 @@ router.post("/date", repetitionController.getPlanningByDate);
 router.post('/ajouter', repetitionController.repetitionPourcentage);
 
 module.exports = router;
-
