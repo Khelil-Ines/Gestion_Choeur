@@ -23,8 +23,8 @@ const tacheMiseAJourStatut = cron.schedule('0 0 1 10 * ', async () => {
         const choristes = await Choriste.find();
        
 
-        // Mettre à jour le statut pour chaque choriste
-        for (const choriste of choristes) {
+          // Mettre à jour le statut pour chaque choriste
+          for (const choriste of choristes) {
       
 
             if (choriste.date_adhesion.getFullYear() === saisonCourante) {
@@ -46,9 +46,13 @@ const tacheMiseAJourStatut = cron.schedule('0 0 1 10 * ', async () => {
 
               savedchoriste = await choriste.save();
               Utilisateur.Choriste = savedchoriste;
-         
-
-        }
+      
+          // Après la mise à jour du statut, émettez une notification au socket spécifique du choriste
+          const choristeSocket = choristesSockets[choriste._id];
+          if (choristeSocket) {
+              choristeSocket.emit('notification', { message: 'Votre statut a été mis à jour.' });
+          }
+      }
 
         console.log('Mise à jour réussie pour tous les choristes');
     } catch (error) {
@@ -63,11 +67,11 @@ exports.addChoriste = (req, res) => {
     saved = choriste
       .save()
       .then(() => {
-        Utilisateur.Choriste = choriste;
         res.status(201).json({
           models: choriste,
           message: "object cree!",
         });
+        Utilisateur.Choriste = saved;
       })
       .catch((error) => {
         
@@ -91,7 +95,7 @@ exports.getprofilchoriste = async (req, res) => {
             num_tel:choriste.num_tel,
             CIN :choriste.CIN,
             adresse: choriste.adresse,
-            mail: choriste.mail,
+            email: choriste.email,
             date_naiss:choriste.date_naiss,
             sexe : choriste.sexe,
             tessiture : choriste.tessiture,
@@ -179,16 +183,6 @@ exports.fetchChoriste = (req, res) => {
     });
 }
 
-exports.addChoriste = (req, res) => { 
-  const newChoriste = new Choriste(req.body);
-  newChoriste.save()
-      .then(choriste => {
-          res.json(choriste);
-      })
-      .catch(err => {
-          res.status(400).json({ erreur: 'Échec de la création du l\'choriste' });
-      });
-}
   
 exports.getChoriste = (req, res) => {
   Choriste.find()
@@ -256,8 +250,6 @@ exports.getChoriste = (req, res) => {
     }
   };
   
-
-
 
   exports.presence = async (req, res) => {
     try {
