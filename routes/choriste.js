@@ -18,8 +18,7 @@ router.post("/presenceRep/:idRepetition/:link",auth.loggedMiddleware,choristeCon
 router.post("/presenceConcert/:idConcert/:link",auth.loggedMiddleware,choristeController.presenceConcert)
 router.get("/profile/:id", choristeController.getprofilchoriste);
 router.get("/statut/:id", choristeController.getstatutchoriste);
-// router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
-router.post("/", choristeController.addChoriste);
+
 
 router.get("/",choristeController.getChoriste)
 
@@ -32,7 +31,7 @@ router.patch("/update/:id", choristeController.updatePupitre)
 
 router.get("/profile/:id", choristeController.getprofilchoriste);
 router.get("/statut/:id", choristeController.getstatutchoriste);
-// router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
+router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
 
 
 router.get("/lister/:idConcert",choristeController.Lister_choriste_toutchoeur)
