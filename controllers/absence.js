@@ -3,6 +3,7 @@ const Utilisateur = require("../models/utilisateur");
 const nodemailer = require("nodemailer");
 const ejs = require("ejs");
 const path = require("path");
+const cron = require('node-cron');
 const Absence = require("../models/absence");
 const Repetition = require("../models/repetition");
 const Concert = require("../models/concert");
@@ -62,7 +63,7 @@ exports.envoyerEmailNomination = async (req, res) => {
     const choristesNomines = await Choriste.find({ statut: "Nominé" });
 
     // Vérifiez s'il y a des choristes nominés
-    if (choristesElimines.length === 0) {
+    if (choristesNomines.length === 0) {
       return res.status(404).json({ message: "Aucun choriste nominé trouvé" });
     } else {
       for (const choristeNomine of choristesNomines) {
@@ -176,8 +177,6 @@ exports.declarerAbsenceRepetition = async (req, res) => {
   }
 };
 
- 
-
   exports.declarerAbsenceConcert = async (req, res) => {
     try {
       // Find the latest concert
@@ -248,7 +247,149 @@ exports.declarerAbsenceRepetition = async (req, res) => {
       return res.status(500).json({ error: "Erreur lors de la déclaration de l'absence" });
     }
   };
+
+  // const declarationConcert = cron.schedule('30 23 * * *', async () => {
+  //   try {
+  //     // Find the latest concert
+  //     const latestConcert = await Concert.findOne().sort({ date: -1 });
   
+  //     if (!latestConcert) {
+  //       console.error('No concert found.');
+  //     }
+
+  //     if (!latestConcert.liste_Abs || latestConcert.liste_Abs.length === 0) {
+  //       console.error('Liste_Abs is empty.');
+  //     }
+
+  //     for (const choristeId of latestConcert.liste_Abs) {
+  //       const choriste = await Choriste.findById(choristeId);
+  
+  //       if (!choriste) {
+  //         console.error(`Choriste with ID ${choristeId} not found.`);
+  //         continue; // Move to the next iteration if choriste not found
+  //       }
+  
+  //       // Incrémenter le compteur d'absences
+  //       choriste.nbr_absences++;
+  
+  //       // Créer une nouvelle absence
+  //       const newAbsence = new Absence({
+  //         Type: "Concert",
+  //         raison: "Non spécifiée !",
+  //         Date: latestConcert.date,
+  //       });
+  
+  //       // Enregistrer l'absence dans la base de données
+  //       const savedAbsence = await newAbsence.save();
+  
+  //       // Ajouter l'absence à la liste des absences du choriste
+  //       choriste.absences.push(savedAbsence._id);
+  
+  //       // Mettre à jour le statut en fonction des nouvelles règles
+  //       if (choriste.nbr_absences > Absence.seuilNomination) {
+  //         choriste.statut = "Eliminé";
+  //         choriste.historiqueStatut.push({
+  //           statut: choriste.statut,
+  //           date: latestConcert.date,
+  //         });
+  //       } else if (choriste.nbr_absences == Absence.seuilNomination) {
+  //         choriste.statut = "Nominé";
+  //         choriste.historiqueStatut.push({
+  //           statut: choriste.statut,
+  //           date: latestConcert.date,
+  //         });
+  //       }
+  
+  //       // Enregistrer les modifications dans la base de données
+  //       savedChoriste = await choriste.save();
+  //       Utilisateur.choriste = savedChoriste;
+  
+  //       console.log(
+  //         `Absence déclarée pour le choriste ${choriste.nom} ${choriste.prénom}. Nouveau statut : ${choriste.statut}`
+  //       );
+  //     }
+  
+  //     // Send the response once all choristes are processed
+  //     console.log('Absences concert créées avec succès.');
+  //   } catch (error) {
+  //     console.error("Erreur lors de la déclaration de l'absence :", error);
+  //   }
+  // });
+
+  // declarationConcert.start();
+
+  // const declarationRepetition = cron.schedule('30 23 * * *', async () => {
+  //   try {
+  //     // Find the latest répétition
+  //     const latestRepetition = await Repetition.findOne().sort({ date: -1 });
+  
+  //     if (!latestRepetition) {
+  //       console.error('No repetition found.');
+  //     }
+  
+  
+  //     if (!latestRepetition.liste_Abs || latestRepetition.liste_Abs.length === 0) {
+  //       console.error('Liste_Abs is empty.');
+  //     }
+  
+  //     for (const choristeId of latestRepetition.liste_Abs) {
+  //       const choriste = await Choriste.findById(choristeId);
+     
+  
+  //       if (!choriste) {
+  //         console.error(`Choriste with ID ${choristeId} not found.`);
+  //         continue; // Move to the next iteration if choriste not found
+  //       }
+     
+  
+  //       // Incrémenter le compteur d'absences
+  //       choriste.nbr_absences++;
+  
+  //       // Créer une nouvelle absence
+  //       const newAbsence = new Absence({
+  //         Type: "Repetition",
+  //         raison: "Non spécifiée !",
+  //         Date: latestRepetition.date,
+  //       });
+  //       console.log("New absence created:", newAbsence);
+  //       // Enregistrer l'absence dans la base de données
+  //       const savedAbsence = await newAbsence.save();
+  
+  //       // Ajouter l'absence à la liste des absences du choriste
+  //       choriste.absences.push(savedAbsence._id);
+  
+  //       // Mettre à jour le statut en fonction des nouvelles règles
+  //       if (choriste.nbr_absences > Absence.seuilNomination) {
+  //         choriste.statut = "Eliminé";
+  //         choriste.historiqueStatut.push({
+  //           statut: choriste.statut,
+  //           date: latestRepetition.date,
+  //         });
+  //       } else if (choriste.nbr_absences == Absence.seuilNomination) {
+  //         choriste.statut = "Nominé";
+  //         choriste.historiqueStatut.push({
+  //           statut: choriste.statut,
+  //           date: latestRepetition.date,
+  //         });
+  //       }
+  
+  //       // Enregistrer les modifications dans la base de données
+  //       const savedChoriste = await choriste.save();
+  //       Utilisateur.choriste = savedChoriste;
+  
+  //       console.log(
+  //         `Absence déclarée pour le choriste ${choriste.nom} ${choriste.prénom}. Nouveau statut : ${choriste.statut}`
+  //       );
+  //       console.log('Absences repetition créées avec succès.');
+  
+  //     }
+  //     // Send the response once all choristes are processed
+  //   } catch (error) {
+  //     console.error("Erreur lors de la déclaration de l'absence :", error);
+  //   }
+  // });
+
+  // declarationRepetition.start();
 
   exports.getAbsencesChoriste = async (req, res) => {
     try {
@@ -265,6 +406,7 @@ exports.declarerAbsenceRepetition = async (req, res) => {
         .json({ error: "Erreur lors de la récupération des absences." });
     }
   };
+  
 exports.getElimines = async (req, res) => {
     try{
 
