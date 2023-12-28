@@ -28,7 +28,7 @@ mongoose
   .then(() => console.log("connexion a MongoDB reussie!"))
   .catch((e) => console.log("connexion a MongoDB échouée!", e));
 
-const app = express();
+
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -84,7 +84,7 @@ app.use("/api/Oeuvre", oeuvreRoutes);
 app.use("/Add_Chef", chef_router);
 app.use("/absence", absenceRouter);
 app.use("/api/choriste", choristeRouter);
-app.use("/api/candidat", candidatRouter);
+app.use("/api/candidat", CandidatRoutes);
 app.use("/api/compte", compteRouter);
 app.use("/api/repetition", repetitionRouter);
 app.use("/api/conge", congeRouter);
