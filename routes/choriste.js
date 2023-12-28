@@ -5,6 +5,9 @@ const choristeController = require("../controllers/choriste");
 const CINMiddleware = require("../middlewares/CIN");
 
 
+
+router.get('/totalAbsence', choristeController.getGeneralAbsenceStatus);
+router.get('/totalAbsencePupitre/:pupitre', choristeController.getAbsenceStatusByPupitre);
 router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
 router.post("/setDispo/:idConcert",auth.loggedMiddleware,choristeController.setDispo);
 router.get('/confirm-dispo/:userId/:idConcert/:uniqueToken', choristeController.confirmDispo);

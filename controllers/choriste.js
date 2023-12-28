@@ -9,6 +9,7 @@ const Repetition = require("../models/repetition");
 const Concert = require("../models/concert");
 const nodemailer = require("nodemailer");
 const Chef_Pupitre = require("../models/chef_pupitre");
+const Absence = require("../models/absence");
 const jwt = require("jsonwebtoken");
 const saisonCourante = new Date().getFullYear(); 
 
@@ -795,6 +796,45 @@ exports.login = async (req, res, next) => {
   } catch (error) {
     console.error('Erreur lors de la connexion :', error);
     res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+};
+
+//conulter etat absence en general dans repetitions
+exports.getGeneralAbsenceStatus = async (req, res) => {
+  try {
+    const totalRehearsalAbsences = await Absence.countDocuments({ Type: 'Repetition' });
+
+    res.json({ totalRehearsalAbsences });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
+
+
+//conulter etat absence par pupitre
+exports.getAbsenceStatusByPupitre = async (req, res) => {
+  try {
+    const { pupitre } = req.params;
+
+    // Find all choristers with the specified pupitre and populate the 'absences' field
+    const choristers = await Choriste.find({ pupitre }).populate('absences');
+
+    // Calculate total rehearsal absences for the given pupitre
+    let totalRehearsalAbsences = 0;
+
+    // Iterate through each chorister and count their rehearsal absences
+    for (const chorister of choristers) {
+      const rehearsalAbsences = chorister.absences.filter(absence => absence.Type === 'Repetition');
+      totalRehearsalAbsences += rehearsalAbsences.length;
+    }
+
+    res.json({ totalRehearsalAbsences });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
