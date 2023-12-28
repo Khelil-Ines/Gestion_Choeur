@@ -7,7 +7,7 @@ const notifierAdmin = async (io) => {
     const timeZone = 'Europe/Paris';
     const currentDate = moment().tz(timeZone);
     const yesterdayTenAM = moment().subtract(1, 'days').set({ hours: 10, minutes: 0, seconds: 0, milliseconds: 0 }).tz(timeZone);
-    const todayTenAM = moment().set({ hours: 20, minutes: 10, seconds: 0, milliseconds: 0 }).tz(timeZone);
+    const todayTenAM = moment().set({ hours: 10, minutes: 0, seconds: 0, milliseconds: 0 }).tz(timeZone);
 
     // Recherchez les candidats créés entre hier 10h00 et aujourd'hui 10h00
     const newCandidats = await Candidat.find({
