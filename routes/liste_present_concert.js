@@ -7,4 +7,9 @@ router.get(
   "/listeFinalparpupitre/:concert/:pupitre",
   presenceConcertController.getPresentParPupitre
 );
+
+router.patch(
+  "/modifier/Seuil/:id",
+  presenceConcertController.modifierParamPresence
+);
 module.exports = router;

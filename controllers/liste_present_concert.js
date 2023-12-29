@@ -10,55 +10,34 @@ const identifierListeFinal = async (req, res) => {
     if (!concertTrouve) {
       throw new Error("Concert non trouvé");
     }
-
     const seuilPresence = concertTrouve.seuil_présence;
     const personnesDispo = concertTrouve.liste_Abs;
-    console.log(seuilPresence);
-
-    let choristesTries = [];
-
-    for (let choristeId of personnesDispo) {
-      let choriste = await Choriste.findById(choristeId);
-      choristesTries.push(choriste); 
-    }
-
-    choristesTries.sort((a, b) => a.nbr_absences - b.nbr_absences);
 
     let dispoSeuilInferieur = [];
     for (let choristeId of personnesDispo) {
       let choriste = await Choriste.findById(choristeId);
-      console.log("**************** choriste " + choriste.nbr_absences);
       if (choriste.nbr_absences < seuilPresence) {
-        dispoSeuilInferieur.push(choristeId);
-        concertTrouve.liste_final.push(choristeId);
+        dispoSeuilInferieur.push(choriste);
+      }
+    }
+
+    dispoSeuilInferieur.sort((a, b) => {
+      return a.nbr_absences - b.nbr_absences;
+    });
+
+    for (let choristeId of dispoSeuilInferieur) {
+      if (concertTrouve.liste_final.indexOf(choristeId._id.toString()) === -1) {
+        concertTrouve.liste_final.push(choristeId._id.toString());
+        let index = concertTrouve.liste_Abs.indexOf(choristeId._id.toString());
+        concertTrouve.liste_Abs.splice(index, 1);
       }
     }
     await concertTrouve.save();
 
-    const compteurPupitreDispo = {
-      Soprano: [],
-      Alto: [],
-      Tenor: [],
-      Basse: [],
-    };
-
-    await Promise.all(
-      dispoSeuilInferieur.map(async (personne) => {
-        let pers = await Choriste.findById(personne);
-        console.log("**************************pupitre " + pers);
-        compteurPupitreDispo[pers.pupitre] = pers;
-        concertTrouve.participant_par_pupitre[pers.pupitre].push(pers);
-      })
-    );
-
     res.status(200).json({
       message: "Liste des choristes disponibles",
       ListeChoristes: dispoSeuilInferieur,
-      personne_par_pupitre: compteurPupitreDispo,
     });
-
-    console.log(compteurPupitreDispo);
-    return compteurPupitreDispo;
   } catch (error) {
     console.error(error);
     throw new Error("Erreur lors de l'identification des absents");
@@ -94,7 +73,30 @@ const getPresentParPupitre = async (req, res) => {
   }
 };
 
+const modifierParamPresence = (req, res) => {
+  Concert.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
+    .then((seuil) => {
+      if (!seuil) {
+        res.status(404).json({
+          message: "Concert non trouvé!",
+        });
+      } else {
+        res.status(200).json({
+          NouveauSeuil: seuil,
+          message: "Concert modifié!",
+        });
+      }
+    })
+    .catch(() => {
+      res.status(400).json({
+        error: Error.message,
+        message: "Données invalides!",
+      });
+    });
+};
+
 module.exports = {
   identifierListeFinal,
   getPresentParPupitre,
+  modifierParamPresence,
 };
