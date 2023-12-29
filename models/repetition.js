@@ -8,7 +8,7 @@ const repetitionSchema = mongoose.Schema({
   lieu:{type :String, required:true},
   liste_Presents: { type: Array, required: false },
   liste_Abs: { type: Array, required: false },
-
+  programme : [{ type: mongoose.Schema.Types.ObjectId, ref: 'programme'  }],
   prcPupitre1: { type: Number, required: false },
   prcPupitre2: { type: Number, required: false },
   prcPupitre3: { type: Number, required: false },
