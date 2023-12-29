@@ -30,6 +30,17 @@
         candidatesList.appendChild(candidateItem.cloneNode(true));
       });
     });
+
+    socket.on('choristeNotification', (data) => {
+      const choristeNotificationsList = document.getElementById('choristeNotifications');
+      const choristeNotificationItem = document.createElement('li');
+      choristeNotificationItem.textContent = `ID: ${choriste._id}, Nom: ${choriste.nom}, Prénom: ${choriste.prénom}`;
+      choristeNotificationsList.appendChild(choristeNotificationItem);
+    });
+
+    const choristeId = "ID_DU_CHORISTE";  // Remplacez par l'ID réel du choriste
+    socket.emit('choristeConnect', choristeId);
+
   </script>
 </body>
 </html>
