@@ -1,6 +1,7 @@
 const Choriste = require("../models/choriste");
 const Conge = require("../models/conge");
 const cron = require("node-cron");
+const ChefPupitre = require("../models/chef_pupitre");
 
 const addConge = async (req, res) => {
   try {
@@ -26,8 +27,23 @@ const addConge = async (req, res) => {
       statut: choriste.statut,
       date: date_debut,
     });
+
     // Enregistre la mise à jour du choriste dans la base de données
     await choriste.save();
+
+    // Récupérez la pupitre du choriste
+    const pupitre = choriste.pupitre;
+
+    // Récupérez les chefs de pupitre de cette pupitre
+    const chefsDePupitre = await ChefPupitre.find({ pupitre });
+
+    // Notifiez les chefs de pupitre de ce congé
+    chefsDePupitre.forEach(chef => {
+      const chefSocket = choristesSockets[chef._id];
+      if (chefSocket) {
+        chefSocket.emit('notificationCongeAjoute', { choristeId, conge: savedConge });
+      }
+    });
 
     res.status(201).json({ choriste, conge: savedConge });
   } catch (error) {
@@ -35,6 +51,7 @@ const addConge = async (req, res) => {
     res.status(500).json({ error: "Échec de la création du congé." });
   }
 };
+
 
 const finCongeStatut = cron.schedule("* * * * * ", async () => {
   try {
