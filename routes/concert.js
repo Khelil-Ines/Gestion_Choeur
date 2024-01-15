@@ -11,6 +11,10 @@ router.delete("/:id", concertController.deleteConcert);
 router.post("/placement", concertController.attribuerPlacesAuxChoristesPresentAuConcert);
 router.post("/add", concertController.addConcert);
 router.get("/placement/:id", concertController.afficherPlacements);
+router.get("/statisticConcert/:id", concertController.getStatisticConcert);
+router.get("/statisticChoriste/:id", concertController.getStatisticChoriste);
+router.get("/statisticOeuvre/:id", concertController.getStatisticsByOeuvre);
+
 //router.patch("/placement/modifier/:id", concertController.modifierPlace);
 
   module.exports = router;
