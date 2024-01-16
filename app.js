@@ -19,6 +19,66 @@ const SaisonRouter = require("./routes/saison.js");
 const notifrepetition = require("./routes/notifrepetition.js");
 const ConcertRouter = require("./routes/concert");
 
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Todos Express API with swagger",
+      version: "0.1.0",
+      description: "This is a simple CRUD API application",
+      contact: {
+        name: "Ines,Aya,Asma,Ghofrane",
+        email: "testb8835@gmail.com",
+      },
+    },
+    servers: [
+    {
+      url: "http://localhost:5000/api",
+      description: "Development server",
+    }
+    ],
+  components: {
+    responses: {
+      200: {
+        description: "Success",
+      },
+      400: {
+        description: "Bad request. You may need to verify your information.",
+      },
+      401: {
+        description: "Unauthorized request, you need additional privileges",
+      },
+      403: {
+        description:
+          "Forbidden request, you must login first. See /auth/login",
+      },
+      404: {
+        description: "Object not found",
+      },
+      422: {
+        description:
+          "Unprocessable entry error, the request is valid but the server refused to process it",
+      },
+      500: {
+        description: "Unexpected error, maybe try again later",
+      },
+    },
+    securitySchemes: {
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
+    },
+  },
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
+},
+apis: ["./routes/*.js"],
+}
 
 mongoose
   .connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority", {
