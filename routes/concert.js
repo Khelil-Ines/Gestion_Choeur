@@ -3,7 +3,12 @@ const router = require("express").Router();
 const concertController = require("../controllers/concert.js");
 
 
-//add
+/**
+ * @swagger
+ * tags:
+ *  name: Concert
+ *  description:  API de gestion des concerts
+ */
 router.post("/add", concertController.addConcert);
 router.get("/", concertController.fetchConcert);
 router.patch("/:id", concertController.updateConcert);

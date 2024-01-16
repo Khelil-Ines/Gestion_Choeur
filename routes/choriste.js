@@ -5,7 +5,12 @@ const choristeController = require("../controllers/choriste");
 const CINMiddleware = require("../middlewares/CIN");
 
 
-
+/**
+ * @swagger
+ * tags:
+ *  name: Choriste
+ *  description:  API de gestion des choristes
+ */
 router.get('/totalAbsence', choristeController.getGeneralAbsenceStatus);
 router.get('/totalAbsencePupitre/:pupitre', choristeController.getAbsenceStatusByPupitre);
 router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)

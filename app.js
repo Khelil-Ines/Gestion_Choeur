@@ -23,9 +23,9 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Todos Express API with swagger",
+      title: "Choir management API with swagger by Ines,Aya,Aasma,Ghofrane",
       version: "0.1.0",
-      description: "This is a simple CRUD API application",
+      description: "This is a choir management API application",
       contact: {
         name: "Ines,Aya,Asma,Ghofrane",
         email: "testb8835@gmail.com",
@@ -80,6 +80,12 @@ const options = {
 apis: ["./routes/*.js"],
 }
 
+const swaggerJsdoc = require("swagger-jsdoc");
+ const swaggerUi = require("swagger-ui-express");
+
+ const specs = swaggerJsdoc(options);
+ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, { explorer: true }));
+ app.use(express.json());
 mongoose
   .connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority", {
     useNewUrlParser: true,
@@ -141,7 +147,7 @@ app.use("/audition", auditionRouter);
 app.use("/candidats", CandidatRoutes);
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
-app.use("/Add_Chef", chef_router);
+app.use("/Chef_pupitre", chef_router);
 app.use("/absence", absenceRouter);
 app.use("/api/choriste", choristeRouter);
 app.use("/api/candidat", CandidatRoutes);
