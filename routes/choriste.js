@@ -16,7 +16,6 @@ router.get('/totalAbsencePupitre/:pupitre', choristeController.getAbsenceStatusB
 router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
 router.post("/setDispo/:idConcert",auth.loggedMiddleware,choristeController.setDispo);
 router.get('/confirm-dispo/:userId/:idConcert/:uniqueToken', choristeController.confirmDispo);
-router.post("/login", choristeController.login);
 router.post("/presenceRep/:idRepetition/:link",auth.loggedMiddleware,choristeController.presence)
 
 

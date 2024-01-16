@@ -3,7 +3,6 @@ const cron = require('node-cron');
 const Choriste = require('../models/choriste');
 const Utilisateur = require('../models/utilisateur'); 
 const User = require('../models/compte'); 
-const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const Repetition = require("../models/repetition");
 const Concert = require("../models/concert");
@@ -81,6 +80,7 @@ exports.addChoriste = (req, res) => {
         });
       });
   };
+
 exports.getprofilchoriste = async (req, res) => {
     Choriste.findOne({ _id: req.params.id })
     .then((choriste) => {
@@ -140,8 +140,6 @@ exports.getstatutchoriste = async (req, res) => {
     });
 };
 
-
-
 //Fonction pour vérifier si un choriste est en congé
 exports.estEnConge = (choriste) => {
   const maintenant = moment();
@@ -159,7 +157,6 @@ exports.estEnConge = (choriste) => {
 
   return false; // Le choriste n'est pas en congé
 };
-
 
 exports.fetchChoriste = (req, res) => {
     Choriste.findOne({ _id: req.params.id })
@@ -182,7 +179,6 @@ exports.fetchChoriste = (req, res) => {
       });
     });
 }
-
   
 exports.getChoriste = (req, res) => {
   Choriste.find()
@@ -199,7 +195,6 @@ exports.getChoriste = (req, res) => {
       });
     });
 };
-
 
   exports.getChoristesByPupitre = (req, res) => {
     const pupitreNom = req.body.pupitreNom;
@@ -250,7 +245,6 @@ exports.getChoriste = (req, res) => {
     }
   };
   
-
   exports.presence = async (req, res) => {
     try {
       const { idRepetition, link } = req.params;
@@ -327,7 +321,6 @@ exports.getChoriste = (req, res) => {
       res.status(500).json({ erreur: 'Erreur interne du serveur' });
     }
   };
-
 
 //presence_concert
 exports.presenceConcert = async (req, res) => {
@@ -598,7 +591,6 @@ exports.confirmDispo = async (req, res) => {
   }
 };
 
-
 // Fonction pour extraire l'ID du choriste à partir du token
 exports.getUserIdFromToken = (authorizationHeader) => {
   const token = authorizationHeader.split(" ")[1];
@@ -619,7 +611,6 @@ exports.updatePresenceList = (concert, userId) => {
   // Ajouter l'ID du choriste à la liste de présence
   concert.liste_Presents.push(userId);
 };
-
 
 exports.getHistoriqueActivite = async (req, res) => {
   try {
@@ -669,8 +660,6 @@ exports.getHistoriqueActivite = async (req, res) => {
   }
 };
 
-
-
 exports.Lister_choriste_toutchoeur = async (req, res) => {
   try {
     const { idConcert } = req.params;
@@ -708,7 +697,6 @@ exports.Lister_choriste_toutchoeur = async (req, res) => {
     res.status(500).json({ erreur: "Erreur interne du serveur" });
   }
 };
-
 
 //consulter  la liste des choristes pour tout le chœur pour un concert spécifique
 
@@ -759,51 +747,6 @@ exports.Lister_choriste_pupitre = async (req, res) => {
     res.status(500).json({ erreur: 'Erreur interne du serveur' });
   }
 };
-
-
-exports.login = async (req, res, next) => {
-  const { login, motDePasse } = req.body;
-
-  try {
-    const user = await User.findOne({ login });
-
-    if (!user) {
-      return res.status(401).json({ message: 'Login ou mot de passe incorrect' });
-    }
-
-    const validPassword = await bcrypt.compare(motDePasse, user.motDePasse);
-
-    if (!validPassword) {
-      return res.status(401).json({ message: 'Login ou mot de passe incorrect' });
-    }
-
-    // Mettez à jour l'état de connexion
-    console.log(user)
-    user.etatConnexion = "true";
-    await user.save();
-
-    res.status(200).json({
-      token: jwt.sign({ userId: user._id }, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' }),
-    });
-  } catch (error) {
-    console.error('Erreur lors de la connexion :', error);
-    res.status(500).json({ error: 'Erreur interne du serveur' });
-  }
-};
-
-//conulter etat absence en general dans repetitions
-exports.getGeneralAbsenceStatus = async (req, res) => {
-  try {
-    const totalRehearsalAbsences = await Absence.countDocuments({ Type: 'Repetition' });
-
-    res.json({ totalRehearsalAbsences });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
-
-
 
 
 //conulter etat absence par pupitre

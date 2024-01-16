@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const UserModels = require("../models/compte");
+const Compte = require("../models/compte");
+const Choriste = require ("../models/choriste");
 
 // module.exports.verifyToken = async (req, res, next) => {
 //   try {
@@ -36,54 +37,75 @@ module.exports.loggedMiddleware = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
-    const userId = decodedToken.userId;
+    const compteId = decodedToken.compteId;
 
-    UserModels.findOne({_id:userId})
-      .then((UserModel) => {
-        if (!UserModel) {
-          res.status(404).json({
-            message: "User non trouvé!",
-          });
-          
-        } else {
+    Compte.findOne({ _id: compteId })
+    .then((compte) => {
+       if (!compte) {
+          return res.status(401).json({ message: "login ou mot de passe incorrecte " });
+       } else {
           req.auth = {
-            userId: userId,
-            role:UserModel.role
+             compteId: compteId,
+             role: compte.role,
           };
           next();
-        }
-      })
-      .catch(() => {
-        res.status(400).json({
-          error: Error.message,
-          message: "Données inva!ide",
-        });
-      });
-   
-
+       }
+    })
+    .catch((error) => {
+       res.status(500).json({ error: error.message });
+    });
+ 
   } catch (error) {
-    res.status(401).json({ error:error.message });
+    res.status(401).json({ error });
   }
 };
 
 
-// module.exports.isadmin = (req, res, next) => {
-// try{
-//     if(req.auth.role === "admin")
-//     {
-//       next();}
-//       else {
-//         res.status(403).json({ error:"no access to this route" });
-//       }
-    
-// }
+module.exports.isChoriste = async (req, res, next) => {
+try{
+  const choriste = await Choriste.findOne({ compte: req.auth.compteId });
+console.log(choriste)
 
-// catch(e)
-// {
-//   res.status(401).json({ e:e.message });
+    if(choriste)
+    {
+      next();}
+      else {
+        res.status(403).json({ error:"no access to this route" });
+      } 
+}
+catch(error)
+{
+  res.status(401).json({ error:error.message });
+}
+};
 
-// }
+module.exports.isAdmin = (req, res, next) => {
+  try{
+      if(req.auth.__t === "Admin")
+      {
+        next();}
+        else {
+          res.status(403).json({ error:"no access to this route" });
+        } 
+  }
+  catch(e)
+  {
+    res.status(401).json({ e:e.message });
+  }
+  };
 
-// };
-
+  module.exports.isChefPupitre = (req, res, next) => {
+    try{
+        if(req.auth.__t === "Chef_Pupitre")
+        {
+          next();}
+          else {
+            res.status(403).json({ error:"no access to this route" });
+          } 
+    }
+    catch(e)
+    {
+      res.status(401).json({ e:e.message });
+    }
+    };
 

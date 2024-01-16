@@ -35,7 +35,6 @@ const choristeSchema = mongoose.Schema({
   nbr_repetitions: { type: Number },
   nbr_absences: { type: Number, default: 0 },
   absences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Absence', required: false }],
-  compte: { type: mongoose.Schema.Types.ObjectId, ref: 'Compte' },
   conges: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Conge',
