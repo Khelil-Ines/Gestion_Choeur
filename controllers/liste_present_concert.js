@@ -1,5 +1,7 @@
 const Concert = require("../models/concert");
 const Choriste = require("../models/choriste");
+const Repetition = require("../models/repetition");
+const Programme = require("../models/programme");
 
 const identifierListeFinal = async (req, res) => {
   try {
@@ -95,8 +97,137 @@ const modifierParamPresence = (req, res) => {
     });
 };
 
+const listPresentRepetitonMemePupitre = async (req, res) => {
+  try {
+    const connecte = await Choriste.findOne({
+      _id: "65a6ad02d53b04e1f1442e19",
+    });
+
+    const repetitionId = req.params.repetition;
+    const repetition = await Repetition.findById(repetitionId);
+
+    if (!repetition) {
+      console.log("Repetition n'existe pas");
+      return res.status(404).json({
+        message: "Repetition not found",
+      });
+    } else {
+      const liste = [];
+
+      for (const choristeId of repetition.liste_Presents) {
+        const choriste = await Choriste.findById(choristeId);
+
+        if (choriste && choriste.pupitre === connecte.pupitre) {
+          liste.push(choriste);
+        }
+      }
+
+      res.status(200).json({
+        message: "Choristes présents",
+        choristes_present: liste,
+      });
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({
+      error: "Internal Server Error",
+    });
+  }
+};
+
+const listAbsentRepetitonMemePupitre = async (req, res) => {
+  try {
+    // const token = req.headers.authorization.split(" ")[1];
+    // const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
+    // const userId = decodedToken.userId;
+
+    const connecte = await Choriste.findOne({
+      _id: "65a6ad02d53b04e1f1442e19",
+    });
+
+    const repetitionId = req.params.repetition;
+    const repetition = await Repetition.findById(repetitionId);
+
+    if (!repetition) {
+      console.log("Repetition n'existe pas");
+      return res.status(404).json({
+        message: "Repetition not found",
+      });
+    } else {
+      const liste = [];
+
+      for (const choristeId of repetition.liste_Abs) {
+        const choriste = await Choriste.findById(choristeId);
+
+        if (choriste && choriste.pupitre === connecte.pupitre) {
+          liste.push(choriste);
+        }
+      }
+
+      res.status(200).json({
+        message: "Choristes présents",
+        choristes_present: liste,
+      });
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({
+      error: "Internal Server Error",
+    });
+  }
+};
+
+// const listPresentProgrammeMemePupitre = async (req, res) => {
+//   try {
+//     // const token = req.headers.authorization.split(" ")[1];
+//     // const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
+//     // const userId = decodedToken.userId;
+
+//     const connecte = await Choriste.findOne({
+//       _id: "65a6ad02d53b04e1f1442e19",
+//     });
+
+//     const programmeId = req.params.programme;
+//     const programme = await Programme.findById(programmeId);
+
+//     console.log(programme);
+
+//     if (!programme) {
+//       console.log("programme n'existe pas");
+//       return res.status(404).json({
+//         message: "programme not found",
+//       });
+//     }
+//     else {
+
+//     //   const liste = [];
+
+//     //   for (const choristeId of repetition.liste_Abs) {
+//     //     const choriste = await Choriste.findById(choristeId);
+
+//     //     if (choriste && choriste.pupitre === connecte.pupitre) {
+//     //       liste.push(choriste);
+//     //     }
+//     //   }
+
+//     //   res.status(200).json({
+//     //     message: "Choristes présents",
+//     //     choristes_present: liste,
+//     //   });
+//      }
+//   } catch (error) {
+//     console.error("Error:", error.message);
+//     res.status(500).json({
+//       error: "Internal Server Error",
+//     });
+//   }
+// };
+
 module.exports = {
   identifierListeFinal,
   getPresentParPupitre,
   modifierParamPresence,
+  listPresentRepetitonMemePupitre,
+  listAbsentRepetitonMemePupitre,
+  //listPresentProgrammeMemePupitre,
 };

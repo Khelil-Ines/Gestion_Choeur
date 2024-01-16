@@ -8,6 +8,21 @@ router.get(
   presenceConcertController.getPresentParPupitre
 );
 
+router.get(
+  "/present/pupitre/:repetition",
+  presenceConcertController.listPresentRepetitonMemePupitre
+);
+
+router.get(
+  "/absent/pupitre/:repetition",
+  presenceConcertController.listAbsentRepetitonMemePupitre
+);
+
+// router.get(
+//   "/present/programme/:programme",
+//   presenceConcertController.listPresentProgrammeMemePupitre
+// );
+
 router.patch(
   "/modifier/Seuil/:id",
   presenceConcertController.modifierParamPresence
