@@ -38,7 +38,7 @@ cron.schedule('* 10 * * *', async () => {
 
 // Ajouter le code pour la gestion des choristes
 io.on('connection', (socket) => {
-  console.log('Client connecté');
+  console.log('Clie nt connecté');
 
   // Envoyer les notifications existantes lorsqu'un client se connecte
   socket.emit('notificationList', notifications);
@@ -49,25 +49,25 @@ io.on('connection', (socket) => {
     choristesSockets[choristeId] = socket;
   });
 
-  // Écouter l'événement 'congeAjoute' émis par le côté client du choriste
-  socket.on('congeAjoute', async ({ choristeId, conge }) => {
-    console.log(`Congé ajouté par le choriste : ${choristeId}`);
+  // // Écouter l'événement 'congeAjoute' émis par le côté client du choriste
+  // socket.on('congeAjoute', async ({ choristeId, conge }) => {
+  //   console.log(`Congé ajouté par le choriste : ${choristeId}`);
     
-    // Récupérez la pupitre du choriste
-    const choriste = await Choriste.findById(choristeId);
-    const pupitre = choriste.pupitre;
+  //   // Récupérez la pupitre du choriste
+  //   const choriste = await Choriste.findById(choristeId);
+  //   const pupitre = choriste.pupitre;
 
-    // Récupérez les chefs de pupitre de cette pupitre
-    const chefsDePupitre = await ChefPupitre.find({ pupitre });
+  //   // Récupérez les chefs de pupitre de cette pupitre
+  //   const chefsDePupitre = await ChefPupitre.find({ pupitre });
 
-    // Notifiez les chefs de pupitre de ce congé
-    chefsDePupitre.forEach(chef => {
-      const chefSocket = choristesSockets[chef._id];
-      if (chefSocket) {
-        chefSocket.emit('notificationCongeAjoute', { choristeId, conge });
-      }
-    });
-  });
+  //   // Notifiez les chefs de pupitre de ce congé
+  //   chefsDePupitre.forEach(chef => {
+  //     const chefSocket = choristesSockets[chef._id];
+  //     if (chefSocket) {
+  //       chefSocket.emit('notificationCongeAjoute', { choristeId, conge });
+  //     }
+  //   });
+  // });
 
   socket.on('disconnect', () => {
     console.log('Client déconnecté');

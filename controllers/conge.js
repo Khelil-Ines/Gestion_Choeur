@@ -2,17 +2,11 @@ const Choriste = require("../models/choriste");
 const Conge = require("../models/conge");
 const cron = require("node-cron");
 const ChefPupitre = require("../models/chef_pupitre");
-
+const Notification = require("../models/notification")
 const addConge = async (req, res) => {
   try {
-    const choristeId = req.params.id;
+    const choriste = await Choriste.findOne({ compte: req.auth.compteId });
     const { date_debut, date_fin } = req.body;
-
-    // Vérifiez si le choriste existe
-    const choriste = await Choriste.findById(choristeId);
-    if (!choriste) {
-      return res.status(404).json({ message: "Choriste non trouvé." });
-    }
 
     // Créez un nouveau congé
     const newConge = new Conge({ date_debut, date_fin });
@@ -36,14 +30,18 @@ const addConge = async (req, res) => {
 
     // Récupérez les chefs de pupitre de cette pupitre
     const chefsDePupitre = await ChefPupitre.find({ pupitre });
-
-    // Notifiez les chefs de pupitre de ce congé
-    chefsDePupitre.forEach(chef => {
-      const chefSocket = choristesSockets[chef._id];
-      if (chefSocket) {
-        chefSocket.emit('notificationCongeAjoute', { choristeId, conge: savedConge });
-      }
+    chefsDePupitre.forEach(async (element) => {
+      const notification = Notification({message:`Le choriste ${choriste.nom}`,
+        user:element._id})
+        await notification.save()
     });
+    // Notifiez les chefs de pupitre de ce congé
+    // chefsDePupitre.forEach(chef => {
+    //   const chefSocket = choristesSockets[chef._id];
+    //   if (chefSocket) {
+    //     chefSocket.emit('notificationCongeAjoute', { choristeId, conge: savedConge });
+    //   }
+    // });
 
     res.status(201).json({ choriste, conge: savedConge });
   } catch (error) {

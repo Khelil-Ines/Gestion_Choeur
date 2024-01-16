@@ -9,7 +9,9 @@ const UtilisateurSchema = mongoose.Schema(
         adresse: { type : String},
         email: { type: String, unique: true},
         date_naiss: { type: Date},
-        sexe : { type: String, enum : ['Homme', 'Femme']}
+        sexe : { type: String, enum : ['Homme', 'Femme']},
+        compte: { type: mongoose.Schema.Types.ObjectId, ref: 'Compte' }
+
     }
 )
 
