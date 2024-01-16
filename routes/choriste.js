@@ -5,6 +5,14 @@ const choristeController = require("../controllers/choriste");
 const CINMiddleware = require("../middlewares/CIN");
 
 
+/**
+ * @swagger
+ * tags:
+ *  name: Choriste
+ *  description:  API de gestion des choristes
+ */
+router.get('/totalAbsence', choristeController.getGeneralAbsenceStatus);
+router.get('/totalAbsencePupitre/:pupitre', choristeController.getAbsenceStatusByPupitre);
 router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
 router.post("/setDispo/:idConcert",auth.loggedMiddleware,choristeController.setDispo);
 router.get('/confirm-dispo/:userId/:idConcert/:uniqueToken', choristeController.confirmDispo);
@@ -14,8 +22,7 @@ router.post("/presenceRep/:idRepetition/:link",auth.loggedMiddleware,choristeCon
 router.post("/presenceConcert/:idConcert/:link",auth.loggedMiddleware,choristeController.presenceConcert)
 router.get("/profile/:id", choristeController.getprofilchoriste);
 router.get("/statut/:id", choristeController.getstatutchoriste);
-// router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
-router.post("/", choristeController.addChoriste);
+
 
 router.get("/",choristeController.getChoriste)
 
@@ -28,7 +35,7 @@ router.patch("/update/:id", choristeController.updatePupitre)
 
 router.get("/profile/:id", choristeController.getprofilchoriste);
 router.get("/statut/:id", choristeController.getstatutchoriste);
-// router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
+router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
 
 
 router.get("/lister/:idConcert",choristeController.Lister_choriste_toutchoeur)

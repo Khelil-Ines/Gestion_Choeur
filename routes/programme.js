@@ -4,6 +4,12 @@ const programmeController = require("../controllers/programme.js");
 const upload = multer({ storage: multer.memoryStorage() }); 
 
 
+/**
+ * @swagger
+ * tags:
+ *  name: Programme
+ *  description:  API de gestion des programmes
+ */
 
 router.get("/", programmeController.getProgrammes);
 router.post("/", programmeController.addProgramme);

@@ -2,7 +2,12 @@ const express = require('express');
 const router = express.Router();
 const planningController = require('../controllers/audition');
 
-
+/**
+ * @swagger
+ * tags:
+ *  name: Audition
+ *  description:  API de gestion des auditions et du planning
+ */
 
 router.post('/generate/:startDate/:sessionStartTime/:sessionEndTime/:candidatesPerHour', planningController.genererPlanning);
 // router.get('/fetch', planningController.fetchPlanning);

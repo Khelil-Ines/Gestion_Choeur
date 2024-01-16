@@ -7,6 +7,8 @@ const crypto = require("crypto");
 const Repetition = require("../models/repetition");
 const Concert = require("../models/concert");
 const nodemailer = require("nodemailer");
+const Chef_Pupitre = require("../models/chef_pupitre");
+const Absence = require("../models/absence");
 const jwt = require("jsonwebtoken");
 const saisonCourante = new Date().getFullYear(); 
 
@@ -234,6 +236,7 @@ exports.getChoriste = (req, res) => {
   
       // Enregistrez les modifications dans la base de données
       await choriste.save();
+     
   
       return res.status(200).json({ choriste, message: 'Tessiture mise à jour avec succès.' });
     } catch (error) {
@@ -746,4 +749,27 @@ exports.Lister_choriste_pupitre = async (req, res) => {
 };
 
 
+//conulter etat absence par pupitre
+exports.getAbsenceStatusByPupitre = async (req, res) => {
+  try {
+    const { pupitre } = req.params;
+
+    // Find all choristers with the specified pupitre and populate the 'absences' field
+    const choristers = await Choriste.find({ pupitre }).populate('absences');
+
+    // Calculate total rehearsal absences for the given pupitre
+    let totalRehearsalAbsences = 0;
+
+    // Iterate through each chorister and count their rehearsal absences
+    for (const chorister of choristers) {
+      const rehearsalAbsences = chorister.absences.filter(absence => absence.Type === 'Repetition');
+      totalRehearsalAbsences += rehearsalAbsences.length;
+    }
+
+    res.json({ totalRehearsalAbsences });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 

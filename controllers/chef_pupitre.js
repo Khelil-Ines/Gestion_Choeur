@@ -17,6 +17,7 @@ exports.Ajouter_Chef_PupitreByID = async (req, res) => {
         const nom = choriste.nom
         const prénom = choriste.prénom
         const pupitre = choriste.pupitre
+        const email = choriste.email
         const statut = choriste.statut
         const CIN = choriste.CIN
         const niveau = choriste.niveau
@@ -30,6 +31,7 @@ exports.Ajouter_Chef_PupitreByID = async (req, res) => {
         const newChefPupitre = new Chef_Pupitre({
             nom : nom,
             prénom : prénom,
+            email : email,
             pupitre : pupitre,
             statut : statut,
             CIN : CIN,
