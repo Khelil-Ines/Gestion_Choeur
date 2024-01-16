@@ -23,8 +23,4 @@ router.post("/login",compteController.login)
 
 
 
-
-
-
-
   module.exports = router;

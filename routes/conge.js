@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const congeController = require('../controllers/conge');
-const auth = require('../middelware/auth');
+const auth = require('../middlewares/auth');
 
 /**
  * @swagger

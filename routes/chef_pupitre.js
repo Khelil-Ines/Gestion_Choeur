@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const chef_controller = require('../controllers/chef_pupitre.js');
-const auth=require('../middelware/auth')
+const auth=require('../middlewares/auth.js')
 
 /**
  * @swagger

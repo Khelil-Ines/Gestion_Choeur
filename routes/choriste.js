@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const auth=require('../middelware/auth')
+const auth=require('../middlewares/auth')
 const choristeController = require("../controllers/choriste");
 const CINMiddleware = require("../middlewares/CIN");
 
@@ -11,7 +11,8 @@ const CINMiddleware = require("../middlewares/CIN");
  *  name: Choriste
  *  description:  API de gestion des choristes
  */
-router.get('/totalAbsence', choristeController.getGeneralAbsenceStatus);
+
+//router.get('/totalAbsence', choristeController.getGeneralAbsenceStatus);
 router.get('/totalAbsencePupitre/:pupitre', choristeController.getAbsenceStatusByPupitre);
 router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
 router.post("/setDispo/:idConcert",auth.loggedMiddleware,choristeController.setDispo);
