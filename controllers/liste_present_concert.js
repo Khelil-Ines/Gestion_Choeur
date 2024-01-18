@@ -2,6 +2,8 @@ const Concert = require("../models/concert");
 const Choriste = require("../models/choriste");
 const Repetition = require("../models/repetition");
 const Programme = require("../models/programme");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const identifierListeFinal = async (req, res) => {
   try {
@@ -99,9 +101,11 @@ const modifierParamPresence = (req, res) => {
 
 const listPresentRepetitonMemePupitre = async (req, res) => {
   try {
-    const connecte = await Choriste.findOne({
-      _id: "65a6ad02d53b04e1f1442e19",
-    });
+    // const connecte = await Choriste.findOne({
+    //   _id: "65a6ad02d53b04e1f1442e19",
+    // });
+    console.log(req.auth.compteId);
+    const connecte = await Choriste.findOne({ compte: req.auth.compteId });
 
     const repetitionId = req.params.repetition;
     const repetition = await Repetition.findById(repetitionId);
@@ -137,13 +141,7 @@ const listPresentRepetitonMemePupitre = async (req, res) => {
 
 const listAbsentRepetitonMemePupitre = async (req, res) => {
   try {
-    // const token = req.headers.authorization.split(" ")[1];
-    // const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
-    // const userId = decodedToken.userId;
-
-    const connecte = await Choriste.findOne({
-      _id: "65a6ad02d53b04e1f1442e19",
-    });
+    const connecte = await Choriste.findOne({ compte: req.auth.compteId });
 
     const repetitionId = req.params.repetition;
     const repetition = await Repetition.findById(repetitionId);
@@ -166,7 +164,7 @@ const listAbsentRepetitonMemePupitre = async (req, res) => {
 
       res.status(200).json({
         message: "Choristes présents",
-        choristes_present: liste,
+        choristes_absent: liste,
       });
     }
   } catch (error) {
@@ -177,51 +175,95 @@ const listAbsentRepetitonMemePupitre = async (req, res) => {
   }
 };
 
-// const listPresentProgrammeMemePupitre = async (req, res) => {
-//   try {
-//     // const token = req.headers.authorization.split(" ")[1];
-//     // const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
-//     // const userId = decodedToken.userId;
+const listPresentProgrammeMemePupitre = async (req, res) => {
+  try {
+    const connecte = await Choriste.findOne({ compte: req.auth.compteId });
 
-//     const connecte = await Choriste.findOne({
-//       _id: "65a6ad02d53b04e1f1442e19",
-//     });
+    const programmeId = req.params.programme;
+    const programme = await Programme.findById(programmeId);
 
-//     const programmeId = req.params.programme;
-//     const programme = await Programme.findById(programmeId);
+    if (!programme) {
+      console.log("programme n'existe pas");
+      return res.status(404).json({
+        message: "programme not found",
+      });
+    } else {
+      const listeRep = [];
+      const répetitions = await Repetition.find();
+      for (const repetition of répetitions) {
+        if (repetition.programme.includes(programmeId)) {
+          listeRep.push(repetition);
+        }
+      }
 
-//     console.log(programme);
+      const list = [];
+      for (const repetition of listeRep) {
+        for (const choristeId of repetition.liste_Presents) {
+          const choriste = await Choriste.findById(choristeId);
 
-//     if (!programme) {
-//       console.log("programme n'existe pas");
-//       return res.status(404).json({
-//         message: "programme not found",
-//       });
-//     }
-//     else {
+          if (choriste && choriste.pupitre === connecte.pupitre) {
+            list.push(choriste);
+          }
+        }
+      }
+      res.status(200).json({
+        message:
+          "Choriste present pour tous les repetetions qui ont ce programme",
+        presence_programme: list,
+      });
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({
+      error: "Internal Server Error",
+    });
+  }
+};
 
-//     //   const liste = [];
+const listAbsentProgrammeMemePupitre = async (req, res) => {
+  try {
+    const connecte = await Choriste.findOne({ compte: req.auth.compteId });
 
-//     //   for (const choristeId of repetition.liste_Abs) {
-//     //     const choriste = await Choriste.findById(choristeId);
+    const programmeId = req.params.programme;
+    const programme = await Programme.findById(programmeId);
 
-//     //     if (choriste && choriste.pupitre === connecte.pupitre) {
-//     //       liste.push(choriste);
-//     //     }
-//     //   }
+    if (!programme) {
+      console.log("programme n'existe pas");
+      return res.status(404).json({
+        message: "programme not found",
+      });
+    } else {
+      const listeRep = [];
+      const répetitions = await Repetition.find();
+      for (const repetition of répetitions) {
+        if (repetition.programme.includes(programmeId)) {
+          listeRep.push(repetition);
+        }
+      }
 
-//     //   res.status(200).json({
-//     //     message: "Choristes présents",
-//     //     choristes_present: liste,
-//     //   });
-//      }
-//   } catch (error) {
-//     console.error("Error:", error.message);
-//     res.status(500).json({
-//       error: "Internal Server Error",
-//     });
-//   }
-// };
+      const list = [];
+      for (const repetition of listeRep) {
+        for (const choristeId of repetition.liste_Abs) {
+          const choriste = await Choriste.findById(choristeId);
+
+          if (choriste && choriste.pupitre === connecte.pupitre) {
+            list.push(choriste);
+          }
+        }
+      }
+      res.status(200).json({
+        message:
+          "Choriste absent pour tous les repetetions qui ont ce programme",
+        presence_programme: list,
+      });
+    }
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({
+      error: "Internal Server Error",
+    });
+  }
+};
 
 module.exports = {
   identifierListeFinal,
@@ -229,5 +271,6 @@ module.exports = {
   modifierParamPresence,
   listPresentRepetitonMemePupitre,
   listAbsentRepetitonMemePupitre,
-  //listPresentProgrammeMemePupitre,
+  listPresentProgrammeMemePupitre,
+  listAbsentProgrammeMemePupitre,
 };
