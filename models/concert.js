@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const Concert = mongoose.model("concert", {
   date: {
     type: Date,
+    required: true
   },
   lieu: {
     type: String,
@@ -14,5 +15,13 @@ const Concert = mongoose.model("concert", {
   seuil_présence: { type: Number, default: 0 },
   liste_Abs: { type: Array, default: [], required: false },
   link: { type: String, required: true },
-});
+
+  placements: {
+    soprano: [[Object]],
+    alto: [[Object]],
+    tenor: [[Object]],
+    basse: [[Object]],
+  },
+})
 module.exports = Concert;
+

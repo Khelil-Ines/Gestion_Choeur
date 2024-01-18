@@ -2,12 +2,13 @@
 const cron = require('node-cron');
 const Choriste = require('../models/choriste');
 const Utilisateur = require('../models/utilisateur'); 
-const User = require("../models/choriste");
-const bcrypt = require("bcrypt");
+const User = require('../models/compte'); 
 const crypto = require("crypto");
 const Repetition = require("../models/repetition");
 const Concert = require("../models/concert");
 const nodemailer = require("nodemailer");
+const Chef_Pupitre = require("../models/chef_pupitre");
+const Absence = require("../models/absence");
 const jwt = require("jsonwebtoken");
 const saisonCourante = new Date().getFullYear(); 
 
@@ -21,8 +22,8 @@ const tacheMiseAJourStatut = cron.schedule('0 0 1 10 * ', async () => {
         const choristes = await Choriste.find();
        
 
-        // Mettre à jour le statut pour chaque choriste
-        for (const choriste of choristes) {
+          // Mettre à jour le statut pour chaque choriste
+          for (const choriste of choristes) {
       
 
             if (choriste.date_adhesion.getFullYear() === saisonCourante) {
@@ -44,9 +45,13 @@ const tacheMiseAJourStatut = cron.schedule('0 0 1 10 * ', async () => {
 
               savedchoriste = await choriste.save();
               Utilisateur.Choriste = savedchoriste;
-         
-
-        }
+      
+          // Après la mise à jour du statut, émettez une notification au socket spécifique du choriste
+          const choristeSocket = choristesSockets[choriste._id];
+          if (choristeSocket) {
+              choristeSocket.emit('notification', { message: 'Votre statut a été mis à jour.' });
+          }
+      }
 
         console.log('Mise à jour réussie pour tous les choristes');
     } catch (error) {
@@ -61,11 +66,11 @@ exports.addChoriste = (req, res) => {
     saved = choriste
       .save()
       .then(() => {
-        Utilisateur.Choriste = choriste;
         res.status(201).json({
           models: choriste,
           message: "object cree!",
         });
+        Utilisateur.Choriste = saved;
       })
       .catch((error) => {
         
@@ -75,6 +80,7 @@ exports.addChoriste = (req, res) => {
         });
       });
   };
+
 exports.getprofilchoriste = async (req, res) => {
     Choriste.findOne({ _id: req.params.id })
     .then((choriste) => {
@@ -89,7 +95,7 @@ exports.getprofilchoriste = async (req, res) => {
             num_tel:choriste.num_tel,
             CIN :choriste.CIN,
             adresse: choriste.adresse,
-            mail: choriste.mail,
+            email: choriste.email,
             date_naiss:choriste.date_naiss,
             sexe : choriste.sexe,
             tessiture : choriste.tessiture,
@@ -119,9 +125,7 @@ exports.getstatutchoriste = async (req, res) => {
         });
       } else {
         res.status(200).json({
-            Historique : choriste.historiqueStatut.sort((a, b) => {
-                return new Date(b.date) - new Date(a.date);
-              }),
+          historiqueStatut: choriste.historiqueStatut.sort((a, b) => new Date(b.date) - new Date(a.date)),
           message: "objet trouvé!",
         });
       }
@@ -133,8 +137,6 @@ exports.getstatutchoriste = async (req, res) => {
       });
     });
 };
-
-
 
 //Fonction pour vérifier si un choriste est en congé
 exports.estEnConge = (choriste) => {
@@ -153,7 +155,6 @@ exports.estEnConge = (choriste) => {
 
   return false; // Le choriste n'est pas en congé
 };
-
 
 exports.fetchChoriste = (req, res) => {
     Choriste.findOne({ _id: req.params.id })
@@ -176,17 +177,6 @@ exports.fetchChoriste = (req, res) => {
       });
     });
 }
-
-exports.addChoriste = (req, res) => { 
-  const newChoriste = new Choriste(req.body);
-  newChoriste.save()
-      .then(choriste => {
-          res.json(choriste);
-      })
-      .catch(err => {
-          res.status(400).json({ erreur: 'Échec de la création du l\'choriste' });
-      });
-}
   
 exports.getChoriste = (req, res) => {
   Choriste.find()
@@ -203,7 +193,6 @@ exports.getChoriste = (req, res) => {
       });
     });
 };
-
 
   exports.getChoristesByPupitre = (req, res) => {
     const pupitreNom = req.body.pupitreNom;
@@ -245,6 +234,7 @@ exports.getChoriste = (req, res) => {
   
       // Enregistrez les modifications dans la base de données
       await choriste.save();
+     
   
       return res.status(200).json({ choriste, message: 'Tessiture mise à jour avec succès.' });
     } catch (error) {
@@ -253,119 +243,82 @@ exports.getChoriste = (req, res) => {
     }
   };
   
-
-exports.signup = (req, res, next) => {
-  bcrypt
-    .hash(req.body.password, 10)
-    .then((hash) => {
-      const user = new User({
-        email: req.body.email,
-        pupitre: req.body.pupitre,
-        password: hash,
-      });
-      user
-        .save()
-        .then((response) => {
-          const newUser = response.toPublic();
-          res.status(201).json({
-            user: newUser,
-            message: "utilisateur crée",
-          });
-        })
-        .catch((error) => res.status(400).json({ error }));
-    })
-    .catch((error) => res.status(400).json({ error }));
-};
-
-exports.login = (req, res, next) => {
-  User.findOne({ email: req.body.email })
-    .then((user) => {
-      if (!user) {
-        return res
-          .status(401)
-          .json({ message: "Login ou mot passe incorrecte" });
-      }
-      bcrypt
-        .compare(req.body.password, user.password)
-        .then((valid) => {
-          if (!valid) {
-            return res
-              .status(401)
-              .json({ message: "Login ou mot passe incorrecte" });
-          }
-          res.status(200).json({
-            token: jwt.sign({ userId: user._id }, "RANDOM_TOKEN_SECRET", {
-              expiresIn: "24h",
-            }),
-          });
-        })
-        .catch((error) => res.status(500).json({ error }));
-    })
-    .catch((error) => res.status(500).json({ error }));
-};
-
-
-
-exports.presence = async (req, res) => {
-  try {
-    const { idRepetition, link } = req.params;
-
-    // Vérifiez le token dans le header de la requête
-    const token = req.headers.authorization.split(" ")[1];
-
+  exports.presence = async (req, res) => {
     try {
-      const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
-      const userId = decodedToken.userId;
+      const { idRepetition, link } = req.params;
+  
+      // Vérifiez le token dans le header de la requête
+      const token = req.headers.authorization.split(' ')[1];
+  
+      try {
+        const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
+        const compteId = decodedToken.userId;
+  
+        // Recherchez le compte par son ID
+        const compte = await User.findById(compteId);
+        console.log(compteId)
+        if (!compte) {
+          return res.status(404).json({ erreur: 'Compte non trouvé' });
+        }
+  
+        // Utilisez l'ID du compte pour trouver le choriste associé
+        const choriste = await Choriste.findOne({compte:compteId});
+  
+        if (!choriste) {
+          return res.status(404).json({ erreur: 'Choriste non trouvé' });
+        }
+  
+        // Recherchez la répétition par son ID
+        const repetition = await Repetition.findById(idRepetition);
+  
+        if (!repetition) {
+          return res.status(404).json({ erreur: 'Répétition non trouvée' });
+        }
+  
+        // Vérification si le lien correspond
+        if (repetition.link !== link) {
+          return res
+            .status(401)
+            .json({ erreur: 'Lien incorrect pour cette répétition' });
+        }
+  
+        if (repetition.liste_Presents.includes(choriste._id)) {
+          return res
+            .status(409)
+            .json({ erreur: 'Le choriste est déjà présent à cette répétition' });
+        }
+  
+        // Supprimer l'ID du choriste de la liste d'absence s'il est présent
+        repetition.liste_Abs = repetition.liste_Abs.filter(
+          (absentId) => absentId.toString() !== choriste._id.toString()
+        );
+  
+        // Ajout de l'ID du choriste à la liste de présence
+        repetition.liste_Presents.push(choriste._id);
+  
+        // Sauvegarde de la répétition mise à jour
+        await repetition.save();
 
-      // Recherchez la répétition par son ID
-      const repetition = await Repetition.findById(idRepetition);
-
-      if (!repetition) {
-        return res.status(404).json({ erreur: "Répétition non trouvée" });
+        // Incrémentation du nombre de répétitions dans le modèle Choriste
+        await choriste.incrementRepetitions();
+  
+        res.json({ message: 'Présence ajoutée avec succès' });
+      } catch (error) {
+        console.error('Erreur lors de la vérification du token :', error);
+  
+        if (error.name === 'JsonWebTokenError') {
+          return res.status(401).json({ erreur: 'Token invalide' });
+        } else if (error.name === 'TokenExpiredError') {
+          return res.status(401).json({ erreur: 'Token expiré' });
+        } else {
+          return res.status(500).json({ erreur: 'Erreur interne du serveur' });
+        }
       }
-
-      // Vérification si le lien correspond
-      if (repetition.link !== link) {
-        return res
-          .status(401)
-          .json({ erreur: "Lien incorrect pour cette répétition" });
-      }
-
-      if (repetition.liste_Presents.includes(userId)) {
-        return res
-          .status(409)
-          .json({ erreur: "Le choriste est déjà présent à cette répétition" });
-      }
-
-      // Supprimer l'ID du choriste de la liste d'absence s'il est présent
-      repetition.liste_Abs = repetition.liste_Abs.filter(
-        (absentId) => absentId.toString() !== userId.toString()
-      );
-
-      // Ajout de l'ID du choriste à la liste de présence
-      repetition.liste_Presents.push(userId);
-
-      // Sauvegarde de la répétition mise à jour
-      await repetition.save();
-
-      res.json({ message: "Présence ajoutée avec succès" });
     } catch (error) {
-      console.error("Erreur lors de la vérification du token :", error);
-
-      if (error.name === "JsonWebTokenError") {
-        return res.status(401).json({ erreur: "Token invalide" });
-      } else if (error.name === "TokenExpiredError") {
-        return res.status(401).json({ erreur: "Token expiré" });
-      } else {
-        return res.status(500).json({ erreur: "Erreur interne du serveur" });
-      }
+      console.error('Erreur lors de la gestion de la présence :', error);
+      res.status(500).json({ erreur: 'Erreur interne du serveur' });
     }
-  } catch (error) {
-    console.error("Erreur lors de la gestion de la présence :", error);
-    res.status(500).json({ erreur: "Erreur interne du serveur" });
-  }
-};
-
+  };
 
 //presence_concert
 exports.presenceConcert = async (req, res) => {
@@ -376,8 +329,18 @@ exports.presenceConcert = async (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
 
     try {
-      const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
-      const userId = decodedToken.userId;
+      const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
+      const compteId = decodedToken.userId;
+
+      // Recherchez le compte par son ID
+      const compte = await User.findById(compteId);
+      console.log(compteId)
+      if (!compte) {
+        return res.status(404).json({ erreur: 'Compte non trouvé' });
+      }
+     
+      const choriste = await Choriste.findOne({compte:compteId});
+     
 
       // Recherchez la répétition par son ID
       const concert = await Concert.findById(idConcert);
@@ -392,37 +355,36 @@ exports.presenceConcert = async (req, res) => {
       }
 
 
-      if (!concert.liste_Abs.includes(userId) && !concert.liste_Presents.includes(userId)) {
+      if (!concert.liste_Abs.includes(choriste._id) && !concert.liste_Presents.includes(choriste._id)) {
         return res.status(409).json({ erreur: "Le choriste n'est pas disponible pour ce concert" });
       }
-      if (
-        !concert.liste_Abs.includes(userId) &&
-        !concert.liste_Presents.includes(userId)
-      ) {
-        return res
-          .status(409)
-          .json({ erreur: "Le choriste n'est pas disponible pour ce concert" });
-      }
 
-      if (concert.liste_Presents.includes(userId)) {
+      if (concert.liste_Presents.includes(choriste._id)) {
         return res.status(409).json({ erreur: "Le choriste est déjà présent pour ce concert" });
       }
 
       // Supprimer l'ID du choriste de la liste d'absence s'il est présent
       concert.liste_Abs = concert.liste_Abs.filter(
-        (absentId) => absentId.toString() !== userId.toString()
+        (absentId) => absentId.toString() !== choriste._id.toString()
       );
 
       // Ajout de l'ID du choriste à la liste de présence
-      concert.liste_Presents.push(userId);
+      concert.liste_Presents.push(choriste._id);
 
       // Mise à jour de la liste des concerts participés du choriste
-      const choriste = await User.findById(userId);
+       // Utilisez l'ID du compte pour trouver le choriste associé
+     
       choriste.concertsParticipes.push(idConcert);
       await choriste.save();
 
       // Sauvegarde de la répétition mise à jour
       await concert.save();
+
+       // Incrémentation du nombre de répétitions dans le modèle Choriste
+       await choriste.incrementConcert();
+      
+      choriste.confirmationStatus = "En attente de confirmation";
+      await choriste.save();
 
       res.json({ message: "Présence ajoutée avec succès" });
     } catch (error) {
@@ -448,8 +410,22 @@ exports.setDispo = async (req, res) => {
   const token = req.headers.authorization.split(" ")[1];
 
   try {
-    const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
-    const userId = decodedToken.userId;
+    const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
+    const compteId = decodedToken.userId;
+
+    // Recherchez le compte par son ID
+    const compte = await User.findById(compteId);
+    console.log(compteId)
+    if (!compte) {
+      return res.status(404).json({ erreur: 'Compte non trouvé' });
+    }
+
+    // Utilisez l'ID du compte pour trouver le choriste associé
+    const choriste = await Choriste.findOne({compte:compteId});
+
+    if (!choriste) {
+      return res.status(404).json({ erreur: 'Choriste non trouvé' });
+    }
 
     // Recherchez le concert par son ID
     const concert = await Concert.findById(idConcert);
@@ -460,21 +436,16 @@ exports.setDispo = async (req, res) => {
      // Générer un jeton unique
      const oneTimeToken = crypto.randomBytes(20).toString('hex');
    // Mettez à jour le statut de confirmation pour le choriste
-     const choriste = await User.findById(userId);
-     // Mettez à jour le choriste avec le jeton
-     if (!choriste) {
-       return res.status(404).json({ erreur: 'Choriste non trouvé' });
-     }
      choriste.oneTimeToken = oneTimeToken;
      await choriste.save();
 
-    if (concert.liste_Abs.includes(userId)) {
+    if (concert.liste_Abs.includes(choriste._id)) {
       return res
         .status(409)
         .json({ erreur: "Le choriste est déjà disponible à ce concert" });
     }
 
- 
+const userId=choriste._id
 
     // Envoi d'un e-mail au choriste pour confirmer sa disponibilité
     const transporter = nodemailer.createTransport({
@@ -541,11 +512,11 @@ exports.setDispo = async (req, res) => {
   <div class="container">
     <h1>Confirmation de disponibilité</h1>
     <p>Merci de confirmer votre disponibilité en cliquant sur le bouton ci-dessous :</p>
-    <form method="get" action="http://127.0.0.1:3000/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}">
+    <form method="get" action="http://127.0.0.1:3000/api/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}">
       <button type="submit">Confirmer la disponibilité</button>
     </form>
     <p>Si le bouton ne fonctionne pas, vous pouvez également copier et coller le lien suivant dans votre navigateur :</p>
-    <p><a href="http://127.0.0.1:3000/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}">http://127.0.0.1:3000/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}</a></p>
+    <p><a href="http://127.0.0.1:3000/api/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}">http://127.0.0.1:3000/api/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}</a></p>
   </div>
 </body>
 </html>`,
@@ -579,10 +550,10 @@ exports.setDispo = async (req, res) => {
 
 exports.confirmDispo = async (req, res) => {
   const { userId, idConcert, uniqueToken } = req.params;
-
+  console.log(userId)
   try {
 
-    const choriste = await User.findById(userId);
+    const choriste = await Choriste.findById(userId);
     const concert = await Concert.findById(idConcert);
 
     if (!choriste) {
@@ -618,9 +589,6 @@ exports.confirmDispo = async (req, res) => {
   }
 };
 
-//consulter  la liste des choristes pour tout le chœur pour un concert spécifique
-
-
 // Fonction pour extraire l'ID du choriste à partir du token
 exports.getUserIdFromToken = (authorizationHeader) => {
   const token = authorizationHeader.split(" ")[1];
@@ -642,7 +610,53 @@ exports.updatePresenceList = (concert, userId) => {
   concert.liste_Presents.push(userId);
 };
 
+exports.getHistoriqueActivite = async (req, res) => {
+  try {
+    // Obtenez l'ID du choriste à partir du token dans le header
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
+    const compteId = decodedToken.userId;
 
+    // Recherchez le choriste par son ID
+    const choriste = await Choriste.findOne({ compte: compteId });
+
+    if (!choriste) {
+      return res.status(404).json({ erreur: 'Choriste non trouvé' });
+    }
+
+    // Récupérez l'historique du choriste (nombre de répétitions, concerts, etc.)
+    const historique = {
+      nbr_repetitions: choriste.nbr_repetitions,
+      nbr_concerts: choriste.nbr_concerts,
+      concerts_participes: [],
+    };
+
+    // Pour chaque concert auquel le choriste a participé, récupérez les détails
+    for (const concertInfo of choriste.concertsParticipes) {
+      const concert = await Concert.findById(concertInfo);
+
+      if (concert) {
+        historique.concerts_participes.push({
+          date: concert.date,
+          lieu: concert.lieu,
+          programme: concert.programme, // Mettez à jour selon votre modèle Programme
+        });
+      }
+    }
+
+    res.json({ historique });
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'historique :', error);
+
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ erreur: 'Token invalide' });
+    } else if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ erreur: 'Token expiré' });
+    } else {
+      return res.status(500).json({ erreur: 'Erreur interne du serveur' });
+    }
+  }
+};
 
 exports.Lister_choriste_toutchoeur = async (req, res) => {
   try {
@@ -662,7 +676,7 @@ exports.Lister_choriste_toutchoeur = async (req, res) => {
 
     // Filtrer les choristes par confirmationStatus
     // Filtrer les choristes par confirmationStatus
-    const choristesToutChoeur = await User.find(
+    const choristesToutChoeur = await Choriste.find(
       {
         confirmationStatus: "Confirmé",
         _id: { $in: concert.liste_Abs },
@@ -681,7 +695,6 @@ exports.Lister_choriste_toutchoeur = async (req, res) => {
     res.status(500).json({ erreur: "Erreur interne du serveur" });
   }
 };
-
 
 //consulter  la liste des choristes pour tout le chœur pour un concert spécifique
 
@@ -708,7 +721,7 @@ exports.Lister_choriste_pupitre = async (req, res) => {
     }
 
     // Filtrer les choristes par pupitre et confirmationStatus
-    const choristesParPupitre = await User.find({
+    const choristesParPupitre = await Choriste.find({
       pupitre: pupitre,
       confirmationStatus: 'Confirmé',
       _id: { $in: concert.liste_Abs },
@@ -734,177 +747,27 @@ exports.Lister_choriste_pupitre = async (req, res) => {
 };
 
 
-
-exports.setDispo = async (req, res) => {
-  const { idConcert } = req.params;
-
-  // Vérifiez le token dans le header de la requête
-  const token = req.headers.authorization.split(" ")[1];
-
+//conulter etat absence par pupitre
+exports.getAbsenceStatusByPupitre = async (req, res) => {
   try {
-    const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
-    const userId = decodedToken.userId;
+    const { pupitre } = req.params;
 
-    // Recherchez le concert par son ID
-    const concert = await Concert.findById(idConcert);
+    // Find all choristers with the specified pupitre and populate the 'absences' field
+    const choristers = await Choriste.find({ pupitre }).populate('absences');
 
-    if (!concert) {
-      return res.status(404).json({ erreur: "Concert non trouvé" });
-    }
-    // Générer un jeton unique
-    const oneTimeToken = crypto.randomBytes(20).toString("hex");
-    // Mettez à jour le statut de confirmation pour le choriste
-    const choriste = await User.findById(userId);
-    // Mettez à jour le choriste avec le jeton
-    if (!choriste) {
-      return res.status(404).json({ erreur: "Choriste non trouvé" });
-    }
-    choriste.oneTimeToken = oneTimeToken;
-    await choriste.save();
+    // Calculate total rehearsal absences for the given pupitre
+    let totalRehearsalAbsences = 0;
 
-    if (concert.liste_Abs.includes(userId)) {
-      return res
-        .status(409)
-        .json({ erreur: "Le choriste est déjà disponible à ce concert" });
+    // Iterate through each chorister and count their rehearsal absences
+    for (const chorister of choristers) {
+      const rehearsalAbsences = chorister.absences.filter(absence => absence.Type === 'Repetition');
+      totalRehearsalAbsences += rehearsalAbsences.length;
     }
 
-    // Envoi d'un e-mail au choriste pour confirmer sa disponibilité
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "ghofranemn22@gmail.com",
-        pass: "hgfr npar pidn zvje",
-      },
-    });
-
-    const mailOptions = {
-      from: "ghofranemn22@gmail.com",
-      to: choriste.email,
-      subject: "Confirmation de disponibilité",
-      html: `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Confirmation de disponibilité</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
-      color: #007BFF;
-    }
-
-    p {
-      margin-bottom: 20px;
-    }
-
-    button {
-      background-color: #007BFF;
-      color: #fff;
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Confirmation de disponibilité</h1>
-    <p>Merci de confirmer votre disponibilité en cliquant sur le bouton ci-dessous :</p>
-    <form method="get" action="http://127.0.0.1:3000/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}">
-      <button type="submit">Confirmer la disponibilité</button>
-    </form>
-    <p>Si le bouton ne fonctionne pas, vous pouvez également copier et coller le lien suivant dans votre navigateur :</p>
-    <p><a href="http://127.0.0.1:3000/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}">http://127.0.0.1:3000/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}</a></p>
-  </div>
-</body>
-</html>`,
-    };
-
-    transporter.sendMail(mailOptions, async (error, info) => {
-      if (error) {
-        console.error("Erreur lors de l'envoi de l'e-mail :", error);
-        return res.status(500).json({ erreur: "Erreur interne du serveur" });
-      }
-
-      console.log("E-mail envoyé :", info.response);
-
-      res.json({
-        message:
-          "E-mail de confirmation envoyé. Veuillez confirmer votre disponibilité.",
-      });
-    });
+    res.json({ totalRehearsalAbsences });
   } catch (error) {
-    console.error("Erreur lors de la vérification du token :", error);
-
-    if (error.name === "JsonWebTokenError") {
-      return res.status(401).json({ erreur: "Token invalide" });
-    } else if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ erreur: "Token expiré" });
-    } else {
-      return res.status(500).json({ erreur: "Erreur interne du serveur" });
-    }
-  }
-};
-
-exports.confirmDispo = async (req, res) => {
-  const { userId, idConcert, uniqueToken } = req.params;
-
-  try {
-    const choriste = await User.findById(userId);
-    const concert = await Concert.findById(idConcert);
-
-    if (!choriste) {
-      return res.status(404).json({ erreur: "Choriste non trouvé" });
-    }
-
-    // Vérifiez si le token reçu correspond au token associé au choriste
-    if (choriste.oneTimeToken !== uniqueToken) {
-      return res.status(401).json({ erreur: "Token de confirmation invalide" });
-    }
-
-    choriste.confirmationStatus = "Confirmé";
-    choriste.oneTimeToken = null; // Effacez le token après confirmation
-    await choriste.save();
-
-    // Ajoutez le choriste à la liste d'absence uniquement après confirmation
-    if (
-      choriste.confirmationStatus === "Confirmé" &&
-      !concert.liste_Abs.includes(userId)
-    ) {
-      concert.liste_Abs.push(userId);
-      await concert.save();
-    }
-
-    res.json({
-      message:
-        "Confirmation réussie. Le choriste a été ajouté à la liste d'absence.",
-    });
-  } catch (error) {
-    console.error("Erreur lors de la confirmation de disponibilité :", error);
-    res.status(500).json({ erreur: "Erreur interne du serveur" });
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
