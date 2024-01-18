@@ -6,7 +6,7 @@ const app = express();
 const server = http.createServer(app)
 const io = socketIO(server);
 const auditionRouter = require("./routes/audition");
-const CandidatRoutes = require("./routes/candidat");
+const candidatRouter = require("./routes/candidat");
 const compositeurRoutes = require("./routes/compositeur");
 const oeuvreRoutes = require("./routes/oeuvre");
 const chef_router = require("./routes/chef_pupitre");
@@ -28,7 +28,7 @@ mongoose
   .then(() => console.log("connexion a MongoDB reussie!"))
   .catch((e) => console.log("connexion a MongoDB échouée!", e));
 
-const app = express();
+
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -39,9 +39,6 @@ app.use((req, res, next) => {
   );
   next();
 });
-app.use('/notif', (req, res) => {
-  res.send('OK'); // Réponse simple pour indiquer que la route est accessible
-});
 
 
 app.use((req, res, next) => {
@@ -49,36 +46,11 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/notif', (req, res) => {
-  res.send('OK'); // Réponse simple pour indiquer que la route est accessible
-});
 
-// Configurations Socket.IO
-io.on('connection', (socket) => {
-  console.log('Un client est connecté');
-
-  // Gestionnaire d'événements pour le login du chef de pupitre
-  socket.on('loginChefPupitre', (pupitre) => {
-    console.log(`Le chef de pupitre du ${pupitre} s'est connecté`);
-    socket.join(pupitre); // Joindre une "room" correspondant au pupitre
-  });
-
-  // Gestionnaire d'événements pour l'envoi de notifications de modification
-  socket.on('envoyerNotificationModification', (data) => {
-    console.log('Notification de modification envoyée :', data);
-    io.to(data.pupitre).emit('modificationNotification', { message: data.message });
-  });
-
-  // Gestionnaire d'événements pour la déconnexion du client
-  socket.on('disconnect', () => {
-    console.log('Un client s est déconnecté');
-  });
-});
 
 
 
 app.use("/audition", auditionRouter);
-app.use("/candidats", CandidatRoutes);
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
 app.use("/Add_Chef", chef_router);

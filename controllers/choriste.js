@@ -995,7 +995,10 @@ exports.getAbsenceStatus = async (req, res) => {
   try {
     const { pupitre, choristeId, date, startDate, endDate, fromSeasonStart, programId } = req.query;
 
-    // Create a filter object based on the provided criteria
+    if (!Choriste) {
+      return res.status(500).json({ error: 'Choriste model not defined' });
+    }
+
     const filter = {};
 
     if (pupitre) filter.pupitre = pupitre;
@@ -1003,20 +1006,19 @@ exports.getAbsenceStatus = async (req, res) => {
 
     if (startDate && endDate) {
       filter.date = {
-        $gte: new Date(startDate).toISOString(),
-        $lte: new Date(endDate).toISOString(),
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
       };
     } else if (date) {
-      filter.date = new Date(date).toISOString();
+      filter.date = new Date(date);
     }
 
-    if (fromSeasonStart) filter.date_adhesion = { $lte: new Date(fromSeasonStart) };
+    // if (fromSeasonStart) filter.date_adhesion = { $lte: new Date(fromSeasonStart) };
 
-    if (programId) {
-      // Si programId est un seul identifiant, transformez-le en tableau
-      const programIds = Array.isArray(programId) ? programId : [programId];
-      filter.programme = { $in: programIds };
-    }
+    // if (programId) {
+    //   const programIds = Array.isArray(programId) ? programId : [programId];
+    //   filter.programme = { $in: programIds };
+    // }
 
     console.log('Filter:', filter);
 
@@ -1032,7 +1034,7 @@ exports.getAbsenceStatus = async (req, res) => {
         },
       },
     });
-
+    console.log(choristers)
     let totalRehearsalAbsences = 0;
     const absenceDetails = [];
 
@@ -1066,9 +1068,9 @@ exports.getAbsenceStatus = async (req, res) => {
                 lieu: matchingRepetition.lieu,
                 programDetails: {
                   theme: matchingRepetition.programme.theme,
-                  // Ajoutez plus de détails sur le programme au besoin
+                  // Add more details about the program if needed
                 },
-                // Ajoutez plus de détails sur l'absence au besoin
+                // Add more details about the absence if needed
               });
             }
           }
@@ -1082,7 +1084,7 @@ exports.getAbsenceStatus = async (req, res) => {
     res.json({ totalRehearsalAbsences, absenceDetails });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 };
 
