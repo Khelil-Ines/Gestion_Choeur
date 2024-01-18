@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const Compte = require("../models/compte");
 const compteController = require("../controllers/compte");
+const auth=require('../middlewares/auth')
+
 
 /**
  * @swagger
@@ -11,19 +13,15 @@ const compteController = require("../controllers/compte");
  */
 router.patch("/eliminer_choriste/:id", compteController.EliminerChoriste)
 
-router.get("/",compteController.getCompte)
+router.get("/",auth.loggedMiddleware, auth.isAdmin ,compteController.getCompte)
 
-router.get("/:id",compteController.fetchCompte)
+router.get("/:id",auth.loggedMiddleware, auth.isAdmin ,compteController.fetchCompte)
 
-router.post("/addcompte/:id",compteController.addCompte)
+router.post("/addcompte/:id",auth.loggedMiddleware, auth.isAdmin ,compteController.addCompte)
 
-router.delete("/:id", compteController.deleteCompte)
+router.delete("/:id",auth.loggedMiddleware, auth.isAdmin , compteController.deleteCompte)
 
 router.post("/login",compteController.login)
-
-
-
-
 
 
 
