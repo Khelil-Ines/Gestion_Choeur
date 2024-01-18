@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 const Compte = require("../models/compte");
 const Choriste = require ("../models/choriste");
+const Chef_Pupitre = require("../models/chef_pupitre");
+const Admin = require("../models/admin");
+const Candidat = require("../models/candidat");
 
 // module.exports.verifyToken = async (req, res, next) => {
 //   try {
@@ -70,7 +73,7 @@ console.log(choriste)
     {
       next();}
       else {
-        res.status(403).json({ error:"no access to this route" });
+        res.status(403).json({ error:"Il faut etre choriste pour avoir acces a cette route" });
       } 
 }
 catch(error)
@@ -79,33 +82,40 @@ catch(error)
 }
 };
 
-module.exports.isAdmin = (req, res, next) => {
+module.exports.isChefPupitre = async (req, res, next) => {
   try{
-      if(req.auth.__t === "Admin")
+    const chefPupitre = await Chef_Pupitre.findOne({ compte: req.auth.compteId });
+  console.log(chefPupitre)
+  
+      if(chefPupitre)
       {
         next();}
         else {
-          res.status(403).json({ error:"no access to this route" });
+          res.status(403).json({ error:"Il faut etre chef de pupitre pour avoir acces a cette route" });
         } 
   }
-  catch(e)
+  catch(error)
   {
-    res.status(401).json({ e:e.message });
+    res.status(401).json({ error:error.message });
   }
   };
 
-  module.exports.isChefPupitre = (req, res, next) => {
+  module.exports.isAdmin = async (req, res, next) => {
     try{
-        if(req.auth.__t === "Chef_Pupitre")
+      const admin = await Admin.findOne({ compte: req.auth.compteId });
+    console.log(admin)
+    
+        if(admin)
         {
           next();}
           else {
-            res.status(403).json({ error:"no access to this route" });
+            res.status(403).json({ error:"Il faut etre admin pour avoir acces a cette route" });
           } 
     }
-    catch(e)
+    catch(error)
     {
-      res.status(401).json({ e:e.message });
+      res.status(401).json({ error:error.message });
     }
     };
+
 
