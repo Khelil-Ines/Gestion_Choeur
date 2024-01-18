@@ -19,3 +19,6 @@ router.post("/date",auth.loggedMiddleware, repetitionController.getPlanningByDat
 router.post('/ajouter',auth.loggedMiddleware, auth.isChefPupitre, repetitionController.repetitionPourcentage);
 
 module.exports = router;
+
+
+

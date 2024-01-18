@@ -1,14 +1,12 @@
-
-const Planning = require('../models/audition');
-const moment = require('moment');
-const Candidat = require('../models/candidat');
-const Choriste = require('../models/choriste');
-const Compte = require('../models/compte');
-const nodemailer = require('nodemailer');
+const Planning = require("../models/audition");
+const moment = require("moment");
+const Candidat = require("../models/candidat");
+const Choriste = require("../models/choriste");
+const Compte = require("../models/compte");
+const nodemailer = require("nodemailer");
 const ejs = require("ejs");
 const path = require("path");
-const bcrypt = require('bcrypt');
-
+const bcrypt = require("bcrypt");
 
 //generer planning pour tout les candidats
 const genererPlanning = async (req, res, next) => {
@@ -22,13 +20,14 @@ const genererPlanning = async (req, res, next) => {
   const nbreCandidatsParHeure = parseInt(candidatesPerHour);
 
   try {
-
     if (!heureDebut.isBefore(heureFin)) {
-      return res.status(400).json({ message: "Invalid start time or end time." });
+      return res
+        .status(400)
+        .json({ message: "Invalid start time or end time." });
     }
 
     // Ensure dateDebut is equal to or greater than the current date
-    if (dateDebut.isBefore(moment(), 'day')) {
+    if (dateDebut.isBefore(moment(), "day")) {
       return res.status(400).json({ message: "Invalid date." });
     }
     // Récupérez tous les candidats depuis votre modèle Candidat
@@ -89,20 +88,94 @@ const genererPlanning = async (req, res, next) => {
         if (candidatDetails && candidatDetails.email) {
           const destinataire = candidatDetails.email;
           const sujet = "Détails de votre audition";
-          const texte = `Bonjour,\n\nVotre audition est prévue pour le ${moment(
-            session.dateAudition
-          )
-            .locale("fr")
-            .format("LL")} à ${
-            session.HeureDeb
-          }.\n\nCordialement,\nVotre Organisation`;
+          // HTML content for the email
+          const htmlContent = `
+          <!DOCTYPE html>
+<html lang="fr">
 
-          // Envoie de l'e-mail
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #3498db;
+    }
+
+    p {
+      color: #555;
+    }
+
+    .footer {
+      margin-top: 20px;
+      padding-top: 10px;
+      border-top: 1px solid #ddd;
+      text-align: center;
+      color: #777;
+    }
+
+    .accent {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+
+    .logo {
+      text-align: center;
+    }
+
+    .logo img {
+      max-width: 100px;
+      height: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="C:\Users\ghofr\OneDrive\Bureau\Gestion_Choeur\files\choeur.png" alt="Your Organization Logo">
+    </div>
+    <h1 style="text-align: center;">Confirmation d'audition</h1>
+    <p>Bonjour,</p>
+    <p>Votre audition est prévue pour le <span class="accent">${moment(
+      session.dateAudition
+    )
+      .locale("fr")
+      .format("LL")} à ${session.HeureDeb}</span>.</p>
+    <p>Merci de vous préparer et d'arriver à l'heure. Nous sommes impatients de vous rencontrer!</p>
+    <p>Cordialement,<br>Choeur du CSO</p>
+    <div class="footer">
+      <p>Merci,<br>Choeur du CSO</p>
+    </div>
+  </div>
+</body>
+
+</html>
+        `;
+
+          // Use the htmlContent in your email sending logic
+
+          // Envoie de l'e-mail with HTML content
           await transporter.sendMail({
             from: "ghofranemn22@gmail.com",
             to: destinataire,
             subject: sujet,
-            text: texte,
+            html: htmlContent,
           });
 
           console.log(
@@ -119,25 +192,21 @@ const genererPlanning = async (req, res, next) => {
       console.log("E-mails envoyés avec succès");
     } catch (error) {
       console.error("Erreur lors de l'envoi des e-mails :", error);
-      throw new Error("Erreur lors de l'envoi des e-mails"); // Rethrow l'erreur pour la gérer dans la fonction appelante
+      throw new Error("Erreur lors de l'envoi des e-mails");
     } finally {
       transporter.close();
     }
 
-    res
-      .status(201)
-      .json({
-        message: "Planning généré avec succès",
-        planning: planningEnregistre,
-      });
+    res.status(201).json({
+      message: "Planning généré avec succès",
+      planning: planningEnregistre,
+    });
   } catch (error) {
     console.error("Erreur lors de la génération du planning :", error);
-    res
-      .status(500)
-      .json({
-        message: "Erreur lors de la génération du planning",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Erreur lors de la génération du planning",
+      error: error.message,
+    });
   }
 };
 
@@ -247,14 +316,11 @@ const trouverIdCandidatParNom = async (nomCandidat) => {
 
 const fetchPlanningByCandidat = async (req, res) => {
   const nomCandidat = req.query.nom;
-   
+
   if (!nomCandidat) {
-    return res
-      .status(400)
-      .json({
-        error:
-          "Le nom du candidat est requis en tant que paramètre de requête.",
-      });
+    return res.status(400).json({
+      error: "Le nom du candidat est requis en tant que paramètre de requête.",
+    });
   }
 
   const idCandidat = await trouverIdCandidatParNom(nomCandidat);
@@ -321,15 +387,99 @@ const envoyerEmailAuxCandidats = async (plannings) => {
       plannings.map(async (planning) => {
         const destinataire = planning.mail;
         const sujet = "Détails de votre nouvelle audition";
-        const dateAuditionMoment = moment(planning.dateAudition).locale('fr').format('LL');
-        const texte = `Bonjour,\n\nVotre nouvelle audition est prévue pour le ${dateAuditionMoment} à ${planning.HeureDeb} heure.\n\nCordialement,\nVotre Organisation`;
+        const dateAuditionMoment = moment(planning.dateAudition)
+          .locale("fr")
+          .format("LL");
+        const html = `<!DOCTYPE html>
+        <html lang="fr">
+        
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body {
+              font-family: 'Arial', sans-serif;
+              background-color: #f5f5f5;
+              margin: 0;
+              padding: 0;
+            }
+        
+            .container {
+              max-width: 600px;
+              margin: 20px auto;
+              padding: 20px;
+              background-color: #ffffff;
+              border-radius: 8px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+        
+            h1 {
+              color: #3498db;
+            }
+        
+            p {
+              color: #555;
+            }
+        
+            .footer {
+              margin-top: 20px;
+              padding-top: 10px;
+              border-top: 1px solid #ddd;
+              text-align: center;
+              color: #777;
+            }
+        
+            .accent {
+              color: #e74c3c;
+              font-weight: bold;
+            }
+        
+            .logo {
+              text-align: center;
+            }
+        
+            .logo img {
+              max-width: 100px;
+              height: auto;
+            }
+        
+            .renewal {
+              background-color: #f9f9f9;
+              padding: 10px;
+              border-radius: 5px;
+              margin-top: 15px;
+            }
+          </style>
+        </head>
+        
+        <body>
+          <div class="container">
+            <div class="logo">
+              <img src="https://weezevent.com/wp-content/uploads/2023/07/31160928/organiser-chorale.jpg" alt="Your Organization Logo">
+            </div>
+            <h1 style="text-align: center;">Renouvellement d'Audition</h1>
+            <p>Bonjour,</p>
+            <p>Votre audition est renouvelée et prévue pour le <span class="accent">${dateAuditionMoment} à ${planning.HeureDeb}</span>.</p>
+            <div class="renewal">
+              <p>Renouvellement d'audition</p>
+            </div>
+            <p>Merci de vous préparer et d'arriver à l'heure. Nous sommes impatients de vous rencontrer à nouveau!</p>
+            <p>Cordialement,<br>Votre Chœur</p>
+            <div class="footer">
+              <p>Merci,<br>Votre Chœur</p>
+            </div>
+          </div>
+        </body>
+        
+        </html>
+        `;
 
         // Envoi de l'e-mail
         await transporter.sendMail({
           from: "ghofranemn22@gmail.com",
           to: destinataire,
           subject: sujet,
-          text: texte,
+          html: html,
         });
 
         console.log(
@@ -348,7 +498,6 @@ const envoyerEmailAuxCandidats = async (plannings) => {
     }
   }
 };
-
 
 const genererPlanningDefaillants = async (req, res, next) => {
   try {
@@ -435,7 +584,7 @@ const genererPlanningDefaillants = async (req, res, next) => {
     }
 
     await Planning.insertMany(newPlannings);
-    console.log(existingPlannings)
+    console.log(existingPlannings);
     await envoyerEmailAuxCandidats(existingPlannings);
     res.status(201).json({
       message: "Planning généré avec succès",
@@ -450,19 +599,13 @@ const genererPlanningDefaillants = async (req, res, next) => {
   }
 };
 
-
-
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
-    user: 'ayaghattas606@gmail.com',
-    pass: 'peew vcuf wmhd yvcf',
+    user: "ayaghattas606@gmail.com",
+    pass: "peew vcuf wmhd yvcf",
   },
 });
-
-
- 
-
 
 const updateAudition = (req, res) => {
   Audition.findOneAndUpdate(
@@ -509,18 +652,19 @@ const deleteAudition = (req, res) => {
     });
 };
 
-
-
-
 const fetchAudition = async (req, res) => {
   try {
-    const audition = await Audition.findOne({ _id: req.params.id }).populate('candidat');
+    const audition = await Audition.findOne({ _id: req.params.id }).populate(
+      "candidat"
+    );
     if (!audition) {
       return res.status(404).json({ message: "objet non trouvé!" });
     }
     res.status(200).json({ model: audition, message: "objet trouvé!" });
   } catch (error) {
-    res.status(400).json({ error: error.message, message: "Données invalides!" });
+    res
+      .status(400)
+      .json({ error: error.message, message: "Données invalides!" });
   }
 };
 
@@ -530,84 +674,116 @@ const addAudition = async (req, res) => {
     const audition = await newAudition.save();
     res.json(audition);
   } catch (err) {
-    res.status(400).json({ erreur: `Échec de la création de l'audition: ${err.message}` });
+    res
+      .status(400)
+      .json({ erreur: `Échec de la création de l'audition: ${err.message}` });
   }
 };
 
 const getAudition = async (req, res) => {
   try {
-    const auditions = await Audition.find().populate('candidat');
+    const auditions = await Audition.find().populate("candidat");
     res.status(200).json({ model: auditions, message: "success" });
   } catch (error) {
-    res.status(500).json({ error: error.message, message: "problème d'extraction" });
+    res
+      .status(500)
+      .json({ error: error.message, message: "problème d'extraction" });
   }
 };
 
 const updateCandidatResultat = (req, res) => {
-  Audition.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }).then(
-      (audition) => {
-        if (!audition) {
-          res.status(404).json({
-            message: "objet non trouvé!",
-          });
-        } else {
-          res.status(200).json({
-            model: audition,
-            message: "objet modifié!",
-          });
-        }
-      }
-    )
-}
+  Audition.findOneAndUpdate({ _id: req.params.id }, req.body, {
+    new: true,
+  }).then((audition) => {
+    if (!audition) {
+      res.status(404).json({
+        message: "objet non trouvé!",
+      });
+    } else {
+      res.status(200).json({
+        model: audition,
+        message: "objet modifié!",
+      });
+    }
+  });
+};
 
 const getCandidatsFiltres = async (req, res) => {
   try {
     const filtre = req.params.filtre;
-    if (!['Accepté', 'Refusé', 'En Attente'].includes(filtre)) {
-      return res.status(400).json({ message: "Filtre invalide. Utilisez 'Accepté', 'Refusé' ou 'En Attente'." });
+    if (!["Accepté", "Refusé", "En Attente"].includes(filtre)) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Filtre invalide. Utilisez 'Accepté', 'Refusé' ou 'En Attente'.",
+        });
     }
 
-    const auditions = await Audition.find({ résultat: filtre })
-    .populate('candidat');
+    const auditions = await Audition.find({ résultat: filtre }).populate(
+      "candidat"
+    );
     const candidatsFiltres = auditions.map((audition) => audition.candidat);
 
     candidatsFiltres.sort((a, b) => {
-      const resultatA = auditions.find((aud) => aud.candidat.equals(a._id)).résultat;
-      const resultatB = auditions.find((aud) => aud.candidat.equals(b._id)).résultat;
-      return ['Accepté', 'En Attente', 'Refusé'].indexOf(resultatA) - ['Accepté', 'En Attente', 'Refusé'].indexOf(resultatB);
+      const resultatA = auditions.find((aud) =>
+        aud.candidat.equals(a._id)
+      ).résultat;
+      const resultatB = auditions.find((aud) =>
+        aud.candidat.equals(b._id)
+      ).résultat;
+      return (
+        ["Accepté", "En Attente", "Refusé"].indexOf(resultatA) -
+        ["Accepté", "En Attente", "Refusé"].indexOf(resultatB)
+      );
     });
 
-    res.status(200).json({ candidats: candidatsFiltres, message: `Liste des candidats avec le filtre '${filtre}'` });
+    res
+      .status(200)
+      .json({
+        candidats: candidatsFiltres,
+        message: `Liste des candidats avec le filtre '${filtre}'`,
+      });
   } catch (error) {
-    res.status(500).json({ error: error.message, message: `Erreur lors de la récupération des candidats avec le filtre '${filtre}'` });
+    res
+      .status(500)
+      .json({
+        error: error.message,
+        message: `Erreur lors de la récupération des candidats avec le filtre '${filtre}'`,
+      });
   }
 };
 
 const getCandidatPupitreOrdonnes = async (req, res) => {
   try {
     // Récupérez les candidats du pupitre spécifié
-    const candidats = await Audition.find({ pupitre: req.body.pupitre }).populate('candidat');
+    const candidats = await Audition.find({
+      pupitre: req.body.pupitre,
+    }).populate("candidat");
 
     // Triez les candidats par résultat (Accepté, En Attente, Refusé)
     const candidatsTries = candidats.sort((a, b) => {
-      const resultatA = a.résultat || 'En Attente';
-      const resultatB = b.résultat || 'En Attente';
+      const resultatA = a.résultat || "En Attente";
+      const resultatB = b.résultat || "En Attente";
 
-      return ['Accepté', 'En Attente', 'Refusé'].indexOf(resultatA) - ['Accepté', 'En Attente', 'Refusé'].indexOf(resultatB);
+      return (
+        ["Accepté", "En Attente", "Refusé"].indexOf(resultatA) -
+        ["Accepté", "En Attente", "Refusé"].indexOf(resultatB)
+      );
     });
 
     // Initialisez la liste des résultats
     const resultats = [];
 
     // Parcourez les candidats triés
-    candidatsTries.forEach(candidat => {
+    candidatsTries.forEach((candidat) => {
       // Ajoutez les candidats acceptés à la liste
-      if (candidat.résultat === 'Accepté') {
+      if (candidat.résultat === "Accepté") {
         resultats.push(candidat);
       }
 
       // Ajoutez les candidats en attente à la liste
-      else if (candidat.résultat === 'En Attente') {
+      else if (candidat.résultat === "En Attente") {
         resultats.push(candidat);
       }
 
@@ -618,14 +794,15 @@ const getCandidatPupitreOrdonnes = async (req, res) => {
     });
 
     // Retournez la liste ordonnée
-    const candidatsOrdonnes = resultats.map(audition => ({
+    const candidatsOrdonnes = resultats.map((audition) => ({
       candidat: audition.candidat,
-      résultat: audition.résultat || 'En Attente',
+      résultat: audition.résultat || "En Attente",
     }));
 
     res.status(200).json({
       model: candidatsOrdonnes,
-      message: "Liste des candidats par pupitre triée par résultat récupérée avec succès!",
+      message:
+        "Liste des candidats par pupitre triée par résultat récupérée avec succès!",
     });
   } catch (error) {
     res.status(500).json({
@@ -635,26 +812,25 @@ const getCandidatPupitreOrdonnes = async (req, res) => {
   }
 };
 
-
 const creerChoriste = async (candidat) => {
   try {
     const audition = await Audition.findOne({ candidat: candidat._id });
 
     if (!audition) {
-      throw new Error('Audition non trouvée pour le candidat.');
+      throw new Error("Audition non trouvée pour le candidat.");
     }
-    const nom= candidat.nom
-    const prénom= candidat.prénom
-    const pupitre= audition.pupitre
-    const email= candidat.email
-    const taille= candidat.taille
-    const num_tel= candidat.num_tel
-    const CIN= candidat.CIN
-    const adresse= candidat.adresse
-    const date_naiss= candidat.date_naiss
-    const sexe= candidat.sexe
-    const Taille= candidat.Taille
-    await Candidat.findByIdAndDelete ({ _id: candidat._id})
+    const nom = candidat.nom;
+    const prénom = candidat.prénom;
+    const pupitre = audition.pupitre;
+    const email = candidat.email;
+    const taille = candidat.taille;
+    const num_tel = candidat.num_tel;
+    const CIN = candidat.CIN;
+    const adresse = candidat.adresse;
+    const date_naiss = candidat.date_naiss;
+    const sexe = candidat.sexe;
+    const Taille = candidat.Taille;
+    await Candidat.findByIdAndDelete({ _id: candidat._id });
     // Créer le Choriste avec les attributs du candidat
     const nouveauChoriste = new Choriste({
       nom: nom,
@@ -671,41 +847,38 @@ const creerChoriste = async (candidat) => {
     });
     // Enregistrez le Choriste dans la base de données
     await nouveauChoriste.save();
-    
-// Créez un compte pour le Choriste
-const mdp = await genererMotDePasseAleatoire();
-console.log('Mot de passe non hashé :', mdp);
 
-// Hasher le mot de passe
-const mdpHash = await bcrypt.hash(mdp, 10);
-console.log('Mot de passe hashé :', mdpHash);
+    // Créez un compte pour le Choriste
+    const mdp = await genererMotDePasseAleatoire();
+    console.log("Mot de passe non hashé :", mdp);
 
-// Créer le compte
-const nouveauCompte = new Compte({
-  login: email,
-  motDePasse: mdpHash,
+    // Hasher le mot de passe
+    const mdpHash = await bcrypt.hash(mdp, 10);
+    console.log("Mot de passe hashé :", mdpHash);
 
-});
-await nouveauCompte.save();
-console.log("Compte enregistré avec succès:", nouveauCompte);
+    // Créer le compte
+    const nouveauCompte = new Compte({
+      login: email,
+      motDePasse: mdpHash,
+    });
+    await nouveauCompte.save();
+    console.log("Compte enregistré avec succès:", nouveauCompte);
 
     // Associez l'ID du compte au champ 'compte' du Choriste
     nouveauChoriste.compte = nouveauCompte._id;
-    
+
     // Enregistrez à nouveau le Choriste avec l'ID du compte associé
     await nouveauChoriste.save();
 
     await envoyerEmailLogin(candidat.email, candidat.email, mdp);
     console.log("E-mail de login envoyé avec succès.");
 
-    return { choriste: nouveauChoriste, compte: nouveauCompte } ;
-    
+    return { choriste: nouveauChoriste, compte: nouveauCompte };
   } catch (error) {
-    console.error('Erreur lors de la création du Choriste :', error);
+    console.error("Erreur lors de la création du Choriste :", error);
     throw error;
   }
 };
-
 
 const envoyerEmailAcceptation = async (req, res) => {
   try {
@@ -717,39 +890,49 @@ const envoyerEmailAcceptation = async (req, res) => {
     }
 
     if (candidat.confirmation) {
-      throw new Error('Le candidat est déjà confirmé');
+      throw new Error("Le candidat est déjà confirmé");
     }
 
     const adresseEmail = candidat.email;
     const sujet = "Félicitations ! Vous avez été accepté à la chorale.";
     const file = path.join(__dirname, "../views/acceptationmail.ejs");
     const pdf = path.join(__dirname, "../files/Reglement.pdf");
-    ejs.renderFile(file, {
-      link: `http://localhost:5000/api/audition/confirmationCandidat/${candidatId}` }, 
+    ejs.renderFile(
+      file,
+      {
+        link: `http://localhost:5000/api/audition/confirmationCandidat/${candidatId}`,
+      },
       async (err, data) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Erreur lors du rendu du fichier EJS." });
+        if (err) {
+          console.error(err);
+          return res
+            .status(500)
+            .json({ error: "Erreur lors du rendu du fichier EJS." });
+        }
+
+        const mailOptions = {
+          from: "ayaghattas606@gmail.com",
+          to: adresseEmail,
+          subject: sujet,
+          html: data,
+          attachments: [{ filename: "Reglement.pdf", path: pdf }],
+        };
+
+        await transporter.sendMail(mailOptions);
       }
+    );
 
-      const mailOptions = {
-        from: 'ayaghattas606@gmail.com',
-        to: adresseEmail,
-        subject: sujet,
-        html: data,
-        attachments: [
-          { filename: 'Reglement.pdf', path: pdf },
-        ],
-      };
-
-    await transporter.sendMail(mailOptions);
-
-    });
-
-    res.status(200).json({ message: "E-mail d'acceptation envoyé avec succès." });
+    res
+      .status(200)
+      .json({ message: "E-mail d'acceptation envoyé avec succès." });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Erreur lors de la recherche du candidat dans la base de données." });
+    res
+      .status(500)
+      .json({
+        error:
+          "Erreur lors de la recherche du candidat dans la base de données.",
+      });
   }
 };
 
@@ -771,26 +954,37 @@ const confirmationCandidat = async (req, res) => {
         // await supprimerCandidat(candidat._id);
         // console.log("Candidat supprimé :", candidat._id);
 
-        return res.status(200).json({ message: "Candidat confirmé avec succès." });
+        return res
+          .status(200)
+          .json({ message: "Candidat confirmé avec succès." });
       } else {
-        return res.status(400).json({ message: "Le candidat est déjà confirmé" });
+        return res
+          .status(400)
+          .json({ message: "Le candidat est déjà confirmé" });
       }
     } else {
-      return res.status(400).json({ message: "Le candidat non trouvé dans la base de données" });
+      return res
+        .status(400)
+        .json({ message: "Le candidat non trouvé dans la base de données" });
     }
   } catch (error) {
-    console.error('Erreur lors de la confirmation du candidat :', error);
-    return res.status(500).json({ error: "Erreur lors de la confirmation du candidat" });
+    console.error("Erreur lors de la confirmation du candidat :", error);
+    return res
+      .status(500)
+      .json({ error: "Erreur lors de la confirmation du candidat" });
   }
 };
 
 async function genererMotDePasseAleatoire() {
-  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const caracteres =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const longueurMotDePasse = 12;
 
-  let mdp = '';
+  let mdp = "";
   for (let i = 0; i < longueurMotDePasse; i++) {
-    const caractereAleatoire = caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    const caractereAleatoire = caracteres.charAt(
+      Math.floor(Math.random() * caracteres.length)
+    );
     mdp += caractereAleatoire;
   }
   return mdp;
@@ -800,12 +994,12 @@ const envoyerEmailLogin = async (adresseEmail, login, motDePasse) => {
   const sujet = "Information de connexion à la chorale";
   const file = path.join(__dirname, "../views/loginmail.ejs");
   const link = "http://localhost:5000/api/compte/login";
-  
+
   try {
     const data = await ejs.renderFile(file, { login, motDePasse, link });
 
     const mailOptions = {
-      from: 'ayaghattas606@gmail.com',
+      from: "ayaghattas606@gmail.com",
       to: adresseEmail,
       subject: sujet,
       html: data,
@@ -819,24 +1013,21 @@ const envoyerEmailLogin = async (adresseEmail, login, motDePasse) => {
   }
 };
 
-
 module.exports = {
   addAudition,
   getAudition,
   fetchAudition,
   updateCandidatResultat,
-  getCandidatsFiltres, 
+  getCandidatsFiltres,
   getCandidatPupitreOrdonnes,
   envoyerEmailAcceptation,
   confirmationCandidat,
   updateAudition,
   deleteAudition,
-   genererPlanning,
+  genererPlanning,
   fetchPlanning,
   fetchPlanningByid,
   fetchPlanningByCandidat,
   genererPlanningDefaillants,
   fetchPlanningByDateHeure,
-  
-
 };

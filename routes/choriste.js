@@ -13,11 +13,12 @@ const CINMiddleware = require("../middlewares/CIN");
  */
 
 //router.get('/totalAbsence', choristeController.getGeneralAbsenceStatus);
+router.post("/presenceRep/:idRepetition/:link",auth.loggedMiddleware,choristeController.presence)
+
 router.get('/totalAbsencePupitre/:pupitre', choristeController.getAbsenceStatusByPupitre);
 router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
 router.post("/setDispo/:idConcert",auth.loggedMiddleware,choristeController.setDispo);
 router.get('/confirm-dispo/:userId/:idConcert/:uniqueToken', choristeController.confirmDispo);
-router.post("/presenceRep/:idRepetition/:link",auth.loggedMiddleware,choristeController.presence)
 
 
 router.post("/presenceConcert/:idConcert/:link",auth.loggedMiddleware,choristeController.presenceConcert)
