@@ -16,6 +16,7 @@ const repetitionRouter = require("./routes/repetition");
 const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
 const SaisonRouter = require("./routes/saison.js");
+const ProgrammeRouter = require("./routes/programme");
 
 const liste_presence_concert = require("./routes/liste_present_concert.js");
 
@@ -156,7 +157,7 @@ app.use("/api/audition", auditionRouter);
 app.use("/candidats", CandidatRoutes);
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
-app.use("/Chef_pupitre", chef_router);
+app.use("/api/Chef_pupitre", chef_router);
 app.use("/absence", absenceRouter);
 app.use("/api/choriste", choristeRouter);
 app.use("/api/candidat", CandidatRoutes);
@@ -168,6 +169,6 @@ app.use("/api/concert", ConcertRouter);
 app.use("/api/saison", SaisonRouter);
 app.use("/api/presenceConcert", liste_presence_concert);
 app.use("/api/validermail", mailRouter);
-
+app.use("/api/programme", ProgrammeRouter);
 
 module.exports = app;
