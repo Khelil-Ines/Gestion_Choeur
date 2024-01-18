@@ -31,7 +31,7 @@ router.get("/:id",choristeController.fetchChoriste)
 
 router.post("/liste", choristeController.getChoristesByPupitre) 
 
-router.patch("/update/:id", choristeController.updatePupitre)
+router.patch("/update/:id",auth.loggedMiddleware, auth.isAdmin, choristeController.updatePupitre)
 
 
 router.get("/profile/:id", choristeController.getprofilchoriste);
