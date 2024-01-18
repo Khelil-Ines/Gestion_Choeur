@@ -152,7 +152,7 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use("/audition", auditionRouter);
+app.use("/api/audition", auditionRouter);
 app.use("/candidats", CandidatRoutes);
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
