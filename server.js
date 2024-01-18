@@ -13,7 +13,6 @@ server.listen(port , () => {
     console.log("listening on" + port)
 })
 
-
 const notifications = [];
 
 io.on('connection', (socket) => {
@@ -21,11 +20,41 @@ io.on('connection', (socket) => {
 
   // Envoyer les notifications existantes lorsqu'un client se connecte
   socket.emit('notificationList', notifications);
+  
+  
 
   socket.on('disconnect', () => {
     console.log('Client déconnecté');
   });
 });
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+
+app.get('/notification', (req, res) => {
+  res.sendFile(__dirname + '/public/choriste.html');
+  io.on('connection', (socket) => {
+    console.log('Client connecté');
+  
+    // Listen for joining a room
+    socket.on('joinRoom', (room) => {
+      socket.join(room);
+      console.log(`Client a rejoint la salle : ${room}`);
+    });
+  
+    // Envoyer les notifications existantes lorsqu'un client se connecte
+    socket.emit('updateNotificationList', notifications);
+  
+    socket.on('disconnect', () => {
+      console.log('Client déconnecté');
+    });
+  });
+});
+
+
+
 
 
 

@@ -9,8 +9,8 @@ const historiqueStatutSchema = mongoose.Schema({
 
 const presenceManuelleSchema = mongoose.Schema({
   date: { type: Date, default: Date.now },
-  raison: { type: String, required: true },
-  type: { type: String ,  required: true },
+  raison: { type: String, required: false },
+  type: { type: String ,  required: false },
 
 });
 
