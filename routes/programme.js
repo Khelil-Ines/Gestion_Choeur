@@ -12,7 +12,7 @@ const upload = multer({ storage: multer.memoryStorage() });
  */
 
 router.get("/", programmeController.getProgrammes);
-router.post("/", programmeController.addProgramme);
+router.post("/add", programmeController.addProgramme);
 
 router.post('/ajouterProgrammeFile', upload.single('fichierExcel'), programmeController.addProgrammewithFile);
    
