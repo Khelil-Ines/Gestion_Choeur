@@ -27,16 +27,7 @@ exports.envoyerEmailElimination = async (req, res) => {
     } else {
       for (const choristeElimine of choristesElimines) {
         const sujet = "Elimination ! ";
-        const file = path.join(__dirname, "../views/eliminationmail.ejs");
-
-        const renderedContent = ejs.renderFile(file, async (err, data) => {
-          if (err) {
-            console.error(err);
-            return res
-              .status(500)
-              .json({ error: "Erreur lors du rendu du fichier EJS." });
-          }
-        });
+       
         const mailOptions = {
           from: transporter.user,
           to: choristeElimine.mail,
