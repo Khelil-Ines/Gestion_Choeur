@@ -157,7 +157,7 @@ app.use("/api/audition", auditionRouter);
 app.use("/candidats", CandidatRoutes);
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
-app.use("/Chef_pupitre", chef_router);
+app.use("/api/Chef_pupitre", chef_router);
 app.use("/absence", absenceRouter);
 app.use("/api/choriste", choristeRouter);
 app.use("/api/candidat", CandidatRoutes);
