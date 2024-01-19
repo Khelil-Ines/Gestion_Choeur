@@ -12,7 +12,15 @@ const CINMiddleware = require("../middlewares/CIN");
  *  description:  API de gestion des choristes
  */
 
-//router.get('/totalAbsence', choristeController.getGeneralAbsenceStatus);
+
+// router.get('/totalAbsence', choristeController.getGeneralAbsenceStatus);
+// router.get('/totalAbsencePupitre/:pupitre', choristeController.getAbsenceStatusByPupitre);
+// router.get('/totalAbsenceDate/:date', choristeController.getAbsencesByDate);
+// router.get('/totalAbsenceChoriste/:choristeId', choristeController.getAbsencesByChoristeId);
+
+// router.get('/totalAbsencePeriod/:startDate/:endDate', choristeController.getAbsenceByPeriod);
+// router.get('/totalAbsenceProgramme/:ProgrammeId', choristeController.getAbsenceByProgram);
+router.get('/total', choristeController.getAbsenceStatus);
 router.get('/totalAbsencePupitre/:pupitre', choristeController.getAbsenceStatusByPupitre);
 router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
 router.post("/setDispo/:idConcert",auth.loggedMiddleware,choristeController.setDispo);

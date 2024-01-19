@@ -6,7 +6,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 const auditionRouter = require("./routes/audition");
-const CandidatRoutes = require("./routes/candidat");
+const candidatRouter = require("./routes/candidat");
 const compositeurRoutes = require("./routes/compositeur");
 const oeuvreRoutes = require("./routes/oeuvre");
 const chef_router = require("./routes/chef_pupitre");
@@ -106,6 +106,7 @@ mongoose
   .then(() => console.log("connexion a MongoDB reussie!"))
   .catch((e) => console.log("connexion a MongoDB échouée!", e));
 
+
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -116,14 +117,16 @@ app.use((req, res, next) => {
   );
   next();
 });
-app.use("/notif", (req, res) => {
-  res.send("OK"); // Réponse simple pour indiquer que la route est accessible
-});
 
 app.use((req, res, next) => {
   console.log("Requête reçue:", req.method, req.url, req.body);
   next();
 });
+
+
+
+
+
 
 app.use("/notif", (req, res) => {
   res.send("OK"); // Réponse simple pour indiquer que la route est accessible
@@ -154,7 +157,6 @@ io.on("connection", (socket) => {
 });
 
 app.use("/api/audition", auditionRouter);
-app.use("/candidats", CandidatRoutes);
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
 app.use("/api/Chef_pupitre", chef_router);
