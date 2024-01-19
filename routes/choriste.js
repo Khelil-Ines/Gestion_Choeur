@@ -307,12 +307,16 @@ module.exports = router;
  *               erreur: "Erreur interne du serveur. Veuillez réessayer plus tard."
  */
 
+
+
+
 /**
  * @swagger
- * /your_route_here/getAbsenceStatus:
+ * /choriste/total:
  *   get:
- *     summary: Get absence status based on various parameters
- *     tags: [Absence]
+ *     summary: List choristers available for a specific choir section in a concert
+ *     tags:
+ *       - Choriste
  *     parameters:
  *       - in: query
  *         name: startDate
@@ -364,3 +368,6 @@ module.exports = router;
  *       500:
  *         description: Internal Server Error
  */
+
+
+

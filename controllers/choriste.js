@@ -1020,6 +1020,47 @@ exports.getAbsenceStatus = async (req, res) => {
 
       return res.json({ date, pupitre, totalAbsences, filteredAbsences });
     }
+
+    if (date && pupitre && ProgrammeId) {
+      const choristers = await Choriste.find({ pupitre }).populate('absences');
+    
+      const filteredAbsences = choristers.reduce((allAbsences, chorister) => {
+        const choristerAbsences = chorister.absences.filter(absence => {
+          const absenceDate = new Date(absence.Date).toISOString().split('T')[0];
+          return absenceDate === date && absence.Type === 'Repetition' && absence.programmeId === ProgrammeId;
+          // Assuming there is a property named programmeId in the absence object
+        });
+    
+        return allAbsences.concat(choristerAbsences);
+      }, []);
+    
+      const totalAbsences = filteredAbsences.reduce((count, absence) => {
+        return count + (absence.Type === 'Repetition' ? 1 : 0);
+      }, 0);
+    
+      return res.json({ date, pupitre, ProgrammeId, totalAbsences, filteredAbsences });
+    }
+    
+    // if (pupitre && ProgrammeId) {
+    //   const choristers = await Choriste.find({ pupitre }).populate('absences');
+    
+    //   const filteredAbsences = choristers.reduce((allAbsences, chorister) => {
+    //     const choristerAbsences = chorister.absences.filter(absence => {
+    //       return absence.Type === 'Repetition' && absence.programmeId === ProgrammeId;
+    //       // Assuming there is a property named programmeId in the absence object
+    //     });
+    
+    //     return allAbsences.concat(choristerAbsences);
+    //   }, []);
+    
+    //   const totalAbsences = filteredAbsences.reduce((count, absence) => {
+    //     return count + 1; // Counting all absences without checking the type
+    //   }, 0);
+    
+    //   return res.json({ pupitre, ProgrammeId, totalAbsences, filteredAbsences });
+    // }
+    
+
      // Check for choristeId and date
      if (choristeId && date) {
       const choriste = await Choriste.findById(choristeId).populate('absences');
