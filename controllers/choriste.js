@@ -960,7 +960,12 @@ exports.login = async (req, res, next) => {
 exports.getAbsenceStatus = async (req, res) => {
   try {
     const { startDate, endDate, date, choristeId, pupitre, ProgrammeId , dateDonne , saison} = req.query;
-  
+    
+  // Check if endDate is after startDate
+  if (endDate < startDate) {
+    return res.status(400).json({ error: 'endDate must be after startDate' });
+  }
+
     if (startDate && endDate) {
       // Validate that endDate is greater than startDate
       if (endDate <= startDate) {

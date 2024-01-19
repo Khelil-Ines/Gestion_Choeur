@@ -56,3 +56,60 @@ router.get("/pupitre/:idConcert/:pupitre",choristeController.Lister_choriste_pup
 router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
 module.exports = router;
 
+/**
+ * @swagger
+ * /your_route_here/getAbsenceStatus:
+ *   get:
+ *     summary: Get absence status based on various parameters
+ *     tags: [Absence]
+ *     parameters:
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *         description: Start date for filtering absences
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *         description: End date for filtering absences
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *         description: Specific date for filtering absences
+ *       - in: query
+ *         name: choristeId
+ *         schema:
+ *           type: string
+ *         description: ID of the chorister for individual filtering
+ *       - in: query
+ *         name: pupitre
+ *         schema:
+ *           type: string
+ *         description: Chorister's section or group
+ *       - in: query
+ *         name: ProgrammeId
+ *         schema:
+ *           type: string
+ *         description: ID of the program for filtering
+ *       - in: query
+ *         name: dateDonne
+ *         schema:
+ *           type: string
+ *         description: Date for filtering absences based on given date
+ *       - in: query
+ *         name: saison
+ *         schema:
+ *           type: string
+ *         description: Filter absences based on the current season
+ *     responses:
+ *       200:
+ *         description: Successful response with absence status
+ *       400:
+ *         description: Bad request, check the request parameters
+ *       404:
+ *         description: Chorister not found or other related errors
+ *       500:
+ *         description: Internal Server Error
+ */
