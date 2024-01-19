@@ -13,7 +13,7 @@ const OeuvreController = require("../controllers/oeuvre");
  * @swagger
  * /Oeuvre/add:
  *   post:
- *     summary: Create a new oeuvre
+ *     summary: Ajouter un nouveau Oeuvre
  *     tags: [Oeuvre]
  *     requestBody:
  *       required: true
@@ -74,7 +74,7 @@ const OeuvreController = require("../controllers/oeuvre");
  *         choral:
  *           type: boolean
  *           description: Indique si l'œuvre est chorale.
- *     Task:
+ *     Oeuvre:
  *          allOf:
  *              - type: object
  *                properties:
@@ -88,7 +88,7 @@ const OeuvreController = require("../controllers/oeuvre");
  * @swagger
  * /Oeuvre/all:
  *   get:
- *     summary: get a task by id
+ *     summary: Afficher tous les oeuvres
  *     tags: [Oeuvre]
  *     responses:
  *       200:
@@ -108,7 +108,7 @@ const OeuvreController = require("../controllers/oeuvre");
  * @swagger
  * /Oeuvre/byID/{id}:
  *   get:
- *     summary: get an oeuvre by id
+ *     summary: Afficher oeuvre by id
  *     tags: [Oeuvre]
  *     parameters:
  *       - in: path
@@ -135,7 +135,7 @@ const OeuvreController = require("../controllers/oeuvre");
  * @swagger
  * /Oeuvre/byTitle/title/{titre}:
  *   get:
- *     summary: get an oeuvre by id
+ *     summary: Afficher oeuvre by titre
  *     tags: [Oeuvre]
  *     parameters:
  *       - in: path
@@ -162,7 +162,7 @@ const OeuvreController = require("../controllers/oeuvre");
  * @swagger
  * /Oeuvre/byParams:
  *   get:
- *     summary: Get a list of oeuvres based on parameters.
+ *     summary: Afficher Oeuvre selon paramtres (titre + année).
  *     tags: [Oeuvre]
  *     parameters:
  *       - in: query
@@ -194,7 +194,7 @@ const OeuvreController = require("../controllers/oeuvre");
  * @swagger
  * /Oeuvre/update/{id}:
  *     patch:
- *      summary: update an oeuvre by id
+ *      summary: Mettre a jour un Oeuvre
  *      tags: [Oeuvre]
  *      parameters:
  *       - in: path
