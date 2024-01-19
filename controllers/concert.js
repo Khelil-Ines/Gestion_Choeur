@@ -86,21 +86,21 @@ const updateConcert = (req, res) => {
 
 const deleteConcert = (req, res) => {
   Concert.deleteOne({ _id: req.params.id })
-    .then((concert) => {
-      if (!concert) {
+    .then((result) => {
+      if (result.deletedCount === 0) {
         res.status(404).json({
-          message: " Concert non supprimé!",
+          message: "Concert non trouvé !",
         });
       } else {
         res.status(200).json({
-          model: concert,
+          model: result,
           message: "Concert supprimé!",
         });
       }
     })
-    .catch(() => {
+    .catch((error) => {
       res.status(400).json({
-        error: Error.message,
+        error: error.message,
         message: "Données invalides!",
       });
     });
