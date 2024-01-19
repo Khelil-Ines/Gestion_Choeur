@@ -247,23 +247,8 @@ exports.getChoriste = (req, res) => {
     try {
       const { idRepetition, link } = req.params;
   
-      // Vérifiez le token dans le header de la requête
-      const token = req.headers.authorization.split(' ')[1];
-  
       try {
-        const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-        const compteId = decodedToken.userId;
-  
-        // Recherchez le compte par son ID
-        const compte = await User.findById(compteId);
-        console.log(compteId)
-        if (!compte) {
-          return res.status(404).json({ erreur: 'Compte non trouvé' });
-        }
-  
-        // Utilisez l'ID du compte pour trouver le choriste associé
-        const choriste = await Choriste.findOne({compte:compteId});
-  
+        const choriste = await Choriste.findOne({ compte: req.auth.compteId });
         if (!choriste) {
           return res.status(404).json({ erreur: 'Choriste non trouvé' });
         }
@@ -325,22 +310,13 @@ exports.presenceConcert = async (req, res) => {
   try {
     const { idConcert, link } = req.params;
 
-    // Vérifiez le token dans le header de la requête
-    const token = req.headers.authorization.split(" ")[1];
-
+   
     try {
-      const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-      const compteId = decodedToken.userId;
-
-      // Recherchez le compte par son ID
-      const compte = await User.findById(compteId);
-      console.log(compteId)
-      if (!compte) {
-        return res.status(404).json({ erreur: 'Compte non trouvé' });
+      const choriste = await Choriste.findOne({ compte: req.auth.compteId });
+      if (!choriste) {
+        return res.status(404).json({ erreur: "choriste non trouvé" });
       }
-     
-      const choriste = await Choriste.findOne({compte:compteId});
-     
+
 
       // Recherchez la répétition par son ID
       const concert = await Concert.findById(idConcert);
@@ -410,22 +386,11 @@ exports.setDispo = async (req, res) => {
   const token = req.headers.authorization.split(" ")[1];
 
   try {
-    const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-    const compteId = decodedToken.userId;
-
-    // Recherchez le compte par son ID
-    const compte = await User.findById(compteId);
-    console.log(compteId)
-    if (!compte) {
-      return res.status(404).json({ erreur: 'Compte non trouvé' });
-    }
-
-    // Utilisez l'ID du compte pour trouver le choriste associé
-    const choriste = await Choriste.findOne({compte:compteId});
-
+    const choriste = await Choriste.findOne({ compte: req.auth.compteId });
     if (!choriste) {
-      return res.status(404).json({ erreur: 'Choriste non trouvé' });
+      return res.status(404).json({ erreur: "choriste non trouvé" });
     }
+
 
     // Recherchez le concert par son ID
     const concert = await Concert.findById(idConcert);
@@ -439,7 +404,7 @@ exports.setDispo = async (req, res) => {
      choriste.oneTimeToken = oneTimeToken;
      await choriste.save();
 
-    if (concert.liste_Abs.includes(choriste._id)) {
+    if (concert.liste_dispo.includes(choriste._id)) {
       return res
         .status(409)
         .json({ erreur: "Le choriste est déjà disponible à ce concert" });
@@ -572,9 +537,9 @@ exports.confirmDispo = async (req, res) => {
     // Ajoutez le choriste à la liste d'absence uniquement après confirmation
     if (
       choriste.confirmationStatus === "Confirmé" &&
-      !concert.liste_Abs.includes(userId)
+      !concert.liste_dispo.includes(userId)
     ) {
-      concert.liste_Abs.push(userId);
+      concert.liste_dispo.push(userId);
       await concert.save();
     }
 
@@ -670,7 +635,7 @@ exports.Lister_choriste_toutchoeur = async (req, res) => {
     }
 
     // Vérifiez si la liste d'absence est vide
-    if (concert.liste_Abs.length === 0) {
+    if (concert.liste_dispo.length === 0) {
       return res.json({ message: "Aucun choriste n'a déclaré sa disponibilité pour ce concert" });
     }
 
@@ -679,7 +644,7 @@ exports.Lister_choriste_toutchoeur = async (req, res) => {
     const choristesToutChoeur = await Choriste.find(
       {
         confirmationStatus: "Confirmé",
-        _id: { $in: concert.liste_Abs },
+        _id: { $in: concert.liste_dispo },
       },
       // excluez le champ "motDePasse"
       { password: 0 ,
@@ -716,7 +681,7 @@ exports.Lister_choriste_pupitre = async (req, res) => {
     }
 
     // Vérifiez si la liste d'absence est vide
-    if (concert.liste_Abs.length === 0) {
+    if (concert.liste_dispo.length === 0) {
       return res.json({ message: "Aucun choriste n'a déclaré sa disponibilité pour ce concert" });
     }
 
@@ -724,7 +689,7 @@ exports.Lister_choriste_pupitre = async (req, res) => {
     const choristesParPupitre = await Choriste.find({
       pupitre: pupitre,
       confirmationStatus: 'Confirmé',
-      _id: { $in: concert.liste_Abs },
+      _id: { $in: concert.liste_dispo },
     },
     // excluez le champ "motDePasse"
     { password: 0 ,

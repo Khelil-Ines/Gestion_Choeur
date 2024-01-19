@@ -11,7 +11,7 @@ const Concert = mongoose.model("concert", {
   },
   programme: [{ type: mongoose.Schema.Types.ObjectId, ref: "programme" }],
   liste_Presents: { type: Array, default: [], required: false },
-  liste_final: { type: Array, default: [], required: false },
+  liste_dispo: { type: Array, default: [], required: false },
   seuil_présence: { type: Number, default: 0 },
   liste_Abs: { type: Array, default: [], required: false },
   link: { type: String, required: true },
