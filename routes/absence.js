@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const absenceController = require("../controllers/absence");
+const auth = require('../middlewares/auth');
+
 
 /**
  * @swagger
@@ -11,10 +13,12 @@ const absenceController = require("../controllers/absence");
 router.post("/", absenceController.envoyerEmailElimination);
 router.post("/nomination", absenceController.envoyerEmailNomination)
 router.post('/seuil', absenceController.updateSeuilElimination)
-router.post("/declaration", absenceController.declarerAbsenceRepetition)
-router.post("/declaration", absenceController.declarerAbsenceConcert)
+router.patch("/declarationConcert", absenceController.declarerAbsenceConcert)
+router.patch("/declarationRepetition", absenceController.declarerAbsenceRepetition)
 router.get("/elimines", absenceController.getElimines);
 router.get("/nomines", absenceController.getNomines);
 router.get("/:id", absenceController.getAbsencesChoriste);
+router.post("/addAbsence",auth.loggedMiddleware, auth.isChoriste, absenceController.addAbsence);
+
 
 module.exports = router;

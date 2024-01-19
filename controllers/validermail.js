@@ -50,69 +50,79 @@ const envoyerMailValidation = (req, res) => {
 const verifierExpirationLien = (req, res) => {
   const email = req.params.email;
   const token = req.query.token;
-  console.log(email);
+
+  // Vérifier l'expiration du token
   jwt.verify(token, "secretKey", (err, decoded) => {
     if (err) {
       console.log("Token expired or invalid:", err);
-      res.status(400).send({ error: "Token expired or invalid" });
-    } else {
-      res.status(200).send({ msg: "Token is valid" });
-      const cand = new Candidat({
-        email: email,
-        confirmation: true,
-      });
-      console.log(cand);
-      cand
-        .save()
-        .then(() => {
-          res.status(201).json({
-            model: cand,
-            message: "Candidat ajouté!",
-          });
-        })
-        .catch(() => {});
-
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_ACCOUNT,
-          pass: process.env.PASSWORD_ACCOUNT,
-        },
-      });
-
-      const file = path.join(__dirname, "../views/confirmmail.ejs"); // Chemin absolu vers le fichier EJS
-      const topic = "Welcome !";
-
-      ejs
-        .renderFile(file, {
-          name: req.body.nom + " " + req.body.prenom,
-          link: "http://localhost:5000/api/validerMail/formulaire/",
-        })
-        .then((resultat) => {
-          const mailOptions = {
-            from: process.env.EMAIL_ACCOUNT,
-            to: email,
-            subject: topic,
-            html: resultat,
-          };
-
-          transporter.sendMail(mailOptions, function (error, info) {
-            if (error) {
-              console.log("Error: " + error);
-              res.status(500).send({ error: error.message });
-            } else {
-              console.log("Email sent: " + info.response);
-              res.status(200).send({ msg: "email sent" });
-            }
-          });
-        })
-        .catch((err) => {
-          console.error("Error rendering EJS: " + err);
-          res.status(500).send({ error: "Error rendering EJS" });
-        });
+      return res.status(400).send({ error: "Token expired or invalid" });
     }
+
+    // Si le token est valide, mettre à jour la confirmation du candidat dans la base de données
+    const cand = new Candidat({
+      email: email,
+      confirmation: true,
+      nom: " ",
+      prénom: " ",
+      CIN: "12345678",
+    });
+
+    cand.save()
+      .then(() => {
+        console.log("Candidat ajouté:", cand);
+        res.status(201).json({
+          model: cand,
+          message: "Candidat ajouté!",
+        });
+      })
+      .catch((error) => {
+        console.error("Erreur lors de l'ajout du candidat:", error);
+        res.status(500).send({ error: "Erreur lors de l'ajout du candidat" });
+      });
+
+    // Envoyer un email de confirmation avec un lien vers le formulaire
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_ACCOUNT,
+        pass: process.env.PASSWORD_ACCOUNT,
+      },
+    });
+
+    const file = path.join(__dirname, "../views/confirmmail.ejs"); // Chemin absolu vers le fichier EJS
+    const topic = "Welcome !";
+
+    ejs.renderFile(file, {
+      name: req.body.nom + " " + req.body.prenom,
+      link: "http://localhost:5000/api/validerMail/formulaire/",
+    })
+      .then((resultat) => {
+        const mailOptions = {
+          from: process.env.EMAIL_ACCOUNT,
+          to: email,
+          subject: topic,
+          html: resultat,
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.error("Erreur lors de l'envoi de l'email:", error);
+            res.status(500).send({ error: "Erreur lors de l'envoi de l'email" });
+          } else {
+            console.log("Email envoyé:", info.response);
+            res.status(200).send({ msg: "Email envoyé" });
+          }
+        });
+      })
+      .catch((err) => {
+        console.error("Erreur lors du rendu EJS:", err);
+        res.status(500).send({ error: "Erreur lors du rendu EJS" });
+      });
   });
 };
+
+// Assurez-vous que Candidat, nodemailer, ejs, et path sont importés correctement
+
 
 //valider l'email et enregistrer le condidat
 const SauvgarderCandidat = (req, res) => {

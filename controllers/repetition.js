@@ -144,6 +144,7 @@ const repetitionPourcentage = async (req, res) => {
       prcTenor,
       prcBasse,
       link,
+      programme,
     } = req.body;
 
     // Vérifiez que les pourcentages sont fournis et valides
@@ -211,6 +212,7 @@ const repetitionPourcentage = async (req, res) => {
       listeAlto,
       listeTenor,
       listeBasse,
+      programme,
     });
 
 

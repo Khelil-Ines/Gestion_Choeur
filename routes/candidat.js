@@ -2,8 +2,13 @@ const express = require("express");
 const router = express.Router();
 const CandidatController = require("../controllers/candidat");
 
-//find tout
 
+/**
+ * @swagger
+ * tags:
+ *  name: Candidat
+ *  description:  API de gestion des candidats
+ */
 
 router.get("/",CandidatController.getCandidat)
 

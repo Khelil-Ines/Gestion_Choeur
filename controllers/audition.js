@@ -1,5 +1,6 @@
 
-const Planning = require('../models/audition');
+const Planning = require('../models/audition')
+const Audition = require('../models/audition');
 const moment = require('moment');
 const Candidat = require('../models/candidat');
 const Choriste = require('../models/choriste');
@@ -8,6 +9,104 @@ const nodemailer = require('nodemailer');
 const ejs = require("ejs");
 const path = require("path");
 const bcrypt = require('bcrypt');
+const audition = require('../models/audition');
+
+//Ines CRUD Audition 
+
+
+
+const updateAudition = (req, res) => {
+  Audition.findOneAndUpdate(
+    {
+      _id: req.params.id,
+    },
+    req.body,
+    { new: true }
+  )
+    .then((audition) => {
+      if (!audition) {
+        res.status(404).json({
+          message: "Audition non trouvé",
+        });
+      } else {
+        res.status(200).json({
+          model: audition,
+          message: "Audition modifié",
+        });
+      }
+    })
+    .catch((error) => res.status(400).json({ error: error.message }));
+};
+
+const deleteAudition = async (req, res) => {
+  try {
+    const audition = await Audition.findOne({ _id: req.params.id });
+
+    if (!audition) {
+      return res.status(404).json({
+        message: "Audition non trouvée!",
+      });
+    }
+
+    const result = await Audition.deleteOne({ _id: req.params.id });
+
+    if (result.deletedCount === 1) {
+      return res.status(200).json({
+        model: audition,
+        message: "Audition supprimée!",
+      });
+    } else {
+      return res.status(500).json({
+        message: "Audition trouvée mais non supprimée!",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: error.message,
+      message: "Une erreur s'est produite lors de la suppression de l'audition!",
+    });
+  }
+};
+
+
+
+const fetchAudition = async (req, res) => {
+  try {
+    const audition = await Audition.findOne({ _id: req.params.id }).populate('candidat');
+    if (!audition) {
+      return res.status(404).json({ message: "objet non trouvé!" });
+    }
+    res.status(200).json({ model: audition, message: "objet trouvé!" });
+  } catch (error) {
+    res.status(400).json({ error: error.message, message: "Données invalides!" });
+  }
+};
+
+const addAudition = async (req, res) => {
+  try {
+    const newAudition = new Audition(req.body);
+    const candidat = await Candidat.findOne({ _id: req.body.candidat });
+    if (candidat) {
+    const audition = await newAudition.save();
+    res.json(audition);
+    }else{
+      res.status(404).json({ message: "Candidat non trouvé!" });
+    }
+  } catch (err) {
+    res.status(400).json({ erreur: `Échec de la création de l'audition: ${err.message}` });
+  }
+};
+
+const getAudition = async (req, res) => {
+  try {
+    const auditions = await Audition.find().populate('candidat');
+    res.status(200).json({ model: auditions, message: "success" });
+  } catch (error) {
+    res.status(500).json({ error: error.message, message: "problème d'extraction" });
+  }
+};
+
+//Ghofrane Planning
 
 
 //generer planning pour tout les candidats
@@ -464,86 +563,6 @@ const transporter = nodemailer.createTransport({
 
 
  
-
-
-const updateAudition = (req, res) => {
-  Audition.findOneAndUpdate(
-    {
-      _id: req.params.id,
-    },
-    req.body,
-    { new: true }
-  )
-    .then((audition) => {
-      if (!audition) {
-        res.status(404).json({
-          message: "Audition non trouvé",
-        });
-      } else {
-        res.status(200).json({
-          model: audition,
-          message: "Audition modifié",
-        });
-      }
-    })
-    .catch((error) => res.status(400).json({ error: error.message }));
-};
-
-const deleteAudition = (req, res) => {
-  Audition.deleteOne({ _id: req.params.id })
-    .then((audition) => {
-      if (!audition) {
-        res.status(404).json({
-          message: "Audition non supprimée!",
-        });
-      } else {
-        res.status(200).json({
-          model: audition,
-          message: "Audition supprimée!",
-        });
-      }
-    })
-    .catch(() => {
-      res.status(400).json({
-        error: Error.message,
-        message: "Données invalides!",
-      });
-    });
-};
-
-
-
-
-const fetchAudition = async (req, res) => {
-  try {
-    const audition = await Audition.findOne({ _id: req.params.id }).populate('candidat');
-    if (!audition) {
-      return res.status(404).json({ message: "objet non trouvé!" });
-    }
-    res.status(200).json({ model: audition, message: "objet trouvé!" });
-  } catch (error) {
-    res.status(400).json({ error: error.message, message: "Données invalides!" });
-  }
-};
-
-const addAudition = async (req, res) => {
-  try {
-    const newAudition = new Audition(req.body);
-    const audition = await newAudition.save();
-    res.json(audition);
-  } catch (err) {
-    res.status(400).json({ erreur: `Échec de la création de l'audition: ${err.message}` });
-  }
-};
-
-const getAudition = async (req, res) => {
-  try {
-    const auditions = await Audition.find().populate('candidat');
-    res.status(200).json({ model: auditions, message: "success" });
-  } catch (error) {
-    res.status(500).json({ error: error.message, message: "problème d'extraction" });
-  }
-};
 
 const updateCandidatResultat = (req, res) => {
   Audition.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }).then(

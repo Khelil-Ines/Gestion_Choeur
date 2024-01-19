@@ -2,21 +2,27 @@ const express = require("express");
 const router = express.Router();
 const Compte = require("../models/compte");
 const compteController = require("../controllers/compte");
+const auth=require('../middlewares/auth')
 
 
+/**
+ * @swagger
+ * tags:
+ *  name: Compte
+ *  description:  API de gestion des comptes
+ */
 router.patch("/eliminer_choriste/:id", compteController.EliminerChoriste)
 
-// router.get("/",compteController.getCompte)
+router.get("/",auth.loggedMiddleware, auth.isAdmin ,compteController.getCompte)
 
+router.get("/:id",auth.loggedMiddleware, auth.isAdmin ,compteController.fetchCompte)
 
-// router.get("/:id",compteController.fetchCompte)
+router.post("/addcompte/:id",auth.loggedMiddleware, auth.isAdmin ,compteController.addCompte)
 
-// router.post("/",compteController.addCompteChoriste)
+router.delete("/:id",auth.loggedMiddleware, auth.isAdmin , compteController.deleteCompte)
 
+router.post("/login",compteController.login)
 
-// router.delete("/:id", compteController.deleteCompte)
-
-
-
+              
 
   module.exports = router;

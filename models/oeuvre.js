@@ -9,7 +9,7 @@ const oeuvreSchema = mongoose.Schema({
   anneeComposition: { type: Number, required: true},
   partition: { type: String, required: false },
   paroles: { type: String, required: false },
-  presenceChoeur: { type: Boolean, required: true },
+  choral: { type: Boolean, required: true },
 
 });
 

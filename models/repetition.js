@@ -19,6 +19,7 @@ const repetitionSchema = mongoose.Schema({
   listeAlto: { type: Array, default: [], required: false },
   listeTenor: { type: Array, default: [], required: false },
   listeBasse: { type: Array, default: [], required: false },
+  programme : [{ type: mongoose.Schema.Types.ObjectId, ref: 'programme'  }]
 
 
 });

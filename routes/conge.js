@@ -1,7 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const congeController = require('../controllers/conge');
+const auth = require('../middlewares/auth');
 
-router.post('/:id/conges', congeController.addConge);
+/**
+ * @swagger
+ * tags:
+ *  name: Congé
+ *  description:  API de gestion des congés
+ */
 
+router.post('/addconge',auth.loggedMiddleware, auth.isChoriste, congeController.addConge);
 module.exports = router;
