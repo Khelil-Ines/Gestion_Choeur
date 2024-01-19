@@ -31,8 +31,8 @@ const choristeSchema = mongoose.Schema({
   Taille : {type : Number, required: true},
   date_adhesion: { type: Date },
   historiqueStatut: [historiqueStatutSchema],
-  nbr_concerts: { type: Number },
-  nbr_repetitions: { type: Number },
+  nbr_concerts: { type: Number , default: 0 },
+  nbr_repetitions: { type: Number , default: 0  },
   nbr_absences: { type: Number, default: 0 },
   absences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Absence', required: false }],
   conges: [{
