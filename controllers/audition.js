@@ -8,7 +8,7 @@ const nodemailer = require('nodemailer');
 const ejs = require("ejs");
 const path = require("path");
 const bcrypt = require('bcrypt');
-const audition = require('../models/audition');
+
 
 //Ines CRUD Audition 
 
@@ -105,9 +105,6 @@ const getAudition = async (req, res) => {
   }
 };
 
-//Ghofrane Planning
-
->>>>>>> 0398b3904a7aee02fd5936119f2fcc19aedebf2f
 
 //generer planning pour tout les candidats
 const genererPlanning = async (req, res, next) => {
