@@ -4,11 +4,29 @@ const _ = require('lodash');
 const Choriste = require('../models/choriste');
 const mongoose = require('mongoose');
 
+function generateRandomURL() {
+  // Define the characters that can be used in the random URL
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
+  // Start the random URL with 'https:'
+  let randomURL = 'https:';
+
+  // Generate 10 random characters and append them to the URL
+  for (let i = 0; i < 10; i++) {
+      // Select a random character from the characters string
+      randomURL += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+
+  // Append the '.com' domain to complete the URL
+  randomURL += '.com';
+
+  // Return the generated random URL
+  return randomURL;
+}
 const addConcert = (req, res) => {
   // Get and validate concert date
   const concertDateString = req.body.date;
-  const randomLink = crypto.randomBytes(5).toString('hex');
+  const randomLink = generateRandomURL();
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   if (!dateRegex.test(concertDateString)) {
     return res
@@ -17,6 +35,14 @@ const addConcert = (req, res) => {
   }
 
   const concertDate = new Date(concertDateString);
+
+  // Check if concert date is greater than or equal to the current date
+  const currentDate = new Date();
+  if (concertDate < currentDate) {
+    return res
+      .status(400)
+      .send("Invalid concert date. Please choose a date greater than or equal to the current date.");
+  }
 
   const moment = require("moment");
 
@@ -29,12 +55,14 @@ const addConcert = (req, res) => {
     // The date is invalid
     console.error('Invalid Date Format');
   }
-  Concert.create({ ...req.body, date: dateObject , link: randomLink,})
 
-    .then((concert) => res.status(201).json({
-      model: concert,
-      message: "Concert crée!",
-    }))
+  Concert.create({ ...req.body, date: dateObject, link: randomLink })
+    .then((concert) =>
+      res.status(201).json({
+        model: concert,
+        message: "Concert créé!",
+      })
+    )
     .catch((error) => {
       if (error.errors) {
         const errors = Object.values(error.errors).map(e => e.message);
@@ -44,6 +72,7 @@ const addConcert = (req, res) => {
       }
     });
 };
+
 
 
 
