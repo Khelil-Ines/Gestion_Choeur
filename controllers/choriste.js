@@ -247,23 +247,8 @@ exports.getChoriste = (req, res) => {
     try {
       const { idRepetition, link } = req.params;
   
-      // Vérifiez le token dans le header de la requête
-      const token = req.headers.authorization.split(' ')[1];
-  
       try {
-        const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-        const compteId = decodedToken.userId;
-  
-        // Recherchez le compte par son ID
-        const compte = await User.findById(compteId);
-        console.log(compteId)
-        if (!compte) {
-          return res.status(404).json({ erreur: 'Compte non trouvé' });
-        }
-  
-        // Utilisez l'ID du compte pour trouver le choriste associé
-        const choriste = await Choriste.findOne({compte:compteId});
-  
+        const choriste = await Choriste.findOne({ compte: req.auth.compteId });
         if (!choriste) {
           return res.status(404).json({ erreur: 'Choriste non trouvé' });
         }
