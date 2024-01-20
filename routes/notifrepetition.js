@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const notifrepController = require("../controllers/notifrepetition");
 const auth = require("../middlewares/auth");
+const choriste = require("../middlewares/Choriste");
 
 /**
  * @swagger
@@ -62,6 +63,7 @@ router.get(
   auth.loggedMiddleware,
   auth.isChoriste,
   auth.isChefPupitre,
+  choriste.choristeActif,
   notifrepController.envoyerNotification
 );
 
