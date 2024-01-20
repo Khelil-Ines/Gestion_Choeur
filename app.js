@@ -16,6 +16,10 @@ const repetitionRouter = require("./routes/repetition");
 const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
 const SaisonRouter = require("./routes/saison.js");
+const ProgrammeRouter = require("./routes/programme");
+
+const liste_presence_concert = require("./routes/liste_present_concert.js");
+
 const notifrepetition = require("./routes/notifrepetition.js");
 const ConcertRouter = require("./routes/concert");
 const mailRouter = require("./routes/validermail.js");
@@ -103,10 +107,6 @@ app.use(express.json());
   .then(() => console.log("connexion a MongoDB reussie!"))
   .catch((e) => console.log("connexion a MongoDB échouée!", e));
 
-//   mongoose.connect("mongodb://127.0.0.1:27017/Choeur",{
-//   useNewUrlParser: true , useUnifiedTopology:true }
-// ).then(() => console.log("connexion a MongoDB reussie!"))
-// .catch((e) => console.log("connexion a MongoDB échouée!",e))
 
 app.use(express.json());
 
@@ -118,14 +118,24 @@ app.use((req, res, next) => {
   );
   next();
 });
-app.use("/notif", (req, res) => {
-  res.send("OK"); // Réponse simple pour indiquer que la route est accessible
-});
+
+
+
+mongoose.connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority",
+      { useNewUrlParser : true, useUnifiedTopology: true } )
+       .then(() => console.log("Connexion a MongoDB réussie !"))
+
 
 app.use((req, res, next) => {
   console.log("Requête reçue:", req.method, req.url, req.body);
   next();
 });
+
+
+
+
+
+
 
 app.use("/notif", (req, res) => {
   res.send("OK"); // Réponse simple pour indiquer que la route est accessible
@@ -156,10 +166,9 @@ io.on("connection", (socket) => {
 });
 
 app.use("/api/audition", auditionRouter);
-app.use("/candidats", CandidatRoutes);
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
-app.use("/Chef_pupitre", chef_router);
+app.use("/api/Chef_pupitre", chef_router);
 app.use("/absence", absenceRouter);
 app.use("/api/choriste", choristeRouter);
 app.use("/api/candidat", CandidatRoutes);
@@ -169,6 +178,9 @@ app.use("/api/conge", congeRouter);
 app.use("/api/notifrep", notifrepetition);
 app.use("/api/concert", ConcertRouter);
 app.use("/api/saison", SaisonRouter);
+app.use("/api/presenceConcert", liste_presence_concert);
 app.use("/api/validermail", mailRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/programme", ProgrammeRouter);
+
 module.exports = app;

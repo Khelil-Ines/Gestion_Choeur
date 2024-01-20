@@ -27,16 +27,7 @@ exports.envoyerEmailElimination = async (req, res) => {
     } else {
       for (const choristeElimine of choristesElimines) {
         const sujet = "Elimination ! ";
-        const file = path.join(__dirname, "../views/eliminationmail.ejs");
-
-        const renderedContent = ejs.renderFile(file, async (err, data) => {
-          if (err) {
-            console.error(err);
-            return res
-              .status(500)
-              .json({ error: "Erreur lors du rendu du fichier EJS." });
-          }
-        });
+       
         const mailOptions = {
           from: transporter.user,
           to: choristeElimine.mail,
@@ -103,6 +94,62 @@ exports.updateSeuilElimination = async (req, res) => {
   }
 }
  
+
+// Schedule a cron job to send notifications periodically
+cron.schedule('0 0 * * *', async () => {
+  try {
+    // Query the database for choristes with a specific status and starting today
+    const choristesElimine = await Choriste.find({
+      'historiqueStatut.statut': 'Eliminé',
+      'historiqueStatut.date': {
+        $gte: new Date().setHours(0, 0, 0, 0),
+        $lt: new Date().setHours(24, 0, 0, 0),
+      },
+    });
+
+    const choristesNomine = await Choriste.find({
+      'historiqueStatut.statut': 'Nominé',
+      'historiqueStatut.date': {
+        $gte: new Date().setHours(0, 0, 0, 0),
+        $lt: new Date().setHours(24, 0, 0, 0),
+      },
+    });
+
+    // Emit notifications for choristes Eliminé today
+    choristesElimine.forEach((choriste) => {
+      if (choriste.historiqueStatut.length > 0) {
+        const latestStatus = choriste.historiqueStatut[choriste.historiqueStatut.length - 1].statut;
+        console.log(`Choriste ${choriste.nom} is currently ${latestStatus}.`);
+        // Emit the event to the specified room
+        if (req.io) {
+          req.io.to('updateNotificationsRoom').emit('notificationStatus', {
+            type: 'statusChanged',
+            message: `Choriste ${choriste.nom} est maintenant ${latestStatus}.`,
+          });
+        }
+      }
+    });
+
+    // Emit notifications for choristes Nominé today
+    choristesNomine.forEach((choriste) => {
+      if (choriste.historiqueStatut.length > 0) {
+        const latestStatus = choriste.historiqueStatut[choriste.historiqueStatut.length - 1].statut;
+        console.log(`Choriste ${choriste.nom} is currently ${latestStatus}.`);
+        // Emit the event to the specified room
+        if (req.io) {
+          req.io.to('updateNotificationsRoom').emit('notificationStatus', {
+            type: 'statusChanged',
+            message: `Choriste ${choriste.nom} est maintenant ${latestStatus}.`,
+          });
+        }
+      }
+    });
+
+    console.log('Notification cron job executed.');
+  } catch (error) {
+    console.error('Error in the cron job:', error);
+  }
+});
 exports.declarerAbsenceRepetition = async (req, res) => {
   try {
     // Find the latest répétition

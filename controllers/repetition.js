@@ -3,6 +3,40 @@ const Choriste = require("../models/choriste");
 const crypto = require('crypto');
 const moment = require("moment");
 const axios = require("axios");
+const cron = require('node-cron');
+
+
+const RepetitionFinie = cron.schedule('01 12 * * *', async () => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const repetitionsToUpdate = await Repetition.find({ date: { $lt: today } });
+
+    if (!repetitionsToUpdate || repetitionsToUpdate.length === 0) {
+      console.error('No repetitions found.');
+      return res.status(404).json({ error: 'Aucune répétition trouvée.' });
+    }
+
+    // Assuming 'etat' is a field in your Repetition model
+    for (const repetition of repetitionsToUpdate) {
+      console.log(`Updating repetition ${repetition._id}...`);
+      repetition.etat = 'Done';
+      await repetition.save();
+    }
+
+    console.log('Repetitions updated successfully.');
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des répétitions :", error);
+    return res.status(500).json({ error: "Erreur lors de la mise à jour des répétitions" });
+  }
+});
+
+RepetitionFinie.start();
+
+
+
+
 
 const fetchRepetition = (req, res) => {
   Repetition.findOne({ _id: req.params.id })
@@ -25,19 +59,70 @@ const fetchRepetition = (req, res) => {
       });
     });
 };
+ function generateRandomURL() {
+    // Define the characters that can be used in the random URL
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
+    // Start the random URL with 'https:'
+    let randomURL = 'https:';
 
-const addRepetition = (req, res) => {
-  const newRepetition = new Repetition(req.body);
-  newRepetition
-    .save()
-    .then((repetition) => {
-      res.json(repetition);
-    })
-    .catch((err) => {
-      res.status(400).json({ erreur: "Échec de la création du l'repetition" });
+    // Generate 10 random characters and append them to the URL
+    for (let i = 0; i < 10; i++) {
+        // Select a random character from the characters string
+        randomURL += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+
+    // Append the '.com' domain to complete the URL
+    randomURL += '.com';
+
+    // Return the generated random URL
+    return randomURL;
+}
+
+const addRepetition = async (req, res) => {
+  try {
+    // Utilize the generateRandomURL function for link generation
+    const randomLink = generateRandomURL();
+
+    const heureDeb = moment(req.body.heureDebut, 'HH:mm');
+    const heureFin = moment(req.body.heureFin, 'HH:mm');
+    const dateRepetition = moment(req.body.date);
+
+    // Check if heureDeb is before heureFin
+    if (!heureDeb.isBefore(heureFin)) {
+      return res.status(400).json({ error: "Invalid start time or end time." });
+    }
+
+    // Check if dateRepetition is equal to or greater than the current date
+    if (dateRepetition.isBefore(moment(), 'day')) {
+      return res.status(400).json({ error: "Invalid repetition date." });
+    }
+
+    const newRepetition = new Repetition({
+      ...req.body,
+      link: randomLink,
     });
+
+    // Save the new repetition
+    const repetition = await newRepetition.save();
+
+    // Retrieve all the IDs of choristers (assuming the Choriste model has a field _id)
+    const choristes = await Choriste.find({}, '_id');
+
+    // Add the IDs of choristers to the absence list of the new repetition
+    repetition.liste_Abs = choristes.map(choriste => choriste._id);
+
+    // Save the updated repetition again
+    await repetition.save();
+
+    res.json(repetition);
+  } catch (error) {
+    console.error('Error while saving the repetition:', error);
+    res.status(400).json({ error: 'Failed to create the repetition' });
+  }
 };
+
+
 
 const getPlanning = (req, res) => {
   Repetition.find()

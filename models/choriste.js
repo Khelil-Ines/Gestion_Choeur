@@ -8,8 +8,10 @@ const historiqueStatutSchema = mongoose.Schema({
 
 const presenceManuelleSchema = mongoose.Schema({
   date: { type: Date, default: Date.now },
-  raison: { type: String, required: true },
-  type: { type: String, required: true },
+
+  raison: { type: String, required: false },
+  type: { type: String ,  required: false },
+
 });
 
 const choristeSchema = mongoose.Schema({
@@ -31,8 +33,8 @@ const choristeSchema = mongoose.Schema({
   Taille : {type : Number, required: true},
   date_adhesion: { type: Date },
   historiqueStatut: [historiqueStatutSchema],
-  nbr_concerts: { type: Number },
-  nbr_repetitions: { type: Number },
+  nbr_concerts: { type: Number , default: 0 },
+  nbr_repetitions: { type: Number , default: 0  },
   nbr_absences: { type: Number, default: 0 },
   absences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Absence', required: false }],
   conges: [{

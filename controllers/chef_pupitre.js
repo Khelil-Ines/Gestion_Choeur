@@ -98,25 +98,10 @@ exports.login = (req, res, next) => {
       // Récupérez l'ID de la répétition et l'ID du choriste à partir des paramètres de la requête
       const { idRepetition, idChoriste } = req.params;
   
-      // Récupérez le token du chef de pupitre dans le header
-      const token = req.headers.authorization.split(' ')[1];
-  
-      // Vérifiez et décryptez le token pour obtenir l'ID du chef de pupitre
-
-      const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-      const compteId = decodedToken.userId;
-
-      // Recherchez le compte par son ID
-      const compte = await User.findById(compteId);
-      console.log(compte)
-     
-      if (!compte) {
-        return res.status(404).json({ erreur: 'Compte non trouvé' });
+      const chefPupitre = await Chef_Pupitre.findOne({ compte: req.auth.compteId });
+      if (!chefPupitre) {
+        return res.status(404).json({ erreur: 'chef Pupitre non trouvée' });
       }
-     
-   
-      const chefPupitre = await Chef_Pupitre.findOne({compte:compteId});
-      
       console.log(chefPupitre.pupitre)
       // Vérifiez si le choriste appartient au même pupitre que le chef de pupitre
       const choriste = await Choriste.findById(idChoriste);
@@ -168,21 +153,10 @@ exports.login = (req, res, next) => {
       // Récupérez l'ID du concert et l'ID du choriste à partir des paramètres de la requête
       const { idConcert, idChoriste } = req.params;
   
-      // Récupérez le token du chef de pupitre dans le header
-      const token = req.headers.authorization.split(' ')[1];
-  
-      // Vérifiez et décryptez le token pour obtenir l'ID du chef de pupitre
-      const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-      const compteId = decodedToken.userId;
-  
-      // Recherchez le compte par son ID
-      const compte = await User.findById(compteId);
-      if (!compte) {
-        return res.status(404).json({ erreur: 'Compte non trouvé' });
+      const chefPupitre = await Chef_Pupitre.findOne({ compte: req.auth.compteId });
+      if (!chefPupitre) {
+        return res.status(404).json({ erreur: 'chef Pupitre non trouvée' });
       }
-  
-      const chefPupitre = await Chef_Pupitre.findOne({ compte: compteId });
-  
       // Vérifiez si le choriste appartient au même pupitre que le chef de pupitre
       const choriste = await Choriste.findById(idChoriste);
       if (!choriste || choriste.pupitre !== chefPupitre.pupitre) {
@@ -228,4 +202,7 @@ exports.login = (req, res, next) => {
       res.status(500).json({ erreur: 'Erreur interne du serveur' });
     }
   };
+  
+
+
   

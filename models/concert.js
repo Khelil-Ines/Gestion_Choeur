@@ -1,23 +1,21 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const Concert = mongoose.model('concert', {
-    // affiche (optionnel) 
+const Concert = mongoose.model("concert", {
   date: {
     type: Date,
     required: true
   },
   lieu: {
     type: String,
-    required: true
+    required: true,
   },
-  programme : [{ type: mongoose.Schema.Types.ObjectId, ref: 'programme'  }],
+  programme: [{ type: mongoose.Schema.Types.ObjectId, ref: "programme" }],
   liste_Presents: { type: Array, default: [], required: false },
-
-  //disponible
+  liste_dispo: { type: Array, default: [], required: false },
+  seuil_présence: { type: Number, default: 0 },
   liste_Abs: { type: Array, default: [], required: false },
-
   link: { type: String, required: true },
-
+  etat: { type: String, default: "not done" },
   placements: {
     soprano: [[Object]],
     alto: [[Object]],
@@ -26,3 +24,4 @@ const Concert = mongoose.model('concert', {
   },
 })
 module.exports = Concert;
+

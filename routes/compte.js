@@ -25,6 +25,51 @@ router.delete("/:id",auth.loggedMiddleware, auth.isAdmin , compteController.dele
 
 router.post("/login",compteController.login)
 
-
+              
 
   module.exports = router;
+
+/**
+ * @swagger
+ * /compte/login:
+ *   post:
+ *     summary: User Authentication.
+ *     tags:
+ *       - Compte
+ *     parameters:
+ *       - name: login
+ *         in: query
+ *         description: Email address or username
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: motDePasse
+ *         in: query
+ *         description: User's password
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Authentication successful. Returns an access token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: Access token generated for the authenticated user
+ *       '401':
+ *         description: Authentication failed due to incorrect login or password.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Incorrect login or password"
+ *       '500':
+ *         description: Server error during authentication.
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: "Server error during authentication"
+ */

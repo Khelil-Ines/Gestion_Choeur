@@ -28,17 +28,23 @@ const ListerCandidats = async (req, res) => {
     const lastNameFilter = req.query.nom;
     const firstNameFilter = req.query.prénom;
 
-    console.log(firstNameFilter)
+    console.log(lastNameFilter)
 
 
     const filteredCandidates = candidates.filter((candidate) => {
       return (
-        (!firstNameFilter || candidate.prénom.toLowerCase().includes(firstNameFilter.toLowerCase())) ||
-        (!lastNameFilter || candidate.nom.toLowerCase().includes(lastNameFilter.toLowerCase()))
-        
-      )
+        (!firstNameFilter || candidate.prénom.toLowerCase().includes(firstNameFilter.trim().toLowerCase())) &&
+        (!lastNameFilter || candidate.nom.toLowerCase().includes(lastNameFilter.trim().toLowerCase()))
+      );
     });
-    console.log(filteredCandidates)
+    
+        // Vérification si la liste filtrée est vide
+        if (filteredCandidates.length === 0) {
+          return res.status(404).json({
+            error: "Aucun candidat ne correspond aux critères de recherche.",
+          });
+        }
+   
     // Retourne la liste paginée, les informations de pagination et les filtres
     res.json({
       candidates: filteredCandidates,

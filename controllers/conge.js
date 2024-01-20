@@ -35,11 +35,13 @@ const addConge = async (req, res) => {
     const savedNotification = await newNotification.save();
     //console.log(savedNotification);
 
+
     // Ajoutez l'ID de la nouvelle notification à la liste des notifications de l'admin
     admin.notifications.push(savedNotification._id);
 
     // Enregistrez les modifications apportées à l'admin dans la base de données
     await admin.save();
+
 
     res.status(201).json({ choriste, conge: savedConge });
   } catch (error) {
@@ -48,14 +50,8 @@ const addConge = async (req, res) => {
   }
 };
 
-// choriste.statut = "En_Congé";
-//     choriste.historiqueStatut.push({
-//       statut: "En_Congé",
-//       date: date_debut,
-//     });
-//     console.log(choriste.historiqueStatut);
 
-const debutCongeStatut  = cron.schedule("* * * * * ", async () => {
+const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
   try {
     // Récupérer tous les choristes à partir de la base de données
     const choristes = await Choriste.find();
@@ -63,71 +59,104 @@ const debutCongeStatut  = cron.schedule("* * * * * ", async () => {
     // Mettre à jour le statut pour chaque choriste
     for (const choriste of choristes) {
       if (choriste.statut === "Actif") {
-      const lastConge = choriste.conges[choriste.conges.length - 1];
-      if (lastConge) {
-        const lastCongeId = lastConge._id;
-        console.log("ID of the last congé 1111:", lastCongeId);
-        const conge = await Conge.findById(lastCongeId);
-        console.log(conge);
-        if (!conge) {
-          console.log("No congé found for the choriste.");
-        }else{
-        // Vérifiez si la date de fin est égale à la date actuelle
-        if (new Date(conge.date_debut).setHours(0, 0, 0, 0) === new Date().setHours(0, 0, 0, 0)) {
-          console.log("The congé begins today.");
-          choriste.statut = "En_Congé";
-          choriste.historiqueStatut.push({
-            statut: "En_Congé",
-            date: conge.date_fin,
-          })
-        choriste.save();
+        const lastConge = choriste.conges[choriste.conges.length - 1];
+        if (lastConge) {
+          const lastCongeId = lastConge._id;
+          console.log("ID of the last congé 1111:", lastCongeId);
+          const conge = await Conge.findById(lastCongeId);
+          console.log(conge);
+          if (!conge) {
+            console.log("No congé found for the choriste.");
+          } else {
+            // Vérifiez si la date de fin est égale à la date actuelle
+            if (
+              new Date(conge.date_debut).setHours(0, 0, 0, 0) ===
+              new Date().setHours(0, 0, 0, 0)
+            ) {
+              console.log("The congé begins today.");
+              choriste.statut = "En_Congé";
+              choriste.historiqueStatut.push({
+                statut: "En_Congé",
+                date: conge.date_fin,
+              });
+            
+              choriste.save();
+              
         notificationstatut = `Vous ${choriste.nom} avez  déclaré un congé de ${conge.date_debut} à ${conge.date_fin}.`;
         console.log(notificationstatut);
+              
+              const message = `Choriste ${choriste.nom} a commencé son congé aujourd'hui.`;
+          console.log(message);
+
+          // You can also emit the notification to a socket.io room if needed
+          if (req.io) {
+            req.io.to("updateNotificationsRoom").emit("notificationConge", {
+              type: "congeCommence",
+              message,
+            });
+          }
+            
+             
+            }
+            
+          }
+
         }
       }
     }
-  }
-  }
   } catch (error) {
     console.error("Error during automatic process", error);
     res.status(500).json({ error: "Error during automatic process" });
   }
-})
-  debutCongeStatut.start();
+});
+debutCongeStatut.start();
+
 
 const finCongeStatut = cron.schedule("* * * * * ", async () => {
   try {
     // Récupérer tous les choristes à partir de la base de données
     const choristes = await Choriste.find();
-    
+
     // Mettre à jour le statut pour chaque choriste
     for (const choriste of choristes) {
       if (choriste.statut === "En_Congé") {
-      const lastConge = choriste.conges[choriste.conges.length - 1];
-      if (lastConge) {
-        const lastCongeId = lastConge._id;
-        console.log("ID of the last congé 2222:", lastCongeId);
-        const conge = await Conge.findById(lastCongeId);
-        console.log(conge);
-        if (!conge) {
-          console.log("No congé found for the choriste.");
-          return res.status(404).json({ message: "Congé non trouvé." });
-        }
-        // Vérifiez si la date de fin est égale à la date actuelle
-        if (new Date(conge.date_fin).getTime() < new Date().getTime()) {
-          console.log("The congé finish today.");
-          choriste.statut = "Actif";
-          choriste.historiqueStatut.push({
-            statut: choriste.statut,
-            date: conge.date_fin,
-          });
-          choriste.save();
+
+        const lastConge = choriste.conges[choriste.conges.length - 1];
+        if (lastConge) {
+          const lastCongeId = lastConge._id;
+          console.log("ID of the last congé 2222:", lastCongeId);
+          const conge = await Conge.findById(lastCongeId);
+          console.log(conge);
+          if (!conge) {
+            console.log("No congé found for the choriste.");
+            return res.status(404).json({ message: "Congé non trouvé." });
+          }
+          // Vérifiez si la date de fin est égale à la date actuelle
+          if (new Date(conge.date_debut).getTime() < new Date().getTime()) {
+            console.log("The congé finish today.");
+            choriste.statut = "Actif";
+            choriste.historiqueStatut.push({
+              statut: choriste.statut,
+              date: conge.date_fin,
+            });
+            choriste.save();
           notificationstatut = `Vous ${choriste.nom} votre congé est fini bienvenue.`;
           console.log(notificationstatut);
+            
+            const message = `Choriste ${choriste.nom} a terminé son congé aujourd'hui.`;
+          console.log(message);
+
+          // You can also emit the notification to a socket.io room if needed
+          if (req.io) {
+            req.io.to("updateNotificationsRoom").emit("notificationConge", {
+              type: "congeCommence",
+              message,
+            });
+          }
+          }
         }
       }
     }
-  }
   } catch (error) {
     console.error("Error during automatic process", error);
     res.status(500).json({ error: "Error during automatic process" });
@@ -136,27 +165,6 @@ const finCongeStatut = cron.schedule("* * * * * ", async () => {
 finCongeStatut.start();
 
 
-// const notifConge = cron.schedule('* * * * *', async (req, res) => {
-//   try {
-//     const yesterday = new Date();
-//     yesterday.setDate(yesterday.getDate() - 1);
-
-//         const conges = await getAllCongesWithinLast24Hours(yesterday);
-//         console.log('Congés créés au cours des dernières 24 heures :', conges);
-//       }
-
-//    catch (error) {
-//     console.error('Erreur lors de la vérification des congés :', error.message);
-//   }
-// });
-
-// notifConge.start();
-
-
-
-
-
 module.exports = {
   addConge,
-  //notifConge
 };
