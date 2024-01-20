@@ -163,6 +163,34 @@ router.post("/add", concertController.addConcert);
  */
 
 
+
+/**
+ * @swagger
+ * /concert/statistics:
+ *   get:
+ *     summary: Get a list of statistics of concert
+ *     tags: [Concert]
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         required: true
+ *         description: The type of statistics (concert, choriste, oeuvre).
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         description: The ID for which statistics are requested.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successful response. Returns statistics based on the provided type and ID.
+ *       400:
+ *         description: Bad request. Missing required parameters or unsupported statistics type.
+ *       500:
+ *         description: Internal server error.
+ */
 router.get("/statistic",auth.loggedMiddleware, auth.isAdmin, concertController.getStatistics);
 
 
