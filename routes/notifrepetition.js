@@ -61,6 +61,7 @@ router.get(
   "/rappel/:repetitions/:heure/:minute/:jar",
   auth.loggedMiddleware,
   auth.isChoriste,
+  auth.isChefPupitre,
   notifrepController.envoyerNotification
 );
 
@@ -109,7 +110,7 @@ router.get(
 router.get(
   "/changes/:rep/:nh/:nl",
   auth.loggedMiddleware,
-  auth.isChoriste,
+  auth.isChefPupitre,
   notifrepController.envoyerNotificationChangementRépetition
 );
 
@@ -152,6 +153,8 @@ router.get(
 
 router.post(
   "/autrechanges",
+  auth.loggedMiddleware,
+  auth.isChefPupitre,
   notifrepController.envoyerNotificationChangementAutre
 );
 
