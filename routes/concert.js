@@ -87,9 +87,6 @@ router.get("/", concertController.fetchConcert);
 router.patch("/:id", concertController.updateConcert);
 router.delete("/:id", concertController.deleteConcert);
 
-// router.get("/statisticConcert/:id", concertController.getStatisticConcert);
-// router.get("/statisticChoriste/:id", concertController.getStatisticChoriste);
-// router.get("/statisticOeuvre/:id", concertController.getStatisticsByOeuvre);
 
 /**
  * @swagger
@@ -138,7 +135,7 @@ router.delete("/:id", concertController.deleteConcert);
  *               error: 'Erreur interne du serveur'
  */
 
-router.get("/statistic", concertController.getStatistics);
+router.get("/statistic",auth.loggedMiddleware, auth.isAdmin, concertController.getStatistics);
 
 
 

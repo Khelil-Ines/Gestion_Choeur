@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const planningController = require('../controllers/audition');
-
+const auth=require('../middlewares/auth.js')
 /**
  * @swagger
  * tags:
@@ -67,7 +67,7 @@ router.get("/fetch/:id", planningController.fetchAudition);
  */
 
 
-router.post('/generate/:startDate/:sessionStartTime/:sessionEndTime/:candidatesPerHour', planningController.genererPlanning);
+router.post('/generate/:startDate/:sessionStartTime/:sessionEndTime/:candidatesPerHour' , auth.loggedMiddleware, auth.isAdmin , planningController.genererPlanning);
 
 /**
  * @swagger
@@ -93,7 +93,7 @@ router.post('/generate/:startDate/:sessionStartTime/:sessionEndTime/:candidatesP
  *               message: Problème d'extraction des plannings !
  */
 
-router.get('/fetch', planningController.fetchPlanning);
+router.get('/fetch', auth.loggedMiddleware, auth.isAdmin ,planningController.fetchPlanning);
 
 
 
@@ -140,7 +140,7 @@ router.get('/fetch', planningController.fetchPlanning);
  *               error: Error message
  */
 
-router.get('/fetchDateHeure', planningController.fetchPlanningByDateHeure);
+router.get('/fetchDateHeure', auth.loggedMiddleware, auth.isAdmin ,planningController.fetchPlanningByDateHeure);
 
 
 /**
@@ -185,7 +185,7 @@ router.get('/fetchDateHeure', planningController.fetchPlanningByDateHeure);
  *               message: Error message
  */
 
-router.get('/name', planningController.fetchPlanningByCandidat);
+router.get('/name', auth.loggedMiddleware, auth.isAdmin , planningController.fetchPlanningByCandidat);
 router.post("/", planningController.addAudition);
 router.delete("/:id", planningController.deleteAudition);
 router.patch("/:id", planningController.updateAudition);
@@ -236,7 +236,7 @@ router.use("/confirmationCandidat/:id", planningController.confirmationCandidat)
  */
 
 
-router.get('/candidat/:candidatId', planningController.fetchPlanningByid);
+router.get('/candidat/:candidatId',  auth.loggedMiddleware, auth.isAdmin , planningController.fetchPlanningByid);
 
 
 /**
@@ -293,7 +293,7 @@ router.get('/candidat/:candidatId', planningController.fetchPlanningByid);
  *               error: Internal Server Error
  */
 
-router.post('/defaillant', planningController.genererPlanningDefaillants);
+router.post('/defaillant', auth.loggedMiddleware, auth.isAdmin ,  planningController.genererPlanningDefaillants);
 
 
 module.exports = router;

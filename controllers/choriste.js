@@ -405,12 +405,13 @@ exports.presenceConcert = async (req, res) => {
       // Sauvegarde de la répétition mise à jour
       await concert.save();
 
-       // Incrémentation du nombre de répétitions dans le modèle Choriste
-       await choriste.incrementConcert();
+      
       
       choriste.confirmationStatus = "En attente de confirmation";
       await choriste.save();
-
+       
+       // Incrémentation du nombre de répétitions dans le modèle Choriste
+       await choriste.incrementConcerts();
       res.json({ message: "Présence ajoutée avec succès" });
     } catch (error) {
       console.error("Erreur lors de la vérification du token :", error);
@@ -739,7 +740,8 @@ exports.Lister_choriste_pupitre = async (req, res) => {
     if (!pupitresExistants.includes(pupitre)) {
       return res.status(400).json({ erreur: `Le pupitre ${pupitre} n'existe pas` });
     }
-
+    
+    console.log(concert.liste_dispo.length)
     // Vérifiez si la liste d'absence est vide
     if (concert.liste_dispo.length === 0) {
       return res.json({ message: "Aucun choriste n'a déclaré sa disponibilité pour ce concert" });
