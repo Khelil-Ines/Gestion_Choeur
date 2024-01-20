@@ -23,7 +23,7 @@ const addConge = async (req, res) => {
 
     // Ajoutez l'ID du congé au tableau des congés du choriste
     choriste.conges.push(savedConge._id);
-
+    choriste.save();
     // Créez une nouvelle notification
     const notificationMessage = `Le choriste ${choriste.nom} a déclaré un congé de ${date_debut} à ${date_fin}.`;
     const newNotification = new Notification({
@@ -83,13 +83,13 @@ const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
               const message = `Choriste ${choriste.nom} a commencé son congé aujourd'hui.`;
               console.log(message);
 
-              // You can also emit the notification to a socket.io room if needed
-              if (req.io) {
-                req.io.to("updateNotificationsRoom").emit("notificationConge", {
-                  type: "congeCommence",
-                  message,
-                });
-              }
+              // // You can also emit the notification to a socket.io room if needed
+              // if (req.io) {
+              //   req.io.to("updateNotificationsRoom").emit("notificationConge", {
+              //     type: "congeCommence",
+              //     message,
+              //   });
+              // }
             }
           }
         }
@@ -121,7 +121,7 @@ const finCongeStatut = cron.schedule("* * * * * ", async () => {
             return res.status(404).json({ message: "Congé non trouvé." });
           }
           // Vérifiez si la date de fin est égale à la date actuelle
-          if (new Date(conge.date_debut).getTime() < new Date().getTime()) {
+          if (new Date(conge.date_fin).setHours(0, 0, 0, 0) === new Date().setHours(0, 0, 0, 0)) {
             console.log("The congé finish today.");
             choriste.statut = "Actif";
             choriste.historiqueStatut.push({
@@ -135,13 +135,13 @@ const finCongeStatut = cron.schedule("* * * * * ", async () => {
             const message = `Choriste ${choriste.nom} a terminé son congé aujourd'hui.`;
             console.log(message);
 
-            // You can also emit the notification to a socket.io room if needed
-            if (req.io) {
-              req.io.to("updateNotificationsRoom").emit("notificationConge", {
-                type: "congeCommence",
-                message,
-              });
-            }
+            // // You can also emit the notification to a socket.io room if needed
+            // if (req.io) {
+            //   req.io.to("updateNotificationsRoom").emit("notificationConge", {
+            //     type: "congeCommence",
+            //     message,
+            //   });
+            // }
           }
         }
       }
