@@ -88,8 +88,6 @@ router.get("/placement/:id",auth.loggedMiddleware, auth.isAdmin, concertControll
  *               $ref: '#/components/schemas/Concert'
  *       '400':
  *         $ref: '#/components/responses/BadRequestResponse'
- *       '400':
- *         $ref: '#/components/responses/InvalidDateResponse'
  *       '500':
  *         $ref: '#/components/responses/InternalServerErrorResponse'
  */
