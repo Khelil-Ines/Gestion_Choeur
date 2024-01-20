@@ -71,17 +71,31 @@ const lancerCandidature = (req, res) => {
 
 const updateCandidature = (req, res) => {
   const nbjours = req.body.nbJours;
-  Candidature.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
+  Candidature.findOne({ _id: req.params.id })
     .then((cand) => {
       if (!cand) {
         res.status(404).json({
           message: "Candidature non trouvé!",
         });
       } else {
-        res.status(200).json({
-          Candidature: cand,
-          message: "Candidature modifié!",
-        });
+        const dateFin = new Date(cand.dateDebut);
+        dateFin.setDate(dateFin.getDate() + nbjours);
+        cand.dateFin = dateFin;
+        Candidature.updateOne({ _id: req.params.id }, req.body, {
+          new: true,
+        })
+          .then(() => {
+            res.status(200).json({
+              Candidature: cand,
+              message: "Candidature modifié!",
+            });
+          })
+          .catch(() => {
+            res.status(400).json({
+              error: Error.message,
+              message: "Données invalides!",
+            });
+          });
       }
     })
     .catch(() => {
