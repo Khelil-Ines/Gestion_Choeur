@@ -59,16 +59,10 @@ function generateRandomURL() {
   // Return the generated random URL
   return randomURL;
 }
-const addConcert = (req, res) => {
+const addConcert = async (req, res) => {
   // Get and validate concert date
   const concertDateString = req.body.date;
   const randomLink = generateRandomURL();
-  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateRegex.test(concertDateString)) {
-    return res
-      .status(400)
-      .send("Invalid concert date format. Please use YYYY-MM-DD format.");
-  }
 
   const concertDate = new Date(concertDateString);
 
@@ -92,13 +86,13 @@ const addConcert = (req, res) => {
     console.error("Invalid Date Format");
   }
 
-  Concert.create({ ...req.body, date: dateObject, link: randomLink })
-    .then((concert) =>
-      res.status(201).json({
-        model: concert,
-        message: "Concert créé!",
-      })
-    )
+  Concert.create({ ...req.body, link: randomLink })
+  .then((concert) =>
+    res.status(201).json({
+      model: concert,
+      message: "Concert créé!",
+    })
+  )
     .catch((error) => {
       if (error.errors) {
         const errors = Object.values(error.errors).map((e) => e.message);
@@ -107,6 +101,7 @@ const addConcert = (req, res) => {
         return res.status(500).json({ error: "Internal server error" });
       }
     });
+}
 };
 
 
