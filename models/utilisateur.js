@@ -1,3 +1,4 @@
+
 const mongoose = require ("mongoose")
 
 const UtilisateurSchema = mongoose.Schema(
@@ -9,10 +10,12 @@ const UtilisateurSchema = mongoose.Schema(
         adresse: { type : String},
         email: { type: String, unique: true},
         date_naiss: { type: Date},
-        sexe : { type: String, enum : ['Homme', 'Femme']}
+        sexe : { type: String, enum : ['Homme', 'Femme']},
+        saison: { type: Array },
+        compte: { type: mongoose.Schema.Types.ObjectId, ref: 'Compte' }
+
     }
 )
 
 module.exports = mongoose.model("Utilisateur", UtilisateurSchema)
-
 
