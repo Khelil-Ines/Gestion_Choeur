@@ -56,6 +56,7 @@ const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
     // Mettre à jour le statut pour chaque choriste
     for (const choriste of choristes) {
       if (choriste.statut === "Actif") {
+        console.log(choriste.statut);
         const lastConge = choriste.conges[choriste.conges.length - 1];
         if (lastConge) {
           const lastCongeId = lastConge._id;
@@ -84,12 +85,12 @@ const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
               console.log(message);
 
               // // You can also emit the notification to a socket.io room if needed
-              // if (req.io) {
-              //   req.io.to("updateNotificationsRoom").emit("notificationConge", {
-              //     type: "congeCommence",
-              //     message,
-              //   });
-              // }
+              if (req.io) {
+                req.io.to("updateNotificationsRoom").emit("notificationConge", {
+                  type: "congeCommence",
+                  message,
+                });
+              }
             }
           }
         }
@@ -102,7 +103,7 @@ const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
 });
 debutCongeStatut.start();
 
-const finCongeStatut = cron.schedule("* * * * * ", async () => {
+const finCongeStatut = cron.schedule("* * * * * ", async (req) => {
   try {
     // Récupérer tous les choristes à partir de la base de données
     const choristes = await Choriste.find();
@@ -110,6 +111,7 @@ const finCongeStatut = cron.schedule("* * * * * ", async () => {
     // Mettre à jour le statut pour chaque choriste
     for (const choriste of choristes) {
       if (choriste.statut === "En_Congé") {
+        console.log(choriste.statut);
         const lastConge = choriste.conges[choriste.conges.length - 1];
         if (lastConge) {
           const lastCongeId = lastConge._id;
@@ -121,7 +123,7 @@ const finCongeStatut = cron.schedule("* * * * * ", async () => {
             return res.status(404).json({ message: "Congé non trouvé." });
           }
           // Vérifiez si la date de fin est égale à la date actuelle
-          if (new Date(conge.date_fin).setHours(0, 0, 0, 0) === new Date().setHours(0, 0, 0, 0)) {
+          if (new Date(conge.date_fin).setHours(0, 0, 0, 0) <= new Date().setHours(0, 0, 0, 0)) {
             console.log("The congé finish today.");
             choriste.statut = "Actif";
             choriste.historiqueStatut.push({
@@ -136,12 +138,12 @@ const finCongeStatut = cron.schedule("* * * * * ", async () => {
             console.log(message);
 
             // // You can also emit the notification to a socket.io room if needed
-            // if (req.io) {
-            //   req.io.to("updateNotificationsRoom").emit("notificationConge", {
-            //     type: "congeCommence",
-            //     message,
-            //   });
-            // }
+            if (req.io) {
+              req.io.to("updateNotificationsRoom").emit("notificationConge", {
+                type: "congeCommence",
+                message,
+              });
+            }
           }
         }
       }
