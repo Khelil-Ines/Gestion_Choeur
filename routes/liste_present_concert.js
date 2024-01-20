@@ -203,14 +203,23 @@ const auth = require("../middlewares/auth");
  *              - $ref: '#/components/schemas/NewConcert'
  */
 
-router.get("/listeFinal/:id", presenceConcertController.identifierListeFinal);
+router.get(
+  "/listeFinal/:id",
+  auth.loggedMiddleware,
+  auth.isAdmin,
+  presenceConcertController.identifierListeFinal
+);
 router.get(
   "/listeFinalparpupitre/:concert/:pupitre",
+  auth.loggedMiddleware,
+  auth.isAdmin,
   presenceConcertController.getPresentParPupitre
 );
 
 router.patch(
   "/modifier/Seuil/:id",
+  auth.loggedMiddleware,
+  auth.isAdmin,
   presenceConcertController.modifierParamPresence
 );
 

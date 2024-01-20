@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const SaisonController = require("../controllers/saison");
+const auth = require("../middlewares/auth");
 
 /**
  * @swagger
@@ -66,6 +67,12 @@ const SaisonController = require("../controllers/saison");
  *       500:
  *         description: Erreur serveur.
  */
+router.get(
+  "/saisons/:saison",
+  auth.loggedMiddleware,
+  auth.isAdmin,
+  SaisonController.getSaison
+);
 
 /**
  * @swagger
@@ -101,6 +108,13 @@ const SaisonController = require("../controllers/saison");
  *
  */
 
+router.post(
+  "/lancerAudition",
+  auth.loggedMiddleware,
+  auth.isAdmin,
+  SaisonController.lancerCandidature
+);
+
 /**
  * @swagger
  * /saison/candidature/estOuverte/{id}:
@@ -127,6 +141,12 @@ const SaisonController = require("../controllers/saison");
  *         description: Some server error
  *
  */
+router.get(
+  "/candidature/estOuverte/:id",
+  auth.loggedMiddleware,
+  auth.isAdmin,
+  SaisonController.candidatureEstOuverte
+);
 
 /**
  * @swagger
@@ -163,6 +183,12 @@ const SaisonController = require("../controllers/saison");
  *        500:
  *          description: Internal Server Error.
  */
+router.patch(
+  "/candidature/update/:id",
+  auth.loggedMiddleware,
+  auth.isAdmin,
+  SaisonController.updateCandidature
+);
 
 /**
  * @swagger
@@ -187,12 +213,5 @@ const SaisonController = require("../controllers/saison");
  *                      description: The auto-generated id of the Candidature
  *              - $ref: '#/components/schemas/NewCandidature'
  */
-router.get("/saisons/:saison", SaisonController.getSaison);
-router.post("/lancerAudition", SaisonController.lancerCandidature);
-router.get(
-  "/candidature/estOuverte/:id",
-  SaisonController.candidatureEstOuverte
-);
-router.patch("/candidature/update/:id", SaisonController.updateCandidature);
 
 module.exports = router;
