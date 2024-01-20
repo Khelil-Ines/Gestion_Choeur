@@ -59,19 +59,70 @@ const fetchRepetition = (req, res) => {
       });
     });
 };
+ function generateRandomURL() {
+    // Define the characters that can be used in the random URL
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
+    // Start the random URL with 'https:'
+    let randomURL = 'https:';
 
-const addRepetition = (req, res) => {
-  const newRepetition = new Repetition(req.body);
-  newRepetition
-    .save()
-    .then((repetition) => {
-      res.json(repetition);
-    })
-    .catch((err) => {
-      res.status(400).json({ erreur: "Échec de la création du l'repetition" });
+    // Generate 10 random characters and append them to the URL
+    for (let i = 0; i < 10; i++) {
+        // Select a random character from the characters string
+        randomURL += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+
+    // Append the '.com' domain to complete the URL
+    randomURL += '.com';
+
+    // Return the generated random URL
+    return randomURL;
+}
+
+const addRepetition = async (req, res) => {
+  try {
+    // Utilize the generateRandomURL function for link generation
+    const randomLink = generateRandomURL();
+
+    const heureDeb = moment(req.body.heureDebut, 'HH:mm');
+    const heureFin = moment(req.body.heureFin, 'HH:mm');
+    const dateRepetition = moment(req.body.date);
+
+    // Check if heureDeb is before heureFin
+    if (!heureDeb.isBefore(heureFin)) {
+      return res.status(400).json({ error: "Invalid start time or end time." });
+    }
+
+    // Check if dateRepetition is equal to or greater than the current date
+    if (dateRepetition.isBefore(moment(), 'day')) {
+      return res.status(400).json({ error: "Invalid repetition date." });
+    }
+
+    const newRepetition = new Repetition({
+      ...req.body,
+      link: randomLink,
     });
+
+    // Save the new repetition
+    const repetition = await newRepetition.save();
+
+    // Retrieve all the IDs of choristers (assuming the Choriste model has a field _id)
+    const choristes = await Choriste.find({}, '_id');
+
+    // Add the IDs of choristers to the absence list of the new repetition
+    repetition.liste_Abs = choristes.map(choriste => choriste._id);
+
+    // Save the updated repetition again
+    await repetition.save();
+
+    res.json(repetition);
+  } catch (error) {
+    console.error('Error while saving the repetition:', error);
+    res.status(400).json({ error: 'Failed to create the repetition' });
+  }
 };
+
+
 
 const getPlanning = (req, res) => {
   Repetition.find()
@@ -178,6 +229,7 @@ const repetitionPourcentage = async (req, res) => {
       prcTenor,
       prcBasse,
       link,
+      programme,
     } = req.body;
 
     // Vérifiez que les pourcentages sont fournis et valides
@@ -245,6 +297,7 @@ const repetitionPourcentage = async (req, res) => {
       listeAlto,
       listeTenor,
       listeBasse,
+      programme,
     });
 
 

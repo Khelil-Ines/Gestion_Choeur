@@ -3,7 +3,6 @@ const cron = require('node-cron');
 const Choriste = require('../models/choriste');
 const Utilisateur = require('../models/utilisateur'); 
 const User = require('../models/compte'); 
-const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const Repetition = require("../models/repetition");
 const Concert = require("../models/concert");
@@ -12,7 +11,7 @@ const Chef_Pupitre = require("../models/chef_pupitre");
 const Absence = require("../models/absence");
 const jwt = require("jsonwebtoken");
 const saisonCourante = new Date().getFullYear(); 
-
+const Programme = require('../models/programme'); 
 
 // Tâche planifiée pour déclencher la mise à jour du statut au début de chaque saison,programmée pour s'exécuter à minuit le 1er octobre de chaque année
 const tacheMiseAJourStatut = cron.schedule('0 0 1 10 * ', async () => {
@@ -81,6 +80,7 @@ exports.addChoriste = (req, res) => {
         });
       });
   };
+
 exports.getprofilchoriste = async (req, res) => {
     Choriste.findOne({ _id: req.params.id })
     .then((choriste) => {
@@ -125,9 +125,7 @@ exports.getstatutchoriste = async (req, res) => {
         });
       } else {
         res.status(200).json({
-            Historique : choriste.historiqueStatut.sort((a, b) => {
-                return new Date(b.date) - new Date(a.date);
-              }),
+          historiqueStatut: choriste.historiqueStatut.sort((a, b) => new Date(b.date) - new Date(a.date)),
           message: "objet trouvé!",
         });
       }
@@ -139,8 +137,6 @@ exports.getstatutchoriste = async (req, res) => {
       });
     });
 };
-
-
 
 //Fonction pour vérifier si un choriste est en congé
 exports.estEnConge = (choriste) => {
@@ -159,7 +155,6 @@ exports.estEnConge = (choriste) => {
 
   return false; // Le choriste n'est pas en congé
 };
-
 
 exports.fetchChoriste = (req, res) => {
     Choriste.findOne({ _id: req.params.id })
@@ -182,7 +177,6 @@ exports.fetchChoriste = (req, res) => {
       });
     });
 }
-
   
 exports.getChoriste = (req, res) => {
   Choriste.find()
@@ -199,7 +193,6 @@ exports.getChoriste = (req, res) => {
       });
     });
 };
-
 
   exports.getChoristesByPupitre = (req, res) => {
     const pupitreNom = req.body.pupitreNom;
@@ -250,28 +243,12 @@ exports.getChoriste = (req, res) => {
     }
   };
   
-
   exports.presence = async (req, res) => {
     try {
       const { idRepetition, link } = req.params;
   
-      // Vérifiez le token dans le header de la requête
-      const token = req.headers.authorization.split(' ')[1];
-  
       try {
-        const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-        const compteId = decodedToken.userId;
-  
-        // Recherchez le compte par son ID
-        const compte = await User.findById(compteId);
-        console.log(compteId)
-        if (!compte) {
-          return res.status(404).json({ erreur: 'Compte non trouvé' });
-        }
-  
-        // Utilisez l'ID du compte pour trouver le choriste associé
-        const choriste = await Choriste.findOne({compte:compteId});
-  
+        const choriste = await Choriste.findOne({ compte: req.auth.compteId });
         if (!choriste) {
           return res.status(404).json({ erreur: 'Choriste non trouvé' });
         }
@@ -328,28 +305,18 @@ exports.getChoriste = (req, res) => {
     }
   };
 
-
 //presence_concert
 exports.presenceConcert = async (req, res) => {
   try {
     const { idConcert, link } = req.params;
 
-    // Vérifiez le token dans le header de la requête
-    const token = req.headers.authorization.split(" ")[1];
-
+   
     try {
-      const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-      const compteId = decodedToken.userId;
-
-      // Recherchez le compte par son ID
-      const compte = await User.findById(compteId);
-      console.log(compteId)
-      if (!compte) {
-        return res.status(404).json({ erreur: 'Compte non trouvé' });
+      const choriste = await Choriste.findOne({ compte: req.auth.compteId });
+      if (!choriste) {
+        return res.status(404).json({ erreur: "choriste non trouvé" });
       }
-     
-      const choriste = await Choriste.findOne({compte:compteId});
-     
+
 
       // Recherchez la répétition par son ID
       const concert = await Concert.findById(idConcert);
@@ -419,22 +386,11 @@ exports.setDispo = async (req, res) => {
   const token = req.headers.authorization.split(" ")[1];
 
   try {
-    const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-    const compteId = decodedToken.userId;
-
-    // Recherchez le compte par son ID
-    const compte = await User.findById(compteId);
-    console.log(compteId)
-    if (!compte) {
-      return res.status(404).json({ erreur: 'Compte non trouvé' });
-    }
-
-    // Utilisez l'ID du compte pour trouver le choriste associé
-    const choriste = await Choriste.findOne({compte:compteId});
-
+    const choriste = await Choriste.findOne({ compte: req.auth.compteId });
     if (!choriste) {
-      return res.status(404).json({ erreur: 'Choriste non trouvé' });
+      return res.status(404).json({ erreur: "choriste non trouvé" });
     }
+
 
     // Recherchez le concert par son ID
     const concert = await Concert.findById(idConcert);
@@ -448,7 +404,7 @@ exports.setDispo = async (req, res) => {
      choriste.oneTimeToken = oneTimeToken;
      await choriste.save();
 
-    if (concert.liste_Abs.includes(choriste._id)) {
+    if (concert.liste_dispo.includes(choriste._id)) {
       return res
         .status(409)
         .json({ erreur: "Le choriste est déjà disponible à ce concert" });
@@ -581,9 +537,9 @@ exports.confirmDispo = async (req, res) => {
     // Ajoutez le choriste à la liste d'absence uniquement après confirmation
     if (
       choriste.confirmationStatus === "Confirmé" &&
-      !concert.liste_Abs.includes(userId)
+      !concert.liste_dispo.includes(userId)
     ) {
-      concert.liste_Abs.push(userId);
+      concert.liste_dispo.push(userId);
       await concert.save();
     }
 
@@ -597,7 +553,6 @@ exports.confirmDispo = async (req, res) => {
     res.status(500).json({ erreur: "Erreur interne du serveur" });
   }
 };
-
 
 // Fonction pour extraire l'ID du choriste à partir du token
 exports.getUserIdFromToken = (authorizationHeader) => {
@@ -619,7 +574,6 @@ exports.updatePresenceList = (concert, userId) => {
   // Ajouter l'ID du choriste à la liste de présence
   concert.liste_Presents.push(userId);
 };
-
 
 exports.getHistoriqueActivite = async (req, res) => {
   try {
@@ -669,8 +623,6 @@ exports.getHistoriqueActivite = async (req, res) => {
   }
 };
 
-
-
 exports.Lister_choriste_toutchoeur = async (req, res) => {
   try {
     const { idConcert } = req.params;
@@ -683,7 +635,7 @@ exports.Lister_choriste_toutchoeur = async (req, res) => {
     }
 
     // Vérifiez si la liste d'absence est vide
-    if (concert.liste_Abs.length === 0) {
+    if (concert.liste_dispo.length === 0) {
       return res.json({ message: "Aucun choriste n'a déclaré sa disponibilité pour ce concert" });
     }
 
@@ -692,7 +644,7 @@ exports.Lister_choriste_toutchoeur = async (req, res) => {
     const choristesToutChoeur = await Choriste.find(
       {
         confirmationStatus: "Confirmé",
-        _id: { $in: concert.liste_Abs },
+        _id: { $in: concert.liste_dispo },
       },
       // excluez le champ "motDePasse"
       { password: 0 ,
@@ -708,7 +660,6 @@ exports.Lister_choriste_toutchoeur = async (req, res) => {
     res.status(500).json({ erreur: "Erreur interne du serveur" });
   }
 };
-
 
 //consulter  la liste des choristes pour tout le chœur pour un concert spécifique
 
@@ -730,7 +681,7 @@ exports.Lister_choriste_pupitre = async (req, res) => {
     }
 
     // Vérifiez si la liste d'absence est vide
-    if (concert.liste_Abs.length === 0) {
+    if (concert.liste_dispo.length === 0) {
       return res.json({ message: "Aucun choriste n'a déclaré sa disponibilité pour ce concert" });
     }
 
@@ -738,7 +689,7 @@ exports.Lister_choriste_pupitre = async (req, res) => {
     const choristesParPupitre = await Choriste.find({
       pupitre: pupitre,
       confirmationStatus: 'Confirmé',
-      _id: { $in: concert.liste_Abs },
+      _id: { $in: concert.liste_dispo },
     },
     // excluez le champ "motDePasse"
     { password: 0 ,
@@ -759,6 +710,7 @@ exports.Lister_choriste_pupitre = async (req, res) => {
     res.status(500).json({ erreur: 'Erreur interne du serveur' });
   }
 };
+
 
 
 exports.login = async (req, res, next) => {
@@ -792,41 +744,707 @@ exports.login = async (req, res, next) => {
 };
 
 //conulter etat absence en general dans repetitions
-exports.getGeneralAbsenceStatus = async (req, res) => {
-  try {
-    const totalRehearsalAbsences = await Absence.countDocuments({ Type: 'Repetition' });
+// exports.getGeneralAbsenceStatus = async (req, res) => {
+//   try {
+//     const totalRehearsalAbsences = await Absence.countDocuments({ Type: 'Repetition' });
 
-    res.json({ totalRehearsalAbsences });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+//     res.json({ totalRehearsalAbsences });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// };
+// //conulter etat absence par pupitre
+// exports.getAbsenceStatusByPupitre = async (req, res) => {
+//   try {
+//     const { pupitre } = req.params;
+
+//     // Find all choristers with the specified pupitre and populate the 'absences' field
+//     const choristers = await Choriste.find({ pupitre }).populate('absences');
+
+//     // Initialize an array to store details of rehearsal absences for each chorister
+//     const rehearsalAbsencesDetails = [];
+
+//     // Calculate total rehearsal absences for the given pupitre
+//     let totalRehearsalAbsences = 0;
+
+//     // Iterate through each chorister and count their rehearsal absences
+//     for (const chorister of choristers) {
+//       const rehearsalAbsences = chorister.absences;
+
+//       // Increment total rehearsal absences count
+//       totalRehearsalAbsences += rehearsalAbsences.length;
+
+//       // Store details of rehearsal absences for the current chorister
+//       if (rehearsalAbsences.length > 0) {
+//         rehearsalAbsencesDetails.push({
+//           choristerId: chorister._id,
+//           choristerName: chorister.name, // Replace with the actual field name for chorister name
+//           rehearsalAbsences: rehearsalAbsences.map(absence => ({
+//             absenceId: absence._id,
+//             date: absence.Date,
+//             reason: absence.raison, // Replace with the actual field name for absence reason
+//             rehearsalDetails: {
+//               // Include details of the rehearsal
+//               rehearsalId: absence.rehearsalId, // Replace with the actual field name for rehearsalId
+//               rehearsalDate: absence.rehearsalDate, // Replace with the actual field name for rehearsalDate
+//               rehearsalLieu: absence.rehearsalLieu, // Replace with the actual field name for rehearsalLieu
+//               // Add more rehearsal details as needed
+//             },
+           
+//           })),
+//         });
+//       }
+//     }
+
+//     res.json({ totalRehearsalAbsences, rehearsalAbsencesDetails });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// };
+// //consulter etat absence par choriste
+// exports.getAbsencesByChoristeId = async (req, res) => {
+//   try {
+//     const { choristeId } = req.params;
+
+//     // Find the chorister by ID and populate the 'absences' field
+//     const choriste = await Choriste.findById(choristeId).populate('absences');
+//     console.log(choriste)
+
+//     if (!choriste) {
+//       return res.status(404).json({ error: 'Chorister not found' });
+//     }
+
+//     // Calculate total rehearsal absences for the chorister
+//     const totalAbsences = choriste.absences.reduce((count, absence) => {
+//       return count + (absence.Type === 'Repetition' ? 1 : 0);
+//     }, 0);
+
+//     res.json({ choristeId, choristeName: choriste.nom + " " + choriste.prénom, totalAbsences });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// };
+// //consulter etat absence 
+// exports.getAbsencesByDate = async (req, res) => {
+//   try {
+//     const { date } = req.params;
+
+//     // Find all choristers and populate the 'absences' field
+//     const choristes = await Choriste.find().populate('absences');
+
+//     // Filter absences based on the specified date for all choristers
+//     const filteredAbsences = choristes.reduce((allAbsences, chorister) => {
+//       const choristerAbsences = chorister.absences.filter(absence => {
+//         const absenceDate = new Date(absence.Date).toISOString().split('T')[0]; // Convert to date string without time
+//         return absenceDate === date;
+//       });
+
+//       return allAbsences.concat(choristerAbsences);
+//     }, []);
+
+//     const totalAbsences = filteredAbsences.reduce((count, absence) => {
+//       return count + (absence.Type === 'Repetition' ? 1 : 0);
+//     }, 0);
+
+//     res.json({ date, totalAbsences, filteredAbsences });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// };
+// exports.getAbsenceByPeriod = async (req, res) => {
+//   try {
+//     const { startDate, endDate } = req.params;
+
+//     // Validate that endDate is greater than startDate
+//     if (endDate <= startDate) {
+//       return res.status(400).json({ error: 'End date must be greater than start date' });
+//     }
+
+//     // Find all choristers and populate the 'absences' field
+//     const choristers = await Choriste.find().populate('absences');
+
+//     // Calculate total rehearsal absences and chorister-specific data within the specified period
+//     const result = choristers.reduce(
+//       (acc, chorister) => {
+//         const choristerAbsencesInPeriod = chorister.absences.filter(absence => {
+//           const absenceDate = new Date(absence.Date).toISOString().split('T')[0]; // Convert to date string without time
+//           return absenceDate >= startDate && absenceDate <= endDate && absence.Type === 'Repetition';
+//         });
+
+//         const totalAbsences = choristerAbsencesInPeriod.length;
+
+//         acc.choristersData.push({
+//           choristerId: chorister._id,
+//           choristerName: chorister.name, // Replace with the actual field name for chorister name
+//           totalAbsences,
+//           filteredAbsences: choristerAbsencesInPeriod,
+//         });
+
+//         acc.totalAbsenceCount += totalAbsences;
+
+//         return acc;
+//       },
+//       { totalAbsenceCount: 0, choristersData: [] }
+//     );
+
+//     res.json({ startDate, endDate, totalAbsenceCount: result.totalAbsenceCount, choristersData: result.choristersData });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// };
+
+// exports.getAbsenceByProgram = async (req, res) => {
+//   try {
+//     const programId = req.params.ProgrammeId; // Assuming the program ID is passed in the 'programme' parameter
+
+//     // Find all repetitions associated with the program
+//     const programRepetitions = await Repetition.find({ programme: programId });
+
+//     // Initialize the total absence count
+//     let totalAbsenceCount = 0;
+
+//     // Loop through each repetition and add the length of liste_Abs
+//     for (const repetition of programRepetitions) {
+//       totalAbsenceCount += repetition.liste_Abs.length;
+//     }
+
+//     // Send the result back to the client
+//     res.json({ totalAbsenceCount });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Error calculating total absence count for program' });
+//   }
+// };
+
+
+exports.getAbsenceStatus = async (req, res) => {
+  try {
+    const { startDate, endDate, date, choristeId, pupitre, ProgrammeId , dateDonne , saison} = req.query;
+    
+  // Check if endDate is after startDate
+  if (endDate < startDate) {
+    return res.status(400).json({ error: 'endDate must be after startDate' });
   }
-};
 
+    if (startDate && endDate) {
+      // Validate that endDate is greater than startDate
+      if (endDate <= startDate) {
+        return res.status(400).json({ error: 'End date must be greater than start date' });
+      }
+    }
+    
+    
 
+    if (startDate && endDate && pupitre) {
+      const choristers = await Choriste.find({ pupitre }).populate('absences');
 
+      const result = choristers.reduce(
+        (acc, chorister) => {
+          const choristerAbsencesInPeriod = chorister.absences.filter(absence => {
+            const absenceDate = new Date(absence.Date).toISOString().split('T')[0];
+            return absenceDate >= startDate && absenceDate <= endDate && absence.Type === 'Repetition';
+          });
 
-//conulter etat absence par pupitre
-exports.getAbsenceStatusByPupitre = async (req, res) => {
-  try {
-    const { pupitre } = req.params;
+          const totalAbsences = choristerAbsencesInPeriod.length;
 
-    // Find all choristers with the specified pupitre and populate the 'absences' field
-    const choristers = await Choriste.find({ pupitre }).populate('absences');
+          acc.choristersData.push({
+            choristerId: chorister._id,
+            choristerName: chorister.name,
+            totalAbsences,
+            filteredAbsences: choristerAbsencesInPeriod,
+          });
 
-    // Calculate total rehearsal absences for the given pupitre
-    let totalRehearsalAbsences = 0;
+          acc.totalAbsenceCount += totalAbsences;
 
-    // Iterate through each chorister and count their rehearsal absences
-    for (const chorister of choristers) {
-      const rehearsalAbsences = chorister.absences.filter(absence => absence.Type === 'Repetition');
-      totalRehearsalAbsences += rehearsalAbsences.length;
+          return acc;
+        },
+        { totalAbsenceCount: 0, choristersData: [] }
+      );
+
+      // General absence status
+      const totalRehearsalAbsences = await Absence.countDocuments({ Type: 'Repetition' });
+
+      return res.json({ startDate, endDate, pupitre, totalAbsenceCount: result.totalAbsenceCount, choristersData: result.choristersData, totalRehearsalAbsences });
     }
 
-    res.json({ totalRehearsalAbsences });
+    if (choristeId && ProgrammeId && date) {
+      try {
+        // Find all repetitions associated with the program
+        const choristerRepetitionsForProgram = await Repetition.find({
+          programme: ProgrammeId,
+        });
+    
+        // Initialize totalAbsences to 0
+        let totalAbsences = 0;
+    
+        // Iterate through each repetition
+        choristerRepetitionsForProgram.forEach(repetition => {
+          // Check if liste_Abs contains the choristeId and the date matches
+          if (
+            repetition.liste_Abs.includes(choristeId) &&
+            new Date(repetition.date).toISOString().split('T')[0] === date
+          ) {
+            // Increment totalAbsences if choristeId and dateDonne are found in liste_Abs
+            totalAbsences++;
+          }
+        });
+    
+        return res.json({ choristeId, ProgrammeId, date, totalAbsences });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+    }
+    
+    // Check for date and pupitre
+    if (date && pupitre) {
+      const choristers = await Choriste.find({ pupitre }).populate('absences');
+
+      const filteredAbsences = choristers.reduce((allAbsences, chorister) => {
+        const choristerAbsences = chorister.absences.filter(absence => {
+          const absenceDate = new Date(absence.Date).toISOString().split('T')[0];
+          return absenceDate === date && absence.Type === 'Repetition';
+        });
+
+        return allAbsences.concat(choristerAbsences);
+      }, []);
+
+      const totalAbsences = filteredAbsences.reduce((count, absence) => {
+        return count + (absence.Type === 'Repetition' ? 1 : 0);
+      }, 0);
+
+      return res.json({ date, pupitre, totalAbsences, filteredAbsences });
+    }
+
+    if (date && pupitre && ProgrammeId) {
+      const choristers = await Choriste.find({ pupitre }).populate('absences');
+    
+      const filteredAbsences = choristers.reduce((allAbsences, chorister) => {
+        const choristerAbsences = chorister.absences.filter(absence => {
+          const absenceDate = new Date(absence.Date).toISOString().split('T')[0];
+          return absenceDate === date && absence.Type === 'Repetition' && absence.programmeId === ProgrammeId;
+          // Assuming there is a property named programmeId in the absence object
+        });
+    
+        return allAbsences.concat(choristerAbsences);
+      }, []);
+    
+      const totalAbsences = filteredAbsences.reduce((count, absence) => {
+        return count + (absence.Type === 'Repetition' ? 1 : 0);
+      }, 0);
+    
+      return res.json({ date, pupitre, ProgrammeId, totalAbsences, filteredAbsences });
+    }
+    
+    // if (pupitre && ProgrammeId) {
+    //   const choristers = await Choriste.find({ pupitre }).populate('absences');
+    
+    //   const filteredAbsences = choristers.reduce((allAbsences, chorister) => {
+    //     const choristerAbsences = chorister.absences.filter(absence => {
+    //       return absence.Type === 'Repetition' && absence.programmeId === ProgrammeId;
+    //       // Assuming there is a property named programmeId in the absence object
+    //     });
+    
+    //     return allAbsences.concat(choristerAbsences);
+    //   }, []);
+    
+    //   const totalAbsences = filteredAbsences.reduce((count, absence) => {
+    //     return count + 1; // Counting all absences without checking the type
+    //   }, 0);
+    
+    //   return res.json({ pupitre, ProgrammeId, totalAbsences, filteredAbsences });
+    // }
+    
+
+     // Check for choristeId and date
+     if (choristeId && date) {
+      const choriste = await Choriste.findById(choristeId).populate('absences');
+
+      if (!choriste) {
+        return res.status(404).json({ error: 'Chorister not found' });
+      }
+
+      const choristerAbsences = choriste.absences.filter(absence => {
+        const absenceDate = new Date(absence.Date).toISOString().split('T')[0];
+        return absenceDate === date && absence.Type === 'Repetition' ;
+      });
+
+      const totalAbsences = choristerAbsences.length;
+
+      return res.json({ choristeId, choristeName: choriste.nom + " " + choriste.prénom, totalAbsences, filteredAbsences: choristerAbsences });
+    }
+
+    // Check for choristeId, startDate, and endDate
+    if (choristeId && startDate && endDate) {
+      const choriste = await Choriste.findById(choristeId).populate('absences');
+
+      if (!choriste) {
+        return res.status(404).json({ error: 'Chorister not found' });
+      }
+
+      const choristerAbsencesInPeriod = choriste.absences.filter(absence => {
+        const absenceDate = new Date(absence.Date).toISOString().split('T')[0];
+        return absenceDate >= startDate && absenceDate <= endDate && absence.Type === 'Repetition';
+      });
+
+      const totalAbsences = choristerAbsencesInPeriod.length;
+
+      return res.json({ choristeId, choristeName: choriste.nom + " " + choriste.prénom, totalAbsences, filteredAbsences: choristerAbsencesInPeriod });
+    }
+
+  // Check for programmeId and date
+  if (ProgrammeId && date) {
+    try {
+      const programRepetitions = await Repetition.find({ programme: ProgrammeId });
+  
+      let totalAbsenceCount = 0;
+  
+      for (const repetition of programRepetitions) {
+        // Assuming repetition.date is a valid date field in your schema
+        const repetitionDate = new Date(repetition.date);
+  
+        // Check if the date matches the specified date
+        if (repetitionDate.toISOString().split('T')[0] === date) {
+          totalAbsenceCount += repetition.liste_Abs.length;
+        }
+      }
+  
+      return res.json({ ProgrammeId, totalAbsenceCount });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+  
+    
+
+  if (choristeId && ProgrammeId) {
+    try {
+      // Find all repetitions associated with the program
+      const choristerRepetitionsForProgram = await Repetition.find({
+        programme: ProgrammeId,
+      });
+  
+      // Initialize totalAbsences to 0
+      let totalAbsences = 0;
+  
+      // Iterate through each repetition
+      choristerRepetitionsForProgram.forEach(repetition => {
+        // Check if liste_Abs contains the choristeId
+        if (repetition.liste_Abs.includes(choristeId)) {
+          // Increment totalAbsences if choristeId is found in liste_Abs
+          totalAbsences++;
+        }
+      });
+  
+      return res.json({ choristeId, ProgrammeId, totalAbsences });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+  
+  
+  
+ 
+
+  if (choristeId && ProgrammeId && startDate && endDate) {
+    try {
+      // Find all repetitions associated with the program
+      const choristerRepetitionsForProgram = await Repetition.find({
+        programme: ProgrammeId,
+      });
+  
+      // Initialize totalAbsences to 0
+      let totalAbsences = 0;
+  
+      // Iterate through each repetition
+      choristerRepetitionsForProgram.forEach(repetition => {
+        // Iterate through each absence in liste_Abs
+        repetition.liste_Abs.forEach(absence => {
+          // Assuming absence.date is a valid date field in your schema
+          const absenceDate = new Date(absence.date);
+  
+          // Check if absenceDate is within the specified date range
+          if (!isNaN(absenceDate.getTime()) && absenceDate >= startDate && absenceDate <= endDate) {
+            // Check if liste_Abs contains the choristeId
+            if (repetition.liste_Abs.includes(choristeId)) {
+              // Increment totalAbsences if choristeId is found in liste_Abs and date is within the range
+              totalAbsences++;
+            }
+          }
+        });
+      });
+  
+      return res.json({ choristeId, ProgrammeId, startDate, endDate, totalAbsences });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+  
+  if (choristeId && dateDonne) {
+    try {
+      // Find choriste by ID and populate absences
+      const choriste = await Choriste.findById(choristeId).populate('absences');
+  
+      // Check if choriste is not found
+      if (!choriste) {
+        return res.status(404).json({ error: 'Chorister not found' });
+      }
+  
+      // Filter absences based on the specified date
+      const filteredAbsences = choriste.absences.filter(absence => {
+        // Assuming absence.Date is a valid date field in your schema
+        const absenceDate = new Date(absence.Date).toISOString().split('T')[0];
+  
+        // Check if absenceDate is on or after the specified date
+        return new Date(absenceDate) >= new Date(dateDonne);
+      });
+  
+      // Calculate total absences for the filtered list
+      const totalAbsences = filteredAbsences.reduce((count, absence) => {
+        return count + (absence.Type === 'Repetition' ? 1 : 0);
+      }, 0);
+  
+      return res.json({ choristeId, choristeName: choriste.nom + " " + choriste.prénom, dateDonne, totalAbsences, filteredAbsences });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  } 
+  
+  if (choristeId && ProgrammeId && dateDonne) {
+    try {
+      // Find all repetitions associated with the program
+      const choristerRepetitionsForProgram = await Repetition.find({
+        programme: ProgrammeId,
+      });
+  
+      // Initialize totalAbsences to 0
+      let totalAbsences = 0;
+  
+      // Iterate through each repetition
+      choristerRepetitionsForProgram.forEach(repetition => {
+        // Check if liste_Abs contains the choristeId and the date is on or after dateDonne
+        if (
+          repetition.liste_Abs.includes(choristeId) &&
+          new Date(repetition.date).toISOString().split('T')[0] >= dateDonne
+        ) {
+          // Increment totalAbsences if choristeId and dateDonne conditions are met
+          totalAbsences++;
+        }
+      });
+  
+      return res.json({ choristeId, ProgrammeId, dateDonne, totalAbsences });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  } 
+  
+  
+    // Check for choristerId
+    if (choristeId) {
+      const choriste = await Choriste.findById(choristeId).populate('absences');
+
+      if (!choriste) {
+        return res.status(404).json({ error: 'Chorister not found' });
+      }
+
+      const totalAbsences = choriste.absences.reduce((count, absence) => {
+        return count + (absence.Type === 'Repetition' ? 1 : 0);
+      }, 0);
+
+      return res.json({ choristeId, choristeName: choriste.nom + " " + choriste.prénom, totalAbsences });
+    }
+
+    if (dateDonne) {
+      try {
+        const choristes = await Choriste.find().populate('absences');
+    
+        const filteredAbsences = choristes.reduce((allAbsences, chorister) => {
+          const choristerAbsences = chorister.absences.filter(absence => {
+            // Assuming absence.Date is a valid date field in your schema
+            const absenceDate = new Date(absence.Date).toISOString().split('T')[0];
+            
+            // Check if absenceDate is on or after the specified date
+            return new Date(absenceDate) >= new Date(dateDonne);
+          });
+    
+          return allAbsences.concat(choristerAbsences);
+        }, []);
+    
+        const totalAbsences = filteredAbsences.reduce((count, absence) => {
+          return count + (absence.Type === 'Repetition' ? 1 : 0);
+        }, 0);
+    
+        return res.json({ dateDonne, totalAbsences, filteredAbsences });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+    }
+    
+
+    // Check for date
+    if (date) {
+      const choristes = await Choriste.find().populate('absences');
+
+      const filteredAbsences = choristes.reduce((allAbsences, chorister) => {
+        const choristerAbsences = chorister.absences.filter(absence => {
+          const absenceDate = new Date(absence.Date).toISOString().split('T')[0];
+          return absenceDate === date;
+        });
+
+        return allAbsences.concat(choristerAbsences);
+      }, []);
+
+      const totalAbsences = filteredAbsences.reduce((count, absence) => {
+        return count + (absence.Type === 'Repetition' ? 1 : 0);
+      }, 0);
+
+      return res.json({ date, totalAbsences, filteredAbsences });
+    }
+
+    // Check for startDate and endDate
+    if (startDate && endDate) {
+      const choristers = await Choriste.find().populate('absences');
+
+      const result = choristers.reduce(
+        (acc, chorister) => {
+          const choristerAbsencesInPeriod = chorister.absences.filter(absence => {
+            const absenceDate = new Date(absence.Date).toISOString().split('T')[0];
+            return absenceDate >= startDate && absenceDate <= endDate && absence.Type === 'Repetition';
+          });
+
+          const totalAbsences = choristerAbsencesInPeriod.length;
+
+          acc.choristersData.push({
+            choristerId: chorister._id,
+            choristerName: chorister.name,
+            totalAbsences,
+            filteredAbsences: choristerAbsencesInPeriod,
+          });
+
+          acc.totalAbsenceCount += totalAbsences;
+
+          return acc;
+        },
+        { totalAbsenceCount: 0, choristersData: [] }
+      );
+
+      return res.json({ startDate, endDate, totalAbsenceCount: result.totalAbsenceCount, choristersData: result.choristersData });
+    }
+
+    // Check for pupitre
+    if (pupitre) {
+      const choristers = await Choriste.find({ pupitre }).populate('absences');
+
+      const rehearsalAbsencesDetails = [];
+      let totalRehearsalAbsences = 0;
+
+      for (const chorister of choristers) {
+        const rehearsalAbsences = chorister.absences;
+
+        totalRehearsalAbsences += rehearsalAbsences.length;
+
+        if (rehearsalAbsences.length > 0) {
+          rehearsalAbsencesDetails.push({
+            choristerId: chorister._id,
+            choristerName: chorister.name,
+            rehearsalAbsences: rehearsalAbsences.map(absence => ({
+              absenceId: absence._id,
+              date: absence.Date,
+              reason: absence.raison,
+              rehearsalDetails: {
+                rehearsalId: absence.rehearsalId,
+                rehearsalDate: absence.rehearsalDate,
+                rehearsalLieu: absence.rehearsalLieu,
+              },
+            })),
+          });
+        }
+      }
+
+      return res.json({ totalRehearsalAbsences, rehearsalAbsencesDetails });
+    }
+
+    // Check for ProgrammeId
+    if (ProgrammeId) {
+      // Find all repetitions associated with the program
+      const programRepetitions = await Repetition.find({ programme: ProgrammeId });
+
+      // Initialize the total absence count
+      let totalAbsenceCount = 0;
+
+      // Loop through each repetition and add the length of liste_Abs
+      for (const repetition of programRepetitions) {
+        totalAbsenceCount += repetition.liste_Abs.length;
+      }
+
+      // Send the result back to the client
+      return res.json({ totalAbsenceCount });
+    }
+
+if (saison)
+{
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  
+  try {
+    const choristes = await Choriste.find().populate('absences');
+  
+    const filteredAbsences = choristes.reduce((allAbsences, chorister) => {
+      const choristerAbsences = chorister.absences.filter(absence => {
+        // Assuming absence.Date is a valid date field in your schema
+        const absenceYear = new Date(absence.Date).getFullYear();
+        
+        // Check if the absence is from the current year or later
+        return absenceYear >= currentYear;
+      });
+  
+      return allAbsences.concat(choristerAbsences);
+    }, []);
+  
+    const totalAbsences = filteredAbsences.reduce((count, absence) => {
+      return count + (absence.Type === 'Repetition' ? 1 : 0);
+    }, 0);
+  
+    return res.json({ currentYear, totalAbsences, filteredAbsences });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+  
+}
+
+    // Check for startDate, endDate, and pupitre
+ 
+
+    // General absence status
+    const totalRehearsalAbsences = await Absence.countDocuments({ Type: 'Repetition' });
+
+    return res.json({ totalRehearsalAbsences });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
 

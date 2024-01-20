@@ -27,16 +27,7 @@ exports.envoyerEmailElimination = async (req, res) => {
     } else {
       for (const choristeElimine of choristesElimines) {
         const sujet = "Elimination ! ";
-        const file = path.join(__dirname, "../views/eliminationmail.ejs");
-
-        const renderedContent = ejs.renderFile(file, async (err, data) => {
-          if (err) {
-            console.error(err);
-            return res
-              .status(500)
-              .json({ error: "Erreur lors du rendu du fichier EJS." });
-          }
-        });
+       
         const mailOptions = {
           from: transporter.user,
           to: choristeElimine.mail,
@@ -121,7 +112,8 @@ exports.declarerAbsenceRepetition = async (req, res) => {
 
     for (const choristeId of latestRepetition.liste_Abs) {
       const choriste = await Choriste.findById(choristeId);
-   
+      //const choriste = await Choriste.findOne({ compte: req.auth.compteId });   
+
 
       if (!choriste) {
         console.error(`Choriste with ID ${choristeId} not found.`);
@@ -433,5 +425,28 @@ exports.getElimines = async (req, res) => {
             .status(500)
             .json({ error: "Erreur lors de la récupération des Nominés." });
         }
+        };
+
+        exports.addAbsence = async (req, res) => {
+          try {
+            const choriste = await Choriste.findOne({ compte: req.auth.compteId });
+            const { Type, raison, Date } = req.body;
+        
+            const newAbsence = new Absence({ Type, raison, Date });
+        
+            const savedAbsence = await newAbsence.save();
+        
+            choriste.absences.push(savedAbsence._id);
+
+            choriste.nbr_absences++;
+            console.log (choriste.nbr_absences);
+        
+            await choriste.save();
+               
+            res.status(201).json({ choriste, absence: savedAbsence });
+          } catch (error) {
+            console.error("Erreur lors de l'ajout de l'absence :", error);
+            res.status(500).json({ error: "Échec de la création de l'absence." });
+          }
         };
 

@@ -10,6 +10,7 @@ const getSaison = async (req, res) => {
 
     const choristes = await Choriste.find({
       date_adhesion: {
+        $gte: new Date(`${saison}-01-01T00:00:00.000Z`),
         $lte: new Date(`${saison}-12-31T23:59:59.999Z`),
       },
       statut: "Actif",
@@ -69,6 +70,7 @@ const lancerCandidature = (req, res) => {
 };
 
 const updateCandidature = (req, res) => {
+  const nbjours = req.body.nbJours;
   Candidature.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
     .then((cand) => {
       if (!cand) {

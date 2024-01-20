@@ -40,11 +40,29 @@ const ConcertFinie = cron.schedule('10 13 * * *', async () => {
 
 ConcertFinie.start();
 
+function generateRandomURL() {
+  // Define the characters that can be used in the random URL
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
+  // Start the random URL with 'https:'
+  let randomURL = 'https:';
+
+  // Generate 10 random characters and append them to the URL
+  for (let i = 0; i < 10; i++) {
+      // Select a random character from the characters string
+      randomURL += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+
+  // Append the '.com' domain to complete the URL
+  randomURL += '.com';
+
+  // Return the generated random URL
+  return randomURL;
+}
 const addConcert = (req, res) => {
   // Get and validate concert date
   const concertDateString = req.body.date;
-  const randomLink = crypto.randomBytes(5).toString("hex");
+  const randomLink = generateRandomURL();
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   if (!dateRegex.test(concertDateString)) {
     return res
@@ -53,6 +71,14 @@ const addConcert = (req, res) => {
   }
 
   const concertDate = new Date(concertDateString);
+
+  // Check if concert date is greater than or equal to the current date
+  const currentDate = new Date();
+  if (concertDate < currentDate) {
+    return res
+      .status(400)
+      .send("Invalid concert date. Please choose a date greater than or equal to the current date.");
+  }
 
   const moment = require("moment");
 
@@ -65,12 +91,12 @@ const addConcert = (req, res) => {
     // The date is invalid
     console.error("Invalid Date Format");
   }
-  Concert.create({ ...req.body, date: dateObject, link: randomLink })
 
+  Concert.create({ ...req.body, date: dateObject, link: randomLink })
     .then((concert) =>
       res.status(201).json({
         model: concert,
-        message: "Concert crée!",
+        message: "Concert créé!",
       })
     )
     .catch((error) => {
@@ -82,6 +108,7 @@ const addConcert = (req, res) => {
       }
     });
 };
+
 
 const fetchConcert = (req, res) => {
   Concert.find()
@@ -121,21 +148,21 @@ const updateConcert = (req, res) => {
 
 const deleteConcert = (req, res) => {
   Concert.deleteOne({ _id: req.params.id })
-    .then((concert) => {
-      if (!concert) {
+    .then((result) => {
+      if (result.deletedCount === 0) {
         res.status(404).json({
-          message: " Concert non supprimé!",
+          message: "Concert non trouvé !",
         });
       } else {
         res.status(200).json({
-          model: concert,
+          model: result,
           message: "Concert supprimé!",
         });
       }
     })
-    .catch(() => {
+    .catch((error) => {
       res.status(400).json({
-        error: Error.message,
+        error: error.message,
         message: "Données invalides!",
       });
     });
