@@ -381,7 +381,7 @@ exports.presenceConcert = async (req, res) => {
 
 
       if (!concert.liste_Abs.includes(choriste._id) && !concert.liste_Presents.includes(choriste._id)) {
-        return res.status(409).json({ erreur: "Le choriste n'est pas disponible pour ce concert" });
+        return res.status(409).json({ erreur: "Le choriste n'est pas encore etre choisi pour ce concert" });
       }
 
       if (concert.liste_Presents.includes(choriste._id)) {
@@ -431,9 +431,7 @@ exports.presenceConcert = async (req, res) => {
 exports.setDispo = async (req, res) => {
   const { idConcert } = req.params;
 
-  // Vérifiez le token dans le header de la requête
-  const token = req.headers.authorization.split(" ")[1];
-
+ 
   try {
     const choriste = await Choriste.findOne({ compte: req.auth.compteId });
     if (!choriste) {
@@ -526,11 +524,11 @@ const userId=choriste._id
   <div class="container">
     <h1>Confirmation de disponibilité</h1>
     <p>Merci de confirmer votre disponibilité en cliquant sur le bouton ci-dessous :</p>
-    <form method="get" action="http://127.0.0.1:3000/api/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}">
+    <form method="get" action="http://127.0.0.1:5000/api/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}">
       <button type="submit">Confirmer la disponibilité</button>
     </form>
     <p>Si le bouton ne fonctionne pas, vous pouvez également copier et coller le lien suivant dans votre navigateur :</p>
-    <p><a href="http://127.0.0.1:3000/api/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}">http://127.0.0.1:3000/api/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}</a></p>
+    <p><a href="http://127.0.0.1:3000/api/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}">http://127.0.0.1:5000/api/choriste/confirm-dispo/${userId}/${idConcert}/${oneTimeToken}</a></p>
   </div>
 </body>
 </html>`,
@@ -594,7 +592,7 @@ exports.confirmDispo = async (req, res) => {
 
     res.json({
       message:
-        "Confirmation réussie. Le choriste a été ajouté à la liste d'absence.",
+        "Confirmation réussie. Le choriste a été ajouté à la liste de disponibilité.",
     });
   } catch (error) {
     console.error("Erreur lors de la confirmation de disponibilité :", error);

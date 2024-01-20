@@ -78,7 +78,7 @@ const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
             
               choriste.save();
               const message = `Choriste ${choriste.nom} a commencé son congé aujourd'hui.`;
-          console.log(message);
+             console.log(message);
 
           // You can also emit the notification to a socket.io room if needed
           if (req.io) {
@@ -104,7 +104,7 @@ const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
 });
 debutCongeStatut.start();
 
-const finCongeStatut = cron.schedule("* * * * * ", async () => {
+const finCongeStatut = cron.schedule("* * * * * ", async (req) => {
   try {
     // Récupérer tous les choristes à partir de la base de données
     const choristes = await Choriste.find();
@@ -132,7 +132,7 @@ const finCongeStatut = cron.schedule("* * * * * ", async () => {
             });
             choriste.save();
             const message = `Choriste ${choriste.nom} a terminé son congé aujourd'hui.`;
-          console.log(message);
+            console.log(message);
 
           // You can also emit the notification to a socket.io room if needed
           if (req.io) {

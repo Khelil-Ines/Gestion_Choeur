@@ -12,19 +12,10 @@ const CINMiddleware = require("../middlewares/CIN");
  *  description:  API de gestion des choristes
  */
 
-//router.get('/totalAbsence', choristeController.getGeneralAbsenceStatus);
+
 router.post("/presenceRep/:idRepetition/:link",auth.loggedMiddleware,choristeController.presence)
-
-
-// router.get('/totalAbsence', choristeController.getGeneralAbsenceStatus);
-// router.get('/totalAbsencePupitre/:pupitre', choristeController.getAbsenceStatusByPupitre);
-// router.get('/totalAbsenceDate/:date', choristeController.getAbsencesByDate);
-// router.get('/totalAbsenceChoriste/:choristeId', choristeController.getAbsencesByChoristeId);
-
-// router.get('/totalAbsencePeriod/:startDate/:endDate', choristeController.getAbsenceByPeriod);
-// router.get('/totalAbsenceProgramme/:ProgrammeId', choristeController.getAbsenceByProgram);
 router.get('/total', choristeController.getAbsenceStatus);
-// router.get('/totalAbsencePupitre/:pupitre', choristeController.getAbsenceStatusByPupitre);
+
 router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
 router.post("/setDispo/:idConcert",auth.loggedMiddleware,choristeController.setDispo);
 router.get('/confirm-dispo/:userId/:idConcert/:uniqueToken', choristeController.confirmDispo);
@@ -150,7 +141,7 @@ module.exports = router;
 /**
  * @swagger
  * /choriste/setDispo/{idConcert}:
- *   patch:
+ *   post:
  *     summary: Indiquer la disponibilité pour un concert
  *     tags:
  *       - Choriste
@@ -161,20 +152,6 @@ module.exports = router;
  *         schema:
  *           type: string
  *         description: ID du concert
- *     requestBody:
- *       required: true
- *       description: Données pour indiquer la disponibilité
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               choriste:
- *                 type: string
- *                 description: ID du choriste
- *               diponiblitee:
- *                 type: boolean
- *                 description: Indique si le choriste est disponible
  *     responses:
  *       200:
  *         description: Succès - Concert mis à jour avec la disponibilité

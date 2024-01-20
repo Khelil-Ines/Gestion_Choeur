@@ -17,7 +17,7 @@ router.get("/",auth.loggedMiddleware, auth.isAdmin ,compteController.getCompte)
 
 router.get("/:id",auth.loggedMiddleware, auth.isAdmin ,compteController.fetchCompte)
 
-router.post("/addcompte/:id",auth.loggedMiddleware, auth.isAdmin ,compteController.addCompte)
+router.post("/addcompte/:id",auth.loggedMiddleware ,compteController.addCompte)
 
 router.delete("/:id",auth.loggedMiddleware, auth.isAdmin , compteController.deleteCompte)
 

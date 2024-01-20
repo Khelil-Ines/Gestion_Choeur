@@ -33,34 +33,31 @@ const Candidat = require("../models/candidat");
 //   }
 //};
 
-module.exports.loggedMiddleware = (req, res, next) => {
+module.exports.loggedMiddleware = async (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
     const compteId = decodedToken.compteId;
 
-    Compte.findOne({ _id: compteId })
-      .then((compte) => {
-        if (!compte) {
-          return res
-            .status(401)
-            .json({ message: "login ou mot de passe incorrecte " });
-        } else {
-          req.auth = {
-            compteId: compteId,
-            role: compte.role,
-          };
-          next();
-        }
-      })
-      .catch((error) => {
-        res.status(500).json({ error: error.message });
-      });
+    
+
+    const compte = await Compte.findOne({ _id: compteId });
+    console.log(compte);
+    if (!compte) {
+      return res.status(401).json({ message: "Invalid login credentials" });
+    }
+
+    req.auth = {
+      compteId: compteId,
+      role: compte.role,
+    };
+
+    next();
   } catch (error) {
-    res.status(401).json({ error });
+    console.error("Error during token verification:", error);
+    res.status(401).json({ error: "Invalid token" });
   }
 };
-
 module.exports.isChoriste = async (req, res, next) => {
   try {
     const choriste = await Choriste.findOne({ compte: req.auth.compteId });
