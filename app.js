@@ -96,16 +96,7 @@ app.use(
   swaggerUi.setup(specs, { explorer: true })
 );
 app.use(express.json());
- mongoose
-  .connect(
-    "mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
-  .then(() => console.log("connexion a MongoDB reussie!"))
-  .catch((e) => console.log("connexion a MongoDB échouée!", e));
+ 
 
 
 app.use(express.json());
