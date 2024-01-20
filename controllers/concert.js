@@ -315,6 +315,7 @@ const afficherPlacements = async (req, res) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 };
+}
 
 // const modifierPlace = async (req, res) => {
 //   try {
@@ -877,9 +878,6 @@ if (concert.etat === "Done") {
   return res.status(400).json({ error: "Concert is not in the 'Done' state" });
 }
 
- 
-
- 
   } catch (error) {
     console.error(error);
     // Retourner une erreur
@@ -894,6 +892,6 @@ module.exports = {
   deleteConcert,
   attribuerPlacesAuxChoristesPresentAuConcert,
   afficherPlacements,
-  getStatistics,
+  getStatistics
   //modifierPlace
 };
