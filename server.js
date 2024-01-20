@@ -44,28 +44,5 @@ cron.schedule('* 10 * * *', async () => {
   await notifierAdmin(io);
 });
 
-// Ajouter le code pour la gestion des choristes
-io.on('connection', (socket) => {
-  console.log('Clie nt connecté');
 
-  // Envoyer les notifications existantes lorsqu'un client se connecte
-  socket.emit('notificationList', notifications);
-
-  socket.on('choristeConnect', (choristeId) => {
-    console.log(`Choriste connecté : ${choristeId}`);
-    // Enregistrez le socket associé à ce choriste
-    choristesSockets[choristeId] = socket;
-  });
-
-
-  socket.on('disconnect', () => {
-    console.log('Client déconnecté');
-    // Gérer la déconnexion d'un choriste et le retirer de la liste des sockets choristes
-    const choristeId = Object.keys(choristesSockets).find(key => choristesSockets[key] === socket);
-    if (choristeId) {
-      delete choristesSockets[choristeId];
-      console.log(`Choriste déconnecté : ${choristeId}`);
-    }
-  });
-});
 
