@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const OeuvreController = require("../controllers/oeuvre");
+const auth = require("../middlewares/auth");
 
 /**
  * @swagger
@@ -225,11 +226,41 @@ const OeuvreController = require("../controllers/oeuvre");
  *        500:
  *          description: Internal Server Error.
  */
-router.post("/add", OeuvreController.addOeuvre);
-router.get("/all", OeuvreController.getAllOeuvres);
-router.get("/byParams", OeuvreController.getOeuvresByParams);
-router.get("/byID/:id", OeuvreController.getOeuvreById);
-router.get("/byTitle/title/:titre", OeuvreController.getOeuvreByTitle);
-router.patch("/update/:id", OeuvreController.updateOeuvre);
+router.post(
+  "/add",
+  auth.loggedMiddleware,
+  auth.isAdmin,
+  OeuvreController.addOeuvre
+);
+router.get(
+  "/all",
+  auth.loggedMiddleware,
+  auth.isAdmin,
+  OeuvreController.getAllOeuvres
+);
+router.get(
+  "/byParams",
+  auth.loggedMiddleware,
+  auth.isAdmin,
+  OeuvreController.getOeuvresByParams
+);
+router.get(
+  "/byID/:id",
+  auth.loggedMiddleware,
+  auth.isAdmin,
+  OeuvreController.getOeuvreById
+);
+router.get(
+  "/byTitle/title/:titre",
+  auth.loggedMiddleware,
+  auth.isAdmin,
+  OeuvreController.getOeuvreByTitle
+);
+router.patch(
+  "/update/:id",
+  auth.loggedMiddleware,
+  auth.isAdmin,
+  OeuvreController.updateOeuvre
+);
 
 module.exports = router;

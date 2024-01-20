@@ -10,8 +10,11 @@ const nodemailer = require("nodemailer");
 const Chef_Pupitre = require("../models/chef_pupitre");
 const Absence = require("../models/absence");
 const jwt = require("jsonwebtoken");
-const saisonCourante = new Date().getFullYear(); 
+const saisonCourante = new Date().getFullYear();
+const { EventEmitter } = require('events');
+
 const Programme = require('../models/programme'); 
+
 
 // Tâche planifiée pour déclencher la mise à jour du statut au début de chaque saison,programmée pour s'exécuter à minuit le 1er octobre de chaque année
 const tacheMiseAJourStatut = cron.schedule('0 0 1 10 * ', async () => {
@@ -212,37 +215,83 @@ exports.getChoriste = (req, res) => {
       });
   };
 
-  exports.updatePupitre = async (req, res)=> {
-    try {
-      const nouveauPupitre = req.body.nouveauPupitre;
-  
-      // Assurez-vous que le nouveau pupitre est valide
-      if (!['Soprano', 'Alto', 'Tenor', 'Basse'].includes(nouveauPupitre)) {
-        throw new Error('Tessiture invalide.');
-      }
-      console.log('ID du choriste à mettre à jour :', req.params.id);
-  
-      // Récupérez l'instance du choriste à partir de la base de données
-      const choriste = await Choriste.findById(req.params.id);
-  
-      if (!choriste) {
-        return res.status(404).json({ message: "Choriste non trouvé." });
-      }
-  
-      // Mettez à jour le pupitre du choriste
-      choriste.pupitre = nouveauPupitre;
-  
-      // Enregistrez les modifications dans la base de données
-      await choriste.save();
-     
-  
-      return res.status(200).json({ choriste, message: 'Tessiture mise à jour avec succès.' });
-    } catch (error) {
-      console.error('Erreur lors de la modification du pupitre :', error);
-      return res.status(500).json({ error: 'Erreur lors de la modification du pupitre.' });
+// // Schedule a cron job to send notifications periodically
+cron.schedule('0 0 * * *', async () => {
+  try {
+    // Query the database for choristes who changed their pupitre in the last 24 hours
+    const choristesChanged = await Choriste.find({
+      updatedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Changed in the last 24 hours
+    });
+
+    // Emit notifications for each choriste who changed pupitre
+    choristesChanged.forEach((changedChoriste) => {
+      req.io.to('updateNotificationsRoom').emit('notificationPupitre', {
+        type: 'pupitreChanged',
+        message: `Choriste ${changedChoriste.nom} a changé de pupitre en ${changedChoriste.pupitre}.`,
+      });
+    });
+
+    console.log('Notification cron job executed.');
+  } catch (error) {
+    console.error('Error in the cron job:', error);
+  }
+});
+
+exports.updatePupitre = async (req, res ) => {
+  try {
+    const nouveauPupitre = req.body.pupitre;
+    
+    // Assurez-vous que le nouveau pupitre est valide
+    if (!['Soprano', 'Alto', 'Tenor', 'Basse'].includes(nouveauPupitre)) {
+      throw new Error('Tessiture invalide.');
     }
-  };
+
+    // Récupérez l'instance du choriste à partir de la base de données
+    const choriste = await Choriste.findById(req.params.id);
+
+    if (!choriste) {
+      return res.status(404).json({ message: 'Choriste non trouvé.' });
+    }
+
+    // Sauvegardez l'ancien pupitre pour vérifier s'il a changé
+    const ancienPupitre = choriste.pupitre;
+
+    // Mettez à jour le pupitre du choriste
+    choriste.pupitre = nouveauPupitre;
+
+    // Enregistrez les modifications dans la base de données
+    await choriste.save();
+
+ // Vérifiez si le pupitre a changé
+ if (ancienPupitre !== nouveauPupitre) {
+  const message = `Choriste ${choriste.nom} a changé de pupitre de "${ancienPupitre}" à "${nouveauPupitre}".`;
   
+  // Emit the event to the specified room
+  // Check if req.io is available
+  if (req.io) {
+    // Emit the event to the specified room
+    req.io.to('updateNotificationsRoom').emit('notificationPupitre', {
+      type: 'pupitreChanged',
+      message,
+    });
+  } else {
+    // Log the notification to the console if req.io is not available
+    console.log('Notification:', message);
+  }
+
+}
+
+    return res.status(200).json({ choriste, message: 'Tessiture mise à jour avec succès.' });
+  } catch (error) {
+    console.error('Erreur lors de la modification du pupitre :', error);
+    return res.status(500).json({ error: 'Erreur lors de la modification du pupitre.' });
+  }
+};
+
+
+
+
+
   exports.presence = async (req, res) => {
     try {
       const { idRepetition, link } = req.params;

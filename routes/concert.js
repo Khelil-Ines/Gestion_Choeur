@@ -11,6 +11,7 @@ const auth=require('../middlewares/auth')
  *  description:  API de gestion des concerts
  */
 
+
 /**
  * @swagger
  * /concert/add:
@@ -60,6 +61,14 @@ const auth=require('../middlewares/auth')
  *               error: Internal Server Error
  *               message: An unexpected error occurred
  *
+
+
+
+/**
+ * @swagger
+ * tags:
+ *   name: Concert
+ *   description: API for managing concerts
  * components:
  *   schemas:
  *     Concert:
@@ -291,11 +300,75 @@ router.patch("/:id", concertController.updateConcert);
  *               message: An unexpected error occurred
  */
 
+
 router.delete("/:id", concertController.deleteConcert);
 router.post("/placement",auth.loggedMiddleware, auth.isAdmin, concertController.attribuerPlacesAuxChoristesPresentAuConcert);
 router.get("/placement/:id",auth.loggedMiddleware, auth.isAdmin, concertController.afficherPlacements);
+
+
+
+// router.get("/statisticConcert/:id", concertController.getStatisticConcert);
+// router.get("/statisticChoriste/:id", concertController.getStatisticChoriste);
+// router.get("/statisticOeuvre/:id", concertController.getStatisticsByOeuvre);
+
+/**
+ * @swagger
+ * /concert/statistic:
+ *   get:
+ *     tags:
+ *       - Concert
+ *     summary: Get statistics based on type and ID.
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         required: true
+ *         description: The type of statistics to retrieve (concert, choriste, or oeuvre).
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         description: The ID for which statistics should be retrieved.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successful response with statistics.
+ *         content:
+ *           application/json:
+ *             example:
+ *               statistics: {}
+ *       400:
+ *         description: Bad request due to missing or invalid parameters.
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: 'Les paramètres "type" et "id" sont requis.'
+ *       404:
+ *         description: The specified type is not supported.
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: 'Type de statistiques non pris en charge.'
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: 'Erreur interne du serveur'
+ */
+
+router.get("/statistic", concertController.getStatistics);
+
+
+
+router.post("/placement",auth.loggedMiddleware, auth.isAdmin, concertController.attribuerPlacesAuxChoristesPresentAuConcert);
+router.get("/placement/:id",auth.loggedMiddleware, auth.isAdmin, concertController.afficherPlacements);
+
+
 //router.patch("/placement/modifier/:id", concertController.modifierPlace);
 
   module.exports = router;
+
 
 
