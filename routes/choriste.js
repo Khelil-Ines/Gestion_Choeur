@@ -44,6 +44,42 @@ router.get("/lister/:idConcert",choristeController.Lister_choriste_toutchoeur)
 router.get("/pupitre/:idConcert/:pupitre",choristeController.Lister_choriste_pupitre)
 
 
+
+
+/**
+ * @swagger
+ * /choriste/historique:
+ *   get:
+ *     summary: Get the activity history of a choriste.
+ *     description: Retrieve the number of rehearsals, concerts, and details of concerts participated in by a choriste.
+ *     tags:
+ *       - Choriste
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successful response with the choriste's activity history.
+ *         content:
+ *           application/json:
+ *             example:
+ *               historique:
+ *                 nbr_repetitions: 10
+ *                 nbr_concerts: 5
+ *                 concerts_participes:
+ *                   - date: 2024-02-01
+ *                     lieu: Concert Hall
+ *                     programme:
+ *                       titre: Concert Program 1
+ *                       oeuvres:
+ *                         - titre: Oeuvre 1
+ *                         - titre: Oeuvre 2
+ *                   - date: 2024-03-15
+ *                     lieu: Opera House
+ *                     programme:
+ *                       titre: Concert Program 2
+ *                       oeuvres:
+ *                         - titre: Oeuvre 3
+ */
 router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
 module.exports = router;
 

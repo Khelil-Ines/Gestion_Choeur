@@ -1,6 +1,8 @@
 
 const cron = require('node-cron');
 const Choriste = require('../models/choriste');
+const Oeuvre  = require('../models/oeuvre');
+const Programme  = require('../models/programme');
 const Utilisateur = require('../models/utilisateur'); 
 const User = require('../models/compte'); 
 const crypto = require("crypto");
@@ -12,8 +14,6 @@ const Absence = require("../models/absence");
 const jwt = require("jsonwebtoken");
 const saisonCourante = new Date().getFullYear();
 const { EventEmitter } = require('events');
-
-const Programme = require('../models/programme'); 
 
 
 // Tâche planifiée pour déclencher la mise à jour du statut au début de chaque saison,programmée pour s'exécuter à minuit le 1er octobre de chaque année
@@ -624,34 +624,46 @@ exports.updatePresenceList = (concert, userId) => {
 
 exports.getHistoriqueActivite = async (req, res) => {
   try {
-    // Obtenez l'ID du choriste à partir du token dans le header
-    const token = req.headers.authorization.split(' ')[1];
-    const decodedToken = jwt.verify(token, 'RANDOM_TOKEN_SECRET');
-    const compteId = decodedToken.userId;
-
-    // Recherchez le choriste par son ID
-    const choriste = await Choriste.findOne({ compte: compteId });
+    // Find the choriste by their account ID
+    const choriste = await Choriste.findOne({ compte: req.auth.compteId });
 
     if (!choriste) {
       return res.status(404).json({ erreur: 'Choriste non trouvé' });
     }
 
-    // Récupérez l'historique du choriste (nombre de répétitions, concerts, etc.)
+    // Get the choriste's activity history (rehearsals, concerts, etc.)
     const historique = {
       nbr_repetitions: choriste.nbr_repetitions,
       nbr_concerts: choriste.nbr_concerts,
       concerts_participes: [],
     };
 
-    // Pour chaque concert auquel le choriste a participé, récupérez les détails
+    // For each concert the choriste participated in, retrieve the details
     for (const concertInfo of choriste.concertsParticipes) {
       const concert = await Concert.findById(concertInfo);
 
       if (concert) {
+        // Retrieve the details of the Programme for this concert
+        const programme = await Programme.findById(concert.programme);
+        console.log(programme)
+        // Retrieve details of each oeuvre in the Programme
+        const oeuvresDetails = await Promise.all(
+          programme.oeuvre.map(async (oeuvreId) => {
+            const oeuvre = await Oeuvre.findById(oeuvreId);
+            return {
+              titre: oeuvre.title,
+            
+            };
+          })
+        );
+
         historique.concerts_participes.push({
           date: concert.date,
           lieu: concert.lieu,
-          programme: concert.programme, // Mettez à jour selon votre modèle Programme
+          programme: {
+            titre: programme.titre,
+            oeuvres: oeuvresDetails,
+          },
         });
       }
     }
@@ -668,7 +680,8 @@ exports.getHistoriqueActivite = async (req, res) => {
       return res.status(500).json({ erreur: 'Erreur interne du serveur' });
     }
   }
-};
+}
+
 
 exports.Lister_choriste_toutchoeur = async (req, res) => {
   try {
