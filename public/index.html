@@ -3,43 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notification Admin</title>
+  <title>Bienvenue</title>
 </head>
 <body>
-  <h1>Notification Admin</h1>
-  <ul id="notifications"></ul>
-  <ul id="candidates"></ul> <!-- Nouveau conteneur pour les coordonnées des candidats -->
+  <h1>Bienvenue</h1>
+ 
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
 
-    socket.on('notification', (data) => {
-      const notificationsList = document.getElementById('notifications');
-      const listItem = document.createElement('li');
-      listItem.textContent = data.message;
-      notificationsList.appendChild(listItem);
-    });
-
-    socket.on('newCandidature', (data) => {
-      const candidatesList = document.getElementById('candidates');
-      const candidateItem = document.createElement('li');
-
-      // Afficher les coordonnées des candidats
-      data.candidatures.forEach(candidature => {
-        candidateItem.textContent = `ID: ${candidature._id}, Nom: ${candidature.nom}, Prénom: ${candidature.prénom}, ...`;
-        candidatesList.appendChild(candidateItem.cloneNode(true));
-      });
-    });
-
-    socket.on('choristeNotification', (data) => {
-      const choristeNotificationsList = document.getElementById('choristeNotifications');
-      const choristeNotificationItem = document.createElement('li');
-      choristeNotificationItem.textContent = `ID: ${choriste._id}, Nom: ${choriste.nom}, Prénom: ${choriste.prénom}`;
-      choristeNotificationsList.appendChild(choristeNotificationItem);
-    });
-
-    const choristeId = "ID_DU_CHORISTE";  // Remplacez par l'ID réel du choriste
-    socket.emit('choristeConnect', choristeId);
 
   </script>
 </body>
