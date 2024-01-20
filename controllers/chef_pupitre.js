@@ -9,8 +9,26 @@ const Concert = require("../models/concert");
 
 exports.Ajouter_Chef_PupitreByID = async (req, res) => {
     try {
+      let soprano = 0;
+    let alto = 0;
+    let tenor = 0;
+    let basse = 0;
+      const chefs = await Chef_Pupitre.find();
+      console.log(chefs)
+      for (const chef of chefs) {
+        if (chef.pupitre === "Soprano") {
+          soprano += 1;
+        } else if (chef.pupitre === "Alto") {
+          alto += 1;
+        } else if (chef.pupitre === "Tenor") {
+          tenor += 1;
+        } else if (chef.pupitre === "Basse") {
+          basse += 1;
+        }
+      }
+      console.log(soprano, alto, tenor, basse)
         const choriste = await Choriste.findOne({ _id: req.params.id });
-
+        
         if (!choriste) {
             return res.status(404).send({ message: 'Choriste not found.' });
         } 
@@ -25,30 +43,127 @@ exports.Ajouter_Chef_PupitreByID = async (req, res) => {
         const historiqueStatut= choriste.historiqueStatut
         const nbr_concerts = choriste.nbr_concerts
         const nbr_repetitions =choriste.nbr_repetitions
+        
+        if (pupitre === "Soprano") {
+          soprano += 1;
+          if (soprano <= 2) {
+            await Choriste.findByIdAndDelete({ _id: req.params.id });
 
-        await Choriste.findByIdAndDelete({ _id: req.params.id });
+            const newChefPupitre = new Chef_Pupitre({
+                nom : nom,
+                prénom : prénom,
+                email : email,
+                pupitre : pupitre,
+                statut : statut,
+                CIN : CIN,
+                niveau : niveau, 
+                date_adhesion:date_adhesion,
+                historiqueStatut: historiqueStatut,
+                nbr_concerts : nbr_concerts,
+                nbr_repetitions : nbr_repetitions
+            });
+          
+            const savedChefPupitre = await newChefPupitre.save();
+    
+            
+            utilisateur.Chef_Pupitre = savedChefPupitre;
+          
+    
+            res.status(200).send({ message: 'Chef de pupitre ajouté !' });
+          }else {
+            return res.status(400).send({ message: 'Il y a déjà assez de chefs de pupitre sur ce pupitre.' });
+          }
+      }else if (pupitre === "Alto") {
+        alto += 1;
+        if (alto <= 2) {
+          await Choriste.findByIdAndDelete({ _id: req.params.id });
 
-        const newChefPupitre = new Chef_Pupitre({
-            nom : nom,
-            prénom : prénom,
-            email : email,
-            pupitre : pupitre,
-            statut : statut,
-            CIN : CIN,
-            niveau : niveau, 
-            date_adhesion:date_adhesion,
-            historiqueStatut: historiqueStatut,
-            nbr_concerts : nbr_concerts,
-            nbr_repetitions : nbr_repetitions
-        });
-      
-        const savedChefPupitre = await newChefPupitre.save();
+          const newChefPupitre = new Chef_Pupitre({
+              nom : nom,
+              prénom : prénom,
+              email : email,
+              pupitre : pupitre,
+              statut : statut,
+              CIN : CIN,
+              niveau : niveau, 
+              date_adhesion:date_adhesion,
+              historiqueStatut: historiqueStatut,
+              nbr_concerts : nbr_concerts,
+              nbr_repetitions : nbr_repetitions
+          });
+        
+          const savedChefPupitre = await newChefPupitre.save();
+  
+          
+          utilisateur.Chef_Pupitre = savedChefPupitre;
+        
+  
+          res.status(200).send({ message: 'Chef de pupitre ajouté !' });
+        }else {
+          return res.status(400).send({ message: 'Il y a déjà assez de chefs de pupitre sur ce pupitre.' });
+        }
+      }else if (pupitre === "Tenor") {
+          tenor += 1
+          if (tenor <= 2) {
+            await Choriste.findByIdAndDelete({ _id: req.params.id });
+
+            const newChefPupitre = new Chef_Pupitre({
+                nom : nom,
+                prénom : prénom,
+                email : email,
+                pupitre : pupitre,
+                statut : statut,
+                CIN : CIN,
+                niveau : niveau, 
+                date_adhesion:date_adhesion,
+                historiqueStatut: historiqueStatut,
+                nbr_concerts : nbr_concerts,
+                nbr_repetitions : nbr_repetitions
+            });
+          
+            const savedChefPupitre = await newChefPupitre.save();
+    
+            
+            utilisateur.Chef_Pupitre = savedChefPupitre;
+          
+    
+            res.status(200).send({ message: 'Chef de pupitre ajouté !' });
+          }else {
+            return res.status(400).send({ message: 'Il y a déjà assez de chefs de pupitre sur ce pupitre.' });
+          }
+      }else if (pupitre === "Basse") {
+          basse  += 1
+          if (basse <= 2) {
+            await Choriste.findByIdAndDelete({ _id: req.params.id });
+
+            const newChefPupitre = new Chef_Pupitre({
+                nom : nom,
+                prénom : prénom,
+                email : email,
+                pupitre : pupitre,
+                statut : statut,
+                CIN : CIN,
+                niveau : niveau, 
+                date_adhesion:date_adhesion,
+                historiqueStatut: historiqueStatut,
+                nbr_concerts : nbr_concerts,
+                nbr_repetitions : nbr_repetitions
+            });
+          
+            const savedChefPupitre = await newChefPupitre.save();
+    
+            
+            utilisateur.Chef_Pupitre = savedChefPupitre;
+          
+    
+            res.status(200).send({ message: 'Chef de pupitre ajouté !' });
+          }else {
+            return res.status(400).send({ message: 'Il y a déjà assez de chefs de pupitre sur ce pupitre.' });
+          }
+      }
+      console.log(soprano, alto, tenor, basse)
 
         
-        utilisateur.Chef_Pupitre = savedChefPupitre;
-      
-
-        res.status(200).send({ message: 'Chef de pupitre ajouté !' });
     } catch (err) {
         console.error(err);
         res.status(500).send({ message: 'Internal Server Error' });
