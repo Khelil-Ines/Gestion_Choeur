@@ -8,10 +8,6 @@ const historiqueStatutSchema = mongoose.Schema({
 
 const presenceManuelleSchema = mongoose.Schema({
   date: { type: Date, default: Date.now },
-
-  raison: { type: String, required: false },
-  type: { type: String ,  required: false },
-
 });
 
 const choristeSchema = mongoose.Schema({
@@ -22,7 +18,7 @@ const choristeSchema = mongoose.Schema({
   },
   statut: {
     type: String,
-    enum: ['Actif', 'En_Congé', 'Eliminé', "Eliminé_Dicipline"],
+    enum: ['Actif', 'En_Congé', 'Eliminé', "Eliminé_Discipline"],
     default: 'Actif',
   },
   niveau: {

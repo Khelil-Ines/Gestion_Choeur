@@ -102,7 +102,7 @@ const addConcert = async (req, res) => {
       }
     });
 }
-};
+
 
 
 const fetchConcert = (req, res) => {
