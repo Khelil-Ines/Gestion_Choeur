@@ -1,12 +1,13 @@
 const cron = require("node-cron");
-const choriste = require("../models/choriste");
+const Choriste = require("../models/choriste");
 const Répetition = require("../models/repetition");
 const moment = require("moment");
 
 //Rappel de répétition selon des paramétres
 let notif;
-const envoyerNotification = async (req, res) => {
-  const { repetitions, heure, minute, jar } = req.params;
+const envoyerNotification = async (req, res,repetitions, heure, minute, jar) => {
+  // const { repetitions, heure, minute, jar } = req.params;
+  const connecte = await Choriste.findOne({ compte: req.auth.compteId });
   const listerep = await Répetition.find();
 
   listerep.forEach((rep) => {
@@ -19,8 +20,9 @@ const envoyerNotification = async (req, res) => {
       `${minute} ${heure} ${jour} ${mois} *`,
       () => {
         count++;
+        jour++;
         console.log(
-          `M./Mme , Rappelez-vous ! Vous avez une répétition le ${rep.date}  a ${rep.heureDebut}h (fois ${count}/${repetitions})`
+          `M./Mme  ${connecte.nom}  ${connecte.prénom}, Rappelez-vous ! Vous avez une répétition le ${rep.date}  à ${rep.heureDebut}h `
         );
 
         if (count >= repetitions) {
@@ -42,6 +44,7 @@ let notiff;
 const envoyerNotificationChangementRépetition = async (req, res) => {
   const nouvelHoraire = req.params.nh;
   const nouveauLieu = req.params.nl;
+  const rep = req.params.rep;
 
   const maintenant = new Date();
   const heureActuelle = maintenant.getHours();
@@ -51,7 +54,7 @@ const envoyerNotificationChangementRépetition = async (req, res) => {
     `${minuteActuelle} ${heureActuelle} * * *`,
     () => {
       console.log(
-        `Changement d'horaire : ${nouvelHoraire}h, Nouveau lieu : ${nouveauLieu}`
+        `Changement d'horaire pour ${rep}  : ${nouvelHoraire}h, Nouveau lieu : ${nouveauLieu}`
       );
     },
     {
@@ -65,8 +68,6 @@ const envoyerNotificationChangementRépetition = async (req, res) => {
 //Changement autre que les répetitions
 const envoyerNotificationChangementAutre = async (req, res) => {
   const { changement, message } = req.body;
-  console.log(changement);
-  console.log(message);
 
   const maintenant = new Date();
   let heureActuelle = maintenant.getHours();
