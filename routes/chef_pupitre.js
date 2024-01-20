@@ -14,46 +14,6 @@ const auth=require('../middlewares/auth.js')
 
 /**
  * @swagger
- * /Chef_pupitre/login:
- *   post:
- *     summary: Authenticate a chef pupitre
- *     tags:
- *       - Chef_de_Pupitre
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               login:
- *                 type: string
- *               motDePasse:
- *                 type: string
- *     responses:
- *       '200':
- *         description: Successful authentication
- *         content:
- *           application/json:
- *             example:
- *               token: "your_generated_token_here"
- *       '401':
- *         description: Unauthorized - Login or password incorrect
- *         content:
- *           application/json:
- *             example:
- *               message: "Login ou mot passe incorrecte"
- *       '500':
- *         description: Internal server error
- *         content:
- *           application/json:
- *             example:
- *               error: "Internal Server Error"
- */
-
-router.post("/login", chef_controller.login);
-/**
- * @swagger
  * /Chef_pupitre/:
  *   get:
  *     summary: Get all Chefs de Pupitre

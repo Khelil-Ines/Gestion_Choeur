@@ -212,7 +212,95 @@ router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
 
 
 
-
+/**
+ * @swagger
+ * tags:
+ *   name: Choriste
+ *   description: API de gestion des choristes
+ *
+ * components:
+ *   schemas:
+ *     Choriste:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Confirmation de l'ajout de la présence
+ *
+ *   parameters:
+ *     - name: idRepetition
+ *       in: path
+ *       description: L'identifiant de la répétition
+ *       required: true
+ *       schema:
+ *         type: string
+ *     - name: link
+ *       in: path
+ *       description: Le lien de la répétition
+ *       required: true
+ *       schema:
+ *         type: string
+ *
+ *   responses:
+ *     BadRequestResponse:
+ *       description: Requête incorrecte
+ *       content:
+ *         application/json:
+ *           example:
+ *             erreur: "Erreur interne du serveur"
+ *     NotFoundResponse:
+ *       description: Entité non trouvée
+ *       content:
+ *         application/json:
+ *           example:
+ *             erreur: "Répétition non trouvée"
+ *     UnauthorizedResponse:
+ *       description: Accès non autorisé
+ *       content:
+ *         application/json:
+ *           example:
+ *             erreur: "Token invalide"
+ *     ConflictResponse:
+ *       description: Conflit
+ *       content:
+ *         application/json:
+ *           example:
+ *             erreur: "Le choriste est déjà présent à cette répétition"
+ *
+ * /choriste/presenceRep/{idRepetition}/{link}:
+ *   post:
+ *     summary: Ajouter la présence d'un choriste à une répétition
+ *     tags:
+ *       - Choriste
+ *     parameters:
+ *       - name: idRepetition
+ *         in: path
+ *         description: L'identifiant de la répétition
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: link
+ *         in: path
+ *         description: Le lien de la répétition
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Présence ajoutée avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PresenceResponse'
+ *       '400':
+ *         $ref: '#/components/responses/BadRequestResponse'
+ *       '404':
+ *         $ref: '#/components/responses/NotFoundResponse'
+ *       '401':
+ *         $ref: '#/components/responses/UnauthorizedResponse'
+ *       '409':
+ *         $ref: '#/components/responses/ConflictResponse'
+ */
 router.post("/presenceRep/:idRepetition/:link",auth.loggedMiddleware,auth.isChoriste,choristeController.presence)
 
 
