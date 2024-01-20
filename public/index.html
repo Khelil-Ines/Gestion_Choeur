@@ -1,18 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bienvenue</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projet Gestion d'un Choeur</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            padding: 2em;
+        }
+
+        nav {
+            background-color: #2980b9;
+            padding: 1em;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        section {
+            padding: 40px;
+            text-align: center;
+        }
+
+        footer {
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            padding: 1em;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-  <h1>Bienvenue</h1>
- 
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
 
+    <header>
+        <h1>Notre site est déployé avec Render</h1>
+    </header>
 
-  </script>
+    <nav>
+        <a href="#">Accueil</a>
+        <a href="#">À propos</a>
+        <a href="#">Contact</a>
+    </nav>
+
+    <section>
+        <h2>Equipe de développement :</h2>
+        <p>Ines Khelil , Asma Bouziri , Aya Ghattas , Ghofrane Mannai </p>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Gestion d'un Choeur. Tous droits réservés.</p>
+    </footer>
+
 </body>
 </html>
