@@ -3,6 +3,40 @@ const Choriste = require("../models/choriste");
 const crypto = require('crypto');
 const moment = require("moment");
 const axios = require("axios");
+const cron = require('node-cron');
+
+
+const RepetitionFinie = cron.schedule('01 12 * * *', async () => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const repetitionsToUpdate = await Repetition.find({ date: { $lt: today } });
+
+    if (!repetitionsToUpdate || repetitionsToUpdate.length === 0) {
+      console.error('No repetitions found.');
+      return res.status(404).json({ error: 'Aucune répétition trouvée.' });
+    }
+
+    // Assuming 'etat' is a field in your Repetition model
+    for (const repetition of repetitionsToUpdate) {
+      console.log(`Updating repetition ${repetition._id}...`);
+      repetition.etat = 'Done';
+      await repetition.save();
+    }
+
+    console.log('Repetitions updated successfully.');
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des répétitions :", error);
+    return res.status(500).json({ error: "Erreur lors de la mise à jour des répétitions" });
+  }
+});
+
+RepetitionFinie.start();
+
+
+
+
 
 const fetchRepetition = (req, res) => {
   Repetition.findOne({ _id: req.params.id })

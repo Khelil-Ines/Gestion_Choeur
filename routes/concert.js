@@ -14,8 +14,17 @@ router.post("/add", concertController.addConcert);
 router.get("/", concertController.fetchConcert);
 router.patch("/:id", concertController.updateConcert);
 router.delete("/:id", concertController.deleteConcert);
+
+// router.get("/statisticConcert/:id", concertController.getStatisticConcert);
+// router.get("/statisticChoriste/:id", concertController.getStatisticChoriste);
+// router.get("/statisticOeuvre/:id", concertController.getStatisticsByOeuvre);
+router.get("/statistic", concertController.getStatistics);
+
+
+
 router.post("/placement",auth.loggedMiddleware, auth.isAdmin, concertController.attribuerPlacesAuxChoristesPresentAuConcert);
 router.get("/placement/:id",auth.loggedMiddleware, auth.isAdmin, concertController.afficherPlacements);
+
 //router.patch("/placement/modifier/:id", concertController.modifierPlace);
 
   module.exports = router;
@@ -88,8 +97,6 @@ router.get("/placement/:id",auth.loggedMiddleware, auth.isAdmin, concertControll
  *               $ref: '#/components/schemas/Concert'
  *       '400':
  *         $ref: '#/components/responses/BadRequestResponse'
- *       '400':
- *         $ref: '#/components/responses/InvalidDateResponse'
  *       '500':
  *         $ref: '#/components/responses/InternalServerErrorResponse'
  */

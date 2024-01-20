@@ -9,18 +9,18 @@ const identifierListeFinal = async (req, res) => {
   try {
     const concertId = req.params.id;
     const concertTrouve = await Concert.findById(concertId);
-    console.log(concertTrouve);
 
     if (!concertTrouve) {
-      throw new Error("Concert non trouvé");
+      return res.status(404).json({ message: "Concert non trouvé" });
     }
+
     const seuilPresence = concertTrouve.seuil_présence;
-    const personnesDispo = concertTrouve.liste_Abs;
+    const personnesDispo = concertTrouve.liste_dispo;
 
     let dispoSeuilInferieur = [];
     for (let choristeId of personnesDispo) {
       let choriste = await Choriste.findById(choristeId);
-      if (choriste.nbr_absences < seuilPresence) {
+      if (choriste && choriste.nbr_absences < seuilPresence) {
         dispoSeuilInferieur.push(choriste);
       }
     }
@@ -29,22 +29,29 @@ const identifierListeFinal = async (req, res) => {
       return a.nbr_absences - b.nbr_absences;
     });
 
-    for (let choristeId of dispoSeuilInferieur) {
-      if (concertTrouve.liste_final.indexOf(choristeId._id.toString()) === -1) {
-        concertTrouve.liste_final.push(choristeId._id.toString());
-        let index = concertTrouve.liste_Abs.indexOf(choristeId._id.toString());
-        concertTrouve.liste_Abs.splice(index, 1);
+    for (let choriste of dispoSeuilInferieur) {
+      const choristeIdString = choriste._id.toString();
+      if (concertTrouve.liste_Abs.indexOf(choristeIdString) === -1) {
+        concertTrouve.liste_Abs.push(choristeIdString);
+        const index = concertTrouve.liste_dispo.indexOf(choristeIdString);
+        if (index !== -1) {
+          concertTrouve.liste_dispo.splice(index, 1);
+        }
       }
     }
+
     await concertTrouve.save();
 
     res.status(200).json({
-      message: "Liste des choristes disponibles",
-      ListeChoristes: dispoSeuilInferieur,
+      message: "Liste des choristes disponibles mise à jour",
+      ListeChoristes: concertTrouve.liste_Abs,
     });
   } catch (error) {
     console.error(error);
-    throw new Error("Erreur lors de l'identification des absents");
+    res.status(500).json({
+      error: "Erreur lors de l'identification des absents",
+      message: error.message,
+    });
   }
 };
 
@@ -59,7 +66,7 @@ const getPresentParPupitre = async (req, res) => {
     } else {
       const personnesPresentes = [];
 
-      for (const idChoriste of concertCorrespondant.liste_final) {
+      for (const idChoriste of concertCorrespondant.liste_Abs) {
         const pers = await Choriste.findById(idChoriste);
         if (pers && pers.pupitre === pupitre) {
           personnesPresentes.push(pers);
