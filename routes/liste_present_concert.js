@@ -21,7 +21,7 @@ const auth = require("../middlewares/auth");
  *         name: id
  *         schema:
  *           type: string
- *         required: true
+ *           required: true
  *         description: L'ID du concert
  *     responses:
  *       200:
