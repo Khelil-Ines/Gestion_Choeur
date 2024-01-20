@@ -10,7 +10,7 @@ const CandidatController = require("../controllers/candidat");
  *  description:  API de gestion des candidats
  */
 
-router.get("/",CandidatController.getCandidat)
+router.get("/get",CandidatController.getCandidat)
 
 router.get("/:id",CandidatController.fetchCandidat)
 

@@ -49,7 +49,7 @@ module.exports.loggedMiddleware = (req, res, next) => {
        } else {
           req.auth = {
              compteId: compteId,
-             role: compte.role,
+             //role: compte.role,
           };
           next();
        }

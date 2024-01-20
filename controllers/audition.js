@@ -8,7 +8,7 @@ const nodemailer = require('nodemailer');
 const ejs = require("ejs");
 const path = require("path");
 const bcrypt = require('bcrypt');
-
+const Audition = require('../models/audition')
 
 //generer planning pour tout les candidats
 const genererPlanning = async (req, res, next) => {
@@ -645,6 +645,7 @@ const creerChoriste = async (candidat) => {
     if (!audition) {
       throw new Error('Audition non trouvée pour le candidat.');
     }
+    console.log(audition.pupitre)
     const nom= candidat.nom
     const prénom= candidat.prénom
     const pupitre= audition.pupitre

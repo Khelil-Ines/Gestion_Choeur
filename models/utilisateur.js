@@ -12,7 +12,8 @@ const UtilisateurSchema = mongoose.Schema(
         date_naiss: { type: Date},
         sexe : { type: String, enum : ['Homme', 'Femme']},
         saison: { type: Array },
-        compte: { type: mongoose.Schema.Types.ObjectId, ref: 'Compte' }
+        compte: { type: mongoose.Schema.Types.ObjectId, ref: 'Compte' },
+        notifications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Notification' }],
 
     }
 )
