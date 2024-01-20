@@ -179,29 +179,29 @@ const login = (req, res, next) => {
 };
 
 
-SupprimerCompteEliminéAuto = cron.schedule("30 23 * * *", async () => {
-  try {
-    const choristesElimines = await Choriste.find({
-      $or: [{ statut: "Eliminé" }, { statut: "Eliminé_D" }],
-    });
+// SupprimerCompteEliminéAuto = cron.schedule("30 23 * * *", async () => {
+//   try {
+//     const choristesElimines = await Choriste.find({
+//       $or: [{ statut: "Eliminé" }, { statut: "Eliminé_Discipline" }],
+//     });
 
-    // Parcourir les choristes et supprimer leur compte
-    for (const choriste of choristesElimines) {
-      const c = choriste.compte;
-      console.log(choriste.compte);
-      // Delete the compte
-      const deletedCompteResult = await Compte.deleteOne({ _id: c });
-      if (deletedCompteResult.deletedCount === 0) {
-        console.log( "Compte non trouvé!")
-      }
-    }
-     console.log("Comptes choristes éliminés supprimés!")
-  } catch (error) {
-    console.error("Erreur lors de l'élimination du choriste :", error);
-  }
-});
+//     // Parcourir les choristes et supprimer leur compte
+//     for (const choriste of choristesElimines) {
+//       const c = choriste.compte;
+//       console.log(choriste.compte);
+//       // Delete the compte
+//       const deletedCompteResult = await Compte.deleteOne({ _id: c });
+//       if (deletedCompteResult.deletedCount === 0) {
+//         console.log( "Compte non trouvé!")
+//       }
+//     }
+//      console.log("Comptes choristes éliminés supprimés!")
+//   } catch (error) {
+//     console.error("Erreur lors de l'élimination du choriste :", error);
+//   }
+// });
 
-SupprimerCompteEliminéAuto.start();
+// SupprimerCompteEliminéAuto.start();
 
 module.exports = {
   addCompte,

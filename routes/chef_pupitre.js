@@ -13,7 +13,98 @@ router.post("/sauvegarder-presence-repetition/:idRepetition/:idChoriste",auth.lo
 router.post("/sauvegarder-presence-concert/:idConcert/:idChoriste",auth.loggedMiddleware,chef_controller.sauvegarderPresenceConcert)
 
 router.post("/login", chef_controller.login);
+/**
+ * @swagger
+ * /Chef_pupitre/:
+ *   get:
+ *     summary: Get all Chefs de Pupitre
+ *     tags: [Chef_de_Pupitre]
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *         content:
+ *           application/json:
+ *             example:
+ *               chefsPupitre:
+ *                 - _id: "chef_pupitre_id_1"
+ *                   pupitre: "Soprano"
+ *                   statut: "Actif"
+ *                   niveau: "Junior"
+ *                   date_adhesion: "2023-01-01"
+ *                   nbr_concerts: 0
+ *                   nbr_repetitions: 0
+ *                   historiqueStatut: []
+ *                 - _id: "chef_pupitre_id_2"
+ *                   pupitre: "Alto"
+ *                   statut: "Actif"
+ *                   niveau: "Senior"
+ *                   date_adhesion: "2023-02-01"
+ *                   nbr_concerts: 1
+ *                   nbr_repetitions: 1
+ *                   historiqueStatut:
+ *                     - statut: "Actif"
+ *                       date: "2023-02-01T12:00:00Z"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal Server Error
+ *               message: An unexpected error occurred
+ */
+
 router.get("/", chef_controller.get_chefs)
+/**
+ * @swagger
+ * /chef_pupitre/add/{id}:
+ *   post:
+ *     summary: Add a Chef de Pupitre from Choriste ID
+ *     tags: [Chef_de_Pupitre]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         description: ID of the Choriste
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       201:
+ *         description: Chef de Pupitre added successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Chef de Pupitre added!
+ *               chefPupitre:
+ *                 _id: "chef_pupitre_id"
+ *                 pupitre: "Soprano"
+ *                 statut: "Actif"
+ *                 niveau: "Junior"
+ *                 date_adhesion: "2023-01-01"
+ *                 nbr_concerts: 0
+ *                 nbr_repetitions: 0
+ *                 historiqueStatut: []
+ *       400:
+ *         description: Bad request. You may need to verify your information.
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Bad Request
+ *               message: Invalid data provided
+ *       404:
+ *         description: Choriste not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Choriste not found!
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal Server Error
+ *               message: An unexpected error occurred
+ */
+
 router.post("/add/:id", chef_controller.Ajouter_Chef_PupitreByID);
 
 module.exports = router;
@@ -21,10 +112,6 @@ module.exports = router;
 
 /**
  * @swagger
- * tags:
- *   name: Chef_de_Pupitre
- *   description: API de gestion des chef de pupitres
- *
  * /Chef_pupitre/login:
  *   post:
  *     summary: Authenticate a chef pupitre
