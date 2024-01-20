@@ -1,11 +1,18 @@
 const Choriste = require("../models/choriste");
 const Conge = require("../models/conge");
 const cron = require("node-cron");
-const ChefPupitre = require("../models/chef_pupitre");
-const Notification = require("../models/notification");
+const Notification = require("../models/notification")
+const Admin = require("../models/admin");
+
 const addConge = async (req, res) => {
   try {
     const choriste = await Choriste.findOne({ compte: req.auth.compteId });
+    const admin = await Admin.findOne({ _id: "65aba50c9d89164d30009492" }); 
+
+    if (!admin) {
+      return res.status(404).json({ error: "Admin not found." });
+    }
+
     const { date_debut, date_fin } = req.body;
 
     // Créez un nouveau congé
@@ -17,28 +24,24 @@ const addConge = async (req, res) => {
     // Ajoutez l'ID du congé au tableau des congés du choriste
     choriste.conges.push(savedConge._id);
 
-    // Enregistre la mise à jour du choriste dans la base de données
-    await choriste.save();
-
-    // Récupérez la pupitre du choriste
-    const pupitre = choriste.pupitre;
-
-    // Récupérez les chefs de pupitre de cette pupitre
-    const chefsDePupitre = await ChefPupitre.find({ pupitre });
-    chefsDePupitre.forEach(async (element) => {
-      const notification = Notification({
-        message: `Le choriste ${choriste.nom}`,
-        user: element._id,
-      });
-      await notification.save();
+    // Créez une nouvelle notification
+    const notificationMessage = `Le choriste ${choriste.nom} a déclaré un congé de ${date_debut} à ${date_fin}.`;
+    const newNotification = new Notification({
+      message: notificationMessage,
+      user: admin._id,
     });
-    // Notifiez les chefs de pupitre de ce congé
-    // chefsDePupitre.forEach(chef => {
-    //   const chefSocket = choristesSockets[chef._id];
-    //   if (chefSocket) {
-    //     chefSocket.emit('notificationCongeAjoute', { choristeId, conge: savedConge });
-    //   }
-    // });
+
+    // Enregistrez la notification dans la base de données
+    const savedNotification = await newNotification.save();
+    //console.log(savedNotification);
+
+
+    // Ajoutez l'ID de la nouvelle notification à la liste des notifications de l'admin
+    admin.notifications.push(savedNotification._id);
+
+    // Enregistrez les modifications apportées à l'admin dans la base de données
+    await admin.save();
+
 
     res.status(201).json({ choriste, conge: savedConge });
   } catch (error) {
@@ -46,6 +49,7 @@ const addConge = async (req, res) => {
     res.status(500).json({ error: "Échec de la création du congé." });
   }
 };
+
 
 const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
   try {
@@ -77,6 +81,10 @@ const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
               });
             
               choriste.save();
+              
+        notificationstatut = `Vous ${choriste.nom} avez  déclaré un congé de ${conge.date_debut} à ${conge.date_fin}.`;
+        console.log(notificationstatut);
+              
               const message = `Choriste ${choriste.nom} a commencé son congé aujourd'hui.`;
           console.log(message);
 
@@ -92,7 +100,6 @@ const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
             }
             
           }
-          
 
         }
       }
@@ -104,6 +111,7 @@ const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
 });
 debutCongeStatut.start();
 
+
 const finCongeStatut = cron.schedule("* * * * * ", async () => {
   try {
     // Récupérer tous les choristes à partir de la base de données
@@ -112,6 +120,7 @@ const finCongeStatut = cron.schedule("* * * * * ", async () => {
     // Mettre à jour le statut pour chaque choriste
     for (const choriste of choristes) {
       if (choriste.statut === "En_Congé") {
+
         const lastConge = choriste.conges[choriste.conges.length - 1];
         if (lastConge) {
           const lastCongeId = lastConge._id;
@@ -131,6 +140,9 @@ const finCongeStatut = cron.schedule("* * * * * ", async () => {
               date: conge.date_fin,
             });
             choriste.save();
+          notificationstatut = `Vous ${choriste.nom} votre congé est fini bienvenue.`;
+          console.log(notificationstatut);
+            
             const message = `Choriste ${choriste.nom} a terminé son congé aujourd'hui.`;
           console.log(message);
 
@@ -142,9 +154,6 @@ const finCongeStatut = cron.schedule("* * * * * ", async () => {
             });
           }
           }
-
-          
-
         }
       }
     }
@@ -154,6 +163,7 @@ const finCongeStatut = cron.schedule("* * * * * ", async () => {
   }
 });
 finCongeStatut.start();
+
 
 module.exports = {
   addConge,

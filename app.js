@@ -23,6 +23,7 @@ const liste_presence_concert = require("./routes/liste_present_concert.js");
 const notifrepetition = require("./routes/notifrepetition.js");
 const ConcertRouter = require("./routes/concert");
 const mailRouter = require("./routes/validermail.js");
+const adminRouter = require("./routes/admin");
 
 const options = {
   definition: {
@@ -95,7 +96,7 @@ app.use(
   swaggerUi.setup(specs, { explorer: true })
 );
 app.use(express.json());
-mongoose
+ mongoose
   .connect(
     "mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority",
     {
@@ -179,6 +180,7 @@ app.use("/api/concert", ConcertRouter);
 app.use("/api/saison", SaisonRouter);
 app.use("/api/presenceConcert", liste_presence_concert);
 app.use("/api/validermail", mailRouter);
+app.use("/api/admin", adminRouter);
 app.use("/api/programme", ProgrammeRouter);
 
 module.exports = app;

@@ -9,6 +9,7 @@ const planningController = require('../controllers/audition');
  *  description:  API de gestion des auditions et du planning
  */
 
+
 router.delete("/delete/:id", planningController.deleteAudition);
 router.patch("/update/:id", planningController.updateAudition);
 router.get("/", planningController.getAudition);
@@ -68,6 +69,7 @@ router.get("/fetch/:id", planningController.fetchAudition);
 
 
 router.post('/generate/:startDate/:sessionStartTime/:sessionEndTime/:candidatesPerHour', planningController.genererPlanning);
+
 
 /**
  * @swagger

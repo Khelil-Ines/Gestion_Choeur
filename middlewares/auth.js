@@ -47,8 +47,9 @@ module.exports.loggedMiddleware = (req, res, next) => {
             .json({ message: "login ou mot de passe incorrecte " });
         } else {
           req.auth = {
-            compteId: compteId,
-            role: compte.role,
+
+             compteId: compteId,
+             //role: compte.role,
           };
           next();
         }

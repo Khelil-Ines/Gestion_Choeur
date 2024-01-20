@@ -8,7 +8,7 @@ const nodemailer = require('nodemailer');
 const ejs = require("ejs");
 const path = require("path");
 const bcrypt = require('bcrypt');
-
+const Audition = require('../models/audition')
 
 //Ines CRUD Audition 
 
@@ -834,18 +834,21 @@ const creerChoriste = async (candidat) => {
     if (!audition) {
       throw new Error("Audition non trouvée pour le candidat.");
     }
-    const nom = candidat.nom;
-    const prénom = candidat.prénom;
-    const pupitre = audition.pupitre;
-    const email = candidat.email;
-    const taille = candidat.taille;
-    const num_tel = candidat.num_tel;
-    const CIN = candidat.CIN;
-    const adresse = candidat.adresse;
-    const date_naiss = candidat.date_naiss;
-    const sexe = candidat.sexe;
-    const Taille = candidat.Taille;
-    await Candidat.findByIdAndDelete({ _id: candidat._id });
+
+    console.log(audition.pupitre)
+    const nom= candidat.nom
+    const prénom= candidat.prénom
+    const pupitre= audition.pupitre
+    const email= candidat.email
+    const taille= candidat.taille
+    const num_tel= candidat.num_tel
+    const CIN= candidat.CIN
+    const adresse= candidat.adresse
+    const date_naiss= candidat.date_naiss
+    const sexe= candidat.sexe
+    const Taille= candidat.Taille
+    await Candidat.findByIdAndDelete ({ _id: candidat._id})
+
     // Créer le Choriste avec les attributs du candidat
     const nouveauChoriste = new Choriste({
       nom: nom,

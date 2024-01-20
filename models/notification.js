@@ -4,9 +4,8 @@ const NotificationSchema = mongoose.Schema({
   message:{type :String , required:true},
   user: {
     type: mongoose.Types.ObjectId,
-    ref: 'Utilisateur',
+    ref: 'Admin',
   },
-  isRead:{type:Boolean, default:false}
 },
 {
   timestamps:true
