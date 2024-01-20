@@ -269,8 +269,7 @@ router.post("/repetition/:idRepetition/:idChoriste",auth.loggedMiddleware,auth.i
  */
 router.post("/concert/:idConcert/:idChoriste",auth.loggedMiddleware,auth.isChefPupitre,chef_controller.sauvegarderPresenceConcert)
 
-router.get("/", chef_controller.get_chefs)
-router.post("/add/:id", chef_controller.Ajouter_Chef_PupitreByID);
+
 
 module.exports = router;
 
