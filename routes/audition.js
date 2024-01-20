@@ -9,10 +9,271 @@ const planningController = require('../controllers/audition');
  *  description:  API de gestion des auditions et du planning
  */
 
+/**
+ * @swagger
+ * /audition/delete/{id}:
+ *   delete:
+ *     summary: Delete an audition by ID
+ *     tags: [Audition]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the audition to delete
+ *     responses:
+ *       200:
+ *         description: Audition deleted successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Audition deleted!
+ *       404:
+ *         description: Audition not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Audition not found
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal Server Error
+ *               message: An unexpected error occurred
+ */
+
 router.delete("/delete/:id", planningController.deleteAudition);
+
+/**
+ * @swagger
+ * /audition/update/{id}:
+ *   patch:
+ *     summary: Update an audition by ID
+ *     tags: [Audition]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the audition to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AuditionUpdate'
+ *     responses:
+ *       200:
+ *         description: Audition updated successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Audition updated!
+ *       400:
+ *         description: Bad request. You may need to verify your information.
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Bad Request
+ *               message: Invalid data provided
+ *       404:
+ *         description: Audition not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Audition not found
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal Server Error
+ *               message: An unexpected error occurred
+ *
+ * components:
+ *   schemas:
+ *     AuditionUpdate:
+ *       type: object
+ *       properties:
+ *         résultat:
+ *           type: string
+ *           enum: [En Attente, Accepté, Refusé]
+ *        
+ */
+
 router.patch("/update/:id", planningController.updateAudition);
+/**
+ * @swagger
+ * /audition/:
+ *   get:
+ *     summary: Get a list of auditions
+ *     tags: [Audition]
+ *     responses:
+ *       200:
+ *         description: Successful response with a list of auditions
+ *         content:
+ *           application/json:
+ *             example:
+ *               auditions:
+ *                 - _id: "audition_id_1"
+ *                   résultat: "En Attente"
+ *                   pupitre: "Basse"
+ *                   Extrait_chanté: "Some excerpt"
+ *                   appréciation: "A+"
+ *                   remarque: "Some remark"
+ *                   présence: true
+ *                   candidat: "candidat_id_1"
+ *                   dateAudition: "2023-01-01T00:00:00Z"
+ *                   HeureDeb: "12:00 PM"
+ *                   HeureFin: "1:00 PM"
+ *                 - _id: "audition_id_2"
+ *                   résultat: "Accepté"
+ *                   pupitre: "Alto"
+ *                   Extrait_chanté: "Another excerpt"
+ *                   appréciation: "A"
+ *                   remarque: ""
+ *                   présence: false
+ *                   candidat: "candidat_id_2"
+ *                   dateAudition: "2023-01-02T00:00:00Z"
+ *                   HeureDeb: "1:00 PM"
+ *                   HeureFin: "2:00 PM"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal Server Error
+ *               message: An unexpected error occurred
+ */
+
 router.get("/", planningController.getAudition);
+/**
+ * @swagger
+ * /audition/fetch/{id}:
+ *   get:
+ *     summary: Get an audition by ID
+ *     tags: [Audition]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the audition to fetch
+ *     responses:
+ *       200:
+ *         description: Successful response with the audition details
+ *         content:
+ *           application/json:
+ *             example:
+ *               _id: "audition_id"
+ *               résultat: "En Attente"
+ *               pupitre: "Basse"
+ *               Extrait_chanté: "Some excerpt"
+ *               appréciation: "A+"
+ *               remarque: "Some remark"
+ *               présence: true
+ *               candidat: "candidat_id"
+ *               dateAudition: "2023-01-01T00:00:00Z"
+ *               HeureDeb: "12:00 PM"
+ *               HeureFin: "1:00 PM"
+ *       404:
+ *         description: Audition not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Audition not found
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal Server Error
+ *               message: An unexpected error occurred
+ */
+
 router.get("/fetch/:id", planningController.fetchAudition);
+/**
+ * @swagger
+ * /audition/add:
+ *   post:
+ *     summary: Add a new audition
+ *     tags: [Audition]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Audition'
+ *     responses:
+ *       201:
+ *         description: Audition added successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Audition added!
+ *               audition:
+ *                 _id: "audition_id"
+ *                 résultat: "En Attente"
+ *                 pupitre: "Basse"
+ *                 Extrait_chanté: "Some excerpt"
+ *                 appréciation: "A+"
+ *                 remarque: "Some remark"
+ *                 présence: true
+ *                 candidat: "candidat_id"
+ *                 dateAudition: "2023-01-01T00:00:00Z"
+ *                 HeureDeb: "12:00 PM"
+ *                 HeureFin: "1:00 PM"
+ *       400:
+ *         description: Bad request. You may need to verify your information.
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Bad Request
+ *               message: Invalid data provided
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal Server Error
+ *               message: An unexpected error occurred
+ *
+ * components:
+ *   schemas:
+ *     Audition:
+ *       type: object
+ *       properties:
+ *         résultat:
+ *           type: string
+ *           enum: [En Attente, Accepté, Refusé]
+ *         pupitre:
+ *           type: string
+ *           enum: [Basse, Alto, Tenor, Soprano]
+ *         Extrait_chanté:
+ *           type: string
+ *         appréciation:
+ *           type: string
+ *           enum: [A+, A, A-, B+, B, B-, C+, C, C-]
+ *         remarque:
+ *           type: string
+ *         présence:
+ *           type: boolean
+ *         candidat:
+ *           type: string
+ *           description: The ID of the associated candidat
+ *         dateAudition:
+ *           type: string
+ *           format: date-time
+ *         HeureDeb:
+ *           type: string
+ *         HeureFin:
+ *           type: string
+ */
+
  router.post("/add", planningController.addAudition);
 
 router.post('/generate/:startDate/:sessionStartTime/:sessionEndTime/:candidatesPerHour', planningController.genererPlanning);

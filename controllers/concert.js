@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const _ = require('lodash');
 const Choriste = require('../models/choriste');
 const mongoose = require('mongoose');
+const Programme = require('../models/programme');
 
 function generateRandomURL() {
   // Define the characters that can be used in the random URL
@@ -23,16 +24,10 @@ function generateRandomURL() {
   // Return the generated random URL
   return randomURL;
 }
-const addConcert = (req, res) => {
+const addConcert = async (req, res) => {
   // Get and validate concert date
   const concertDateString = req.body.date;
   const randomLink = generateRandomURL();
-  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateRegex.test(concertDateString)) {
-    return res
-      .status(400)
-      .send("Invalid concert date format. Please use YYYY-MM-DD format.");
-  }
 
   const concertDate = new Date(concertDateString);
 
@@ -43,26 +38,18 @@ const addConcert = (req, res) => {
       .status(400)
       .send("Invalid concert date. Please choose a date greater than or equal to the current date.");
   }
+  const programme = await Programme.findOne({ _id: req.body.programme });
+  if (!programme) {
+    return res.status(400).send("Invalid programme ID. Please choose a valid programme ID.");
+  }else{
 
-  const moment = require("moment");
-
-  const dateString = req.body.date;
-  const dateObject = moment(dateString, "YYYY-MM-DD", true).toDate();
-  if (moment(dateObject).isValid()) {
-    // The date is valid
-    console.log('Parsed Date:', dateObject);
-  } else {
-    // The date is invalid
-    console.error('Invalid Date Format');
-  }
-
-  Concert.create({ ...req.body, date: dateObject, link: randomLink })
-    .then((concert) =>
-      res.status(201).json({
-        model: concert,
-        message: "Concert créé!",
-      })
-    )
+  Concert.create({ ...req.body, link: randomLink })
+  .then((concert) =>
+    res.status(201).json({
+      model: concert,
+      message: "Concert créé!",
+    })
+  )
     .catch((error) => {
       if (error.errors) {
         const errors = Object.values(error.errors).map(e => e.message);
@@ -71,6 +58,7 @@ const addConcert = (req, res) => {
         return res.status(500).json({ error: "Internal server error" });
       }
     });
+}
 };
 
 
