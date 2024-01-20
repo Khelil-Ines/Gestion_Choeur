@@ -8,13 +8,13 @@ const repetitionSchema = mongoose.Schema({
   lieu:{type :String, required:true},
   liste_Presents: { type: Array, default: [], required: false },
   liste_Abs: { type: Array, default: [], required: false },
-
+  etat: { type: String, default: "not done" },
   prcSoprano: { type: Number, required: false },
   prcAlto: { type: Number, required: false },
   prcTenor: { type: Number, required: false },
   prcBasse: { type: Number, required: false },
   link: { type: String, required: true },
-
+  programme : [{ type: mongoose.Schema.Types.ObjectId, ref: 'programme'  }],
   listeSoprano: { type: Array, default: [], required: false },
   listeAlto: { type: Array, default: [], required: false },
   listeTenor: { type: Array, default: [], required: false },

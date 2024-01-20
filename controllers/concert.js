@@ -6,6 +6,41 @@ const mongoose = require("mongoose");
 const Programme = require("../models/programme.js");
 const Oeuvre = require("../models/oeuvre.js");
 const Repetition = require("../models/repetition.js");
+
+
+
+const cron = require('node-cron');
+
+
+const ConcertFinie = cron.schedule('10 13 * * *', async () => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const concertToUpdate = await Concert.find({ date: { $lt: today } });
+
+    if (!concertToUpdate || concertToUpdate.length === 0) {
+      console.error('No concerts found.');
+      return res.status(404).json({ error: 'Aucune concert trouvée.' });
+    }
+
+    // Assuming 'etat' is a field in your Repetition model
+    for (const concert of concertToUpdate) {
+      console.log(`Updating concert ${concert._id}...`);
+      concert.etat = 'Done';
+      await concert.save();
+    }
+
+    console.log('concerts updated successfully.');
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des concert :", error);
+    return res.status(500).json({ error: "Erreur lors de la mise à jour des concert" });
+  }
+});
+
+ConcertFinie.start();
+
+
 const addConcert = (req, res) => {
   // Get and validate concert date
   const concertDateString = req.body.date;
@@ -317,9 +352,9 @@ const getStatisticChoriste = async (id) => {
     if (!choriste) {
       return { error: "Choriste non trouvé" };
     }
-    
-    console.log(choriste)
-    const concertsDetails = await Concert.find();
+
+    console.log(choriste);
+    const concertsDetails = await Concert.find({ etat: "Done" });
     // Récupérer les détails des concerts où le choriste est absent
     const concertsAbsents = concertsDetails
       .map((concert) => {
@@ -356,7 +391,7 @@ const getStatisticChoriste = async (id) => {
       `Nombre de participations aux concerts: ${nbreParticipationsConcerts}`
     );
 
-    const repetitionsDetails = await Repetition.find();
+    const repetitionsDetails = await Repetition.find({ etat: "Done" });;
 
     // Mapper et filtrer les répétitions où le choriste est présent
     const repetitionsPresent = repetitionsDetails
@@ -387,79 +422,85 @@ const getStatisticChoriste = async (id) => {
     // Créez un tableau pour stocker les œuvres chantées
     const toutesLesOeuvresChantees = [];
 
-// Parcourez tous les concerts présents
-for (const concert of concertsPresents) {
-  // Vérifiez si le choriste est présent dans ce concert
-  const choristePresent = concert.liste_Presents.includes(choriste._id);
-
-  // Si le choriste est présent, ajoutez les œuvres du programme
-  if (choristePresent) {
-    // Obtenez les détails des programmes pour ce concert
-    const programmes = await Programme.find({ _id: { $in: concert.programme } });
-
-    // Ajoutez les œuvres de chaque programme à toutesLesOeuvresChantees
-    programmes.forEach(programme => {
-      programme.oeuvre.forEach(oeuvre => {
-        toutesLesOeuvresChantees.push(oeuvre);
-      });
-    });
-  }
-}
-
-
     // Parcourez tous les concerts présents
     for (const concert of concertsPresents) {
+      // Vérifiez si le choriste est présent dans ce concert
       const choristePresent = concert.liste_Presents.includes(choriste._id);
 
+      // Si le choriste est présent, ajoutez les œuvres du programme
       if (choristePresent) {
-        const programmes = await Programme.find({ _id: { $in: concert.programme } });
+        // Obtenez les détails des programmes pour ce concert
+        const programmes = await Programme.find({
+          _id: { $in: concert.programme },
+        });
 
-        programmes.forEach(programme => {
-          programme.oeuvre.forEach(oeuvre => {
+        // Ajoutez les œuvres de chaque programme à toutesLesOeuvresChantees
+        programmes.forEach((programme) => {
+          programme.oeuvre.forEach((oeuvre) => {
             toutesLesOeuvresChantees.push(oeuvre);
           });
         });
       }
     }
 
+    // Parcourez tous les concerts présents
+    for (const concert of concertsPresents) {
+      const choristePresent = concert.liste_Presents.includes(choriste._id);
 
-// Utilisez un objet pour stocker le nombre de fois que chaque œuvre a été chantée
-const oeuvresChanteesCount = {};
+      if (choristePresent) {
+        const programmes = await Programme.find({
+          _id: { $in: concert.programme },
+        });
 
-// Parcourez tous les concerts présents
-for (const concert of concertsPresents) {
-  const choristePresent = concert.liste_Presents.includes(choriste._id);
+        programmes.forEach((programme) => {
+          programme.oeuvre.forEach((oeuvre) => {
+            toutesLesOeuvresChantees.push(oeuvre);
+          });
+        });
+      }
+    }
 
-  if (choristePresent) {
-    const programmes = await Programme.find({ _id: { $in: concert.programme } });
+    // Utilisez un objet pour stocker le nombre de fois que chaque œuvre a été chantée
+    const oeuvresChanteesCount = {};
 
-    programmes.forEach(programme => {
-      programme.oeuvre.forEach(oeuvre => {
-        // Incrémente le compteur pour cette œuvre
-        oeuvresChanteesCount[oeuvre] = (oeuvresChanteesCount[oeuvre] || 0) + 1;
-      });
-    });
-  }
-}
+    // Parcourez tous les concerts présents
+    for (const concert of concertsPresents) {
+      const choristePresent = concert.liste_Presents.includes(choriste._id);
 
-// Filtrer les œuvres maîtrisées (chantées plus d'une fois)
-const oeuvresMaitrisees = Object.keys(oeuvresChanteesCount).filter(oeuvre => oeuvresChanteesCount[oeuvre] > 1);
+      if (choristePresent) {
+        const programmes = await Programme.find({
+          _id: { $in: concert.programme },
+        });
 
-// Créez un tableau pour stocker les détails des œuvres maîtrisées
-const detailsOeuvresMaitrisees = [];
+        programmes.forEach((programme) => {
+          programme.oeuvre.forEach((oeuvre) => {
+            // Incrémente le compteur pour cette œuvre
+            oeuvresChanteesCount[oeuvre] =
+              (oeuvresChanteesCount[oeuvre] || 0) + 1;
+          });
+        });
+      }
+    }
 
-// Parcourez les œuvres maîtrisées pour récupérer les détails
-for (const oeuvre of oeuvresMaitrisees) {
-  console.log(oeuvre)
-  const details = await Oeuvre.findOne({ _id: oeuvre });
+    // Filtrer les œuvres maîtrisées (chantées plus d'une fois)
+    const oeuvresMaitrisees = Object.keys(oeuvresChanteesCount).filter(
+      (oeuvre) => oeuvresChanteesCount[oeuvre] > 1
+    );
 
-  // Vérifiez si l'œuvre a été trouvée avant de l'ajouter au tableau
-  if (details) {
-    detailsOeuvresMaitrisees.push(details);
-  }
-}
+    // Créez un tableau pour stocker les détails des œuvres maîtrisées
+    const detailsOeuvresMaitrisees = [];
 
-  
+    // Parcourez les œuvres maîtrisées pour récupérer les détails
+    for (const oeuvre of oeuvresMaitrisees) {
+      console.log(oeuvre);
+      const details = await Oeuvre.findOne({ _id: oeuvre });
+
+      // Vérifiez si l'œuvre a été trouvée avant de l'ajouter au tableau
+      if (details) {
+        detailsOeuvresMaitrisees.push(details);
+      }
+    }
+
     const statistics = {
       nbreAbsencesRepetitions,
       nbreParticipationsRepetitions,
@@ -488,35 +529,44 @@ const getStatisticsByOeuvre = async (id, res) => {
       return res.status(404).json({ error: "Œuvre non trouvée" });
     }
 
-    const allConcerts = await Concert.find();
+    const allConcerts = await Concert.find({ etat: "Done" });
 
     // Initialize an array to store concerts with the specified oeuvre
     const concertsWithOeuvre = [];
-    
+
     // Iterate through each concert
     for (const concert of allConcerts) {
       // Check if the concert has a 'programme' property
       if (concert.programme && Array.isArray(concert.programme)) {
-        // Iterate through each program in the concert
         for (const program of concert.programme) {
-          const programmeoeuvre = await Programme.findById(program);
-          console.log('Program:', programmeoeuvre.oeuvre); // Log the entire program object for debugging
-    
-          // Check if the program has an 'oeuvre' property
-          if (programmeoeuvre && programmeoeuvre.oeuvre && Array.isArray(programmeoeuvre.oeuvre)) {
-            // Check if the oeuvreId is present in the program's oeuvre array
-            if (programmeoeuvre.oeuvre.some(oeuvreId => oeuvreId.equals(id))) {
-              // If found, add the concert to the result array
-              concertsWithOeuvre.push(concert);
+          try {
+            const programmeoeuvre = await Programme.findById(program);
+
+            // Check if the program is found and has the 'oeuvre' property
+            if (
+              programmeoeuvre &&
+              programmeoeuvre.oeuvre &&
+              Array.isArray(programmeoeuvre.oeuvre)
+            ) {
+              // Check if the oeuvreId is present in the program's oeuvre array
+              if (
+                programmeoeuvre.oeuvre.some(
+                  (oeuvreId) => oeuvreId && oeuvreId.equals(id)
+                )
+              ) {
+                // If found, add the concert to the result array
+                concertsWithOeuvre.push(concert);
+              }
             }
+          } catch (error) {
+            console.error(
+              `Error processing program ${program}: ${error.message}`
+            );
+            // Handle the error, maybe log it or skip this program
           }
         }
       }
     }
-    
-    console.log(concertsWithOeuvre);
-    
-    
 
     // Initialisez les listes d'absences et de présences
     const absences = [];
@@ -575,13 +625,121 @@ const getStatisticsByOeuvre = async (id, res) => {
       JSON.parse(presence)
     );
 
+    const allRepetitions = await Repetition.find({ etat: "Done" });
+
+    // Initialize an array to store repetitions with the specified oeuvre
+    const RepetitionWithOeuvre = [];
+
+    // Iterate through each repetition
+    for (const repetition of allRepetitions) {
+      // Check if the repetition has a 'programme' property
+      if (repetition.programme && Array.isArray(repetition.programme)) {
+        console.log(repetition.programme)
+        for (const program of repetition.programme) {
+          try {
+            const programmeoeuvre = await Programme.findById(program);
+
+            // Check if the program is found and has the 'oeuvre' property
+            if (
+              programmeoeuvre &&
+              programmeoeuvre.oeuvre &&
+              Array.isArray(programmeoeuvre.oeuvre)
+            ) {
+              // Check if the oeuvreId is present in the program's oeuvre array
+              if (
+                programmeoeuvre.oeuvre.some(
+                  (oeuvreId) => oeuvreId && oeuvreId.equals(id)
+                )
+              ) {
+                // If found, add the repetition to the result array
+                RepetitionWithOeuvre.push(repetition);
+              }
+            }
+          } catch (error) {
+            console.error(
+              `Error processing program ${program}: ${error.message}`
+            );
+            // Handle the error, maybe log it or skip this program
+          }
+        }
+      }
+    }
+
+    console.log(RepetitionWithOeuvre);
+
+    // Initialisez les listes d'absences et de présences
+    const Repetitionabsences = [];
+    const repetitionPresence = new Set();
+    const presence = new Set();
+    const RepetitionAvecOeuvre = [];
+
+    // Parcourez les concerts pour récupérer la liste d'absence et de présence
+    for (const concert of RepetitionWithOeuvre) {
+      const programDetails = await Programme.findById(idOeuvre);
+
+      if (programDetails) {
+        concertsAvecOeuvre.push({
+          concertId: concert._id,
+          date: concert.date,
+          lieu: concert.lieu,
+          programme: programDetails,
+        });
+      }
+
+      for (const participantId of concert.liste_Presents) {
+        const choriste = await Choriste.findById(participantId);
+        if (choriste) {
+          const presenceDetails = {
+            choristeId: choriste._id,
+            nom: choriste.nom,
+            concertId: concert._id,
+            date: concert.date,
+            // Ajoutez d'autres détails du choriste si nécessaire
+          };
+
+          // Ajoutez le choriste à l'ensemble des présences
+          presence.add(JSON.stringify(presenceDetails));
+          repetitionPresence.add(participantId);
+        }
+      }
+
+      for (const participant of concert.liste_Abs) {
+        const choriste = await Choriste.findById(participant);
+        if (choriste) {
+          const absenceDetails = {
+            choristeId: choriste._id,
+            nom: choriste.nom,
+            concertId: concert._id,
+            date: concert.date,
+            // Ajoutez d'autres détails du choriste si nécessaire
+          };
+
+          Repetitionabsences.push(absenceDetails);
+        }
+      }
+    }
+
+// // Convert the set of presences to an array
+const presencesRepetitionArray = Array.from(presence).map(
+  (presences) => JSON.parse(presences));
+
     const statistics = {
       totalConcertParticipants: concertsWithOeuvre.length,
       participantsConcertPresent: presens.size,
       participantsConcertAbsent: absences.length,
+
+      totalRepetitionParticipants: RepetitionWithOeuvre.length,
+      participantsRepetitionPresent: repetitionPresence.size,
+      participantsRepetitionAbsent: Repetitionabsences.length,
+
       concertsWithOeuvre,
       absences,
-      presences: presencesArray,
+      
+
+     
+      RepetitionWithOeuvre,
+      Repetitionabsences,
+      
     };
 
     res.json(statistics);
@@ -590,7 +748,6 @@ const getStatisticsByOeuvre = async (id, res) => {
     res.status(500).json({ error: "Erreur interne du serveur" });
   }
 };
-
 
 const getStatistics = async (req, res) => {
   try {
@@ -606,13 +763,13 @@ const getStatistics = async (req, res) => {
 
     switch (type) {
       case "concert":
-        statistics = await getStatisticConcert(id);
+        statistics = await getStatisticConcert(id,res);
         break;
       case "choriste":
         statistics = await getStatisticChoriste(id);
         break;
       case "oeuvre":
-        statistics = await getStatisticsByOeuvre(id,res);
+        statistics = await getStatisticsByOeuvre(id, res);
         break;
       default:
         return res
@@ -627,11 +784,16 @@ const getStatistics = async (req, res) => {
   }
 };
 
-const getStatisticConcert = async (id) => {
+const getStatisticConcert = async (id , res) => {
   try {
     const concert = await Concert.findById(id).populate(
       "liste_Presents liste_Abs"
     );
+
+    // Check if the concert has the desired 'etat' property
+if (concert.etat === "Done") {
+  // Perform actions or return data related to a 'Done' concert
+  console.log("Concert is Done:", concert);
 
     // Récupérer les détails de l'œuvre spécifique
     const oeuvreSpecifique = await Programme.findOne({
@@ -671,9 +833,15 @@ const getStatisticConcert = async (id) => {
       oeuvreSpecifique,
       programmes: detailsOeuvres,
     };
+       // Retourner les statistiques au lieu d'envoyer la réponse HTTP
+       return statistics;
+} else {
+  return res.status(400).json({ error: "Concert is not in the 'Done' state" });
+}
 
-    // Retourner les statistiques au lieu d'envoyer la réponse HTTP
-    return statistics;
+ 
+
+ 
   } catch (error) {
     console.error(error);
     // Retourner une erreur
