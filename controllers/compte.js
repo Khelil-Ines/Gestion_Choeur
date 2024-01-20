@@ -19,10 +19,13 @@ const addCompte = async (req, res) => {
 
     // Récupérez le mot de passe du corps de la requête
     const { motDePasse } = req.body;
-
-    // Vérifiez si le mot de passe est fourni
-    if (!motDePasse) {
-      return res.status(400).json({ message: 'Le mot de passe est obligatoire.' });
+        // Vérifiez si le mot de passe est fourni
+        if (!motDePasse) {
+          return res.status(400).json({ message: 'Le mot de passe est obligatoire.' });
+        }
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(req.body.motDePasse)) {
+      return res.status(400).json({ error: "Le nouveau mot de passe doit être complexe" });
     }
 
     // Utilisez l'email de l'utilisateur comme login
@@ -202,6 +205,7 @@ SupprimerCompteEliminéAuto = cron.schedule("30 23 * * *", async () => {
 });
 
 SupprimerCompteEliminéAuto.start();
+
 
 module.exports = {
   addCompte,

@@ -17,7 +17,6 @@ router.get("/fetch/:id", planningController.fetchAudition);
  router.post("/add", planningController.addAudition);
 
 
-
 /**
  * @swagger
  * /audition/generate/{startDate}/{sessionStartTime}/{sessionEndTime}/{candidatesPerHour}:
@@ -188,16 +187,214 @@ router.get('/fetchDateHeure', planningController.fetchPlanningByDateHeure);
  */
 
 router.get('/name', planningController.fetchPlanningByCandidat);
+
+/**
+ * @swagger
+ * /audition:
+ *   post:
+ *     summary: Ajouter une nouvelle audition
+ *     tags: [Audition]
+ *     requestBody:
+ *       description: Les détails de la nouvelle audition
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               résultat:
+ *                 type: string
+ *                 enum: ["En Attente", "Accepté", "Refusé"]
+ *                 description: Le résultat de l'audition (En Attente, Accepté, Refusé)
+ *               pupitre:
+ *                 type: string
+ *                 enum: ["Basse", "Alto", "Tenor", "Soprano"]
+ *                 description: Le pupitre du candidat (Basse, Alto, Tenor, Soprano)
+ *               Extrait_chanté:
+ *                 type: string
+ *                 description: L'extrait chanté par le candidat
+ *               appréciation:
+ *                 type: string
+ *                 enum: ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-"]
+ *                 description: L'appréciation de l'audition
+ *               remarque:
+ *                 type: string
+ *                 description: Les remarques sur l'audition (par défaut vide)
+ *               présence:
+ *                 type: boolean
+ *                 description: La présence du candidat à l'audition (par défaut false)
+ *               candidat:
+ *                 type: string
+ *                 description: L'ID du candidat (ObjectID)
+ *               dateAudition:
+ *                 type: string
+ *                 format: date
+ *                 description: La date de l'audition (au format YYYY-MM-DD)
+ *               HeureDeb:
+ *                 type: string
+ *                 description: L'heure de début de l'audition (au format HH:mm)
+ *               HeureFin:
+ *                 type: string
+ *                 description: L'heure de fin de l'audition (au format HH:mm)
+ *     responses:
+ *       201:
+ *         description: Audition ajoutée avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   description: L'ID de l'audition ajoutée
+ *                 résultat:
+ *                   type: string
+ *                   description: Le résultat de l'audition ajoutée
+ *                 pupitre:
+ *                   type: string
+ *                   description: Le pupitre du candidat ajoutée
+ *                 Extrait_chanté:
+ *                   type: string
+ *                   description: L'extrait chanté par le candidat ajoutée
+ *                 appréciation:
+ *                   type: string
+ *                   description: L'appréciation de l'audition ajoutée
+ *                 remarque:
+ *                   type: string
+ *                   description: Les remarques sur l'audition ajoutée
+ *                 présence:
+ *                   type: boolean
+ *                   description: La présence du candidat à l'audition ajoutée
+ *                 candidat:
+ *                   type: string
+ *                   description: L'ID du candidat (ObjectID) associé à l'audition ajoutée
+ *                 dateAudition:
+ *                   type: string
+ *                   description: La date de l'audition ajoutée
+ *                 HeureDeb:
+ *                   type: string
+ *                   description: L'heure de début de l'audition ajoutée
+ *                 HeureFin:
+ *                   type: string
+ *                   description: L'heure de fin de l'audition ajoutée
+ *       400:
+ *         description: Mauvaise requête - Données invalides
+ *       500:
+ *         description: Erreur serveur - Quelque chose s'est mal passé du côté serveur
+ */
 router.post("/", planningController.addAudition);
 router.delete("/:id", planningController.deleteAudition);
 router.patch("/:id", planningController.updateAudition);
 router.get("/", planningController.getAudition);
 router.get("/:id", planningController.fetchAudition);
-router.get("/candidats/:filtre", planningController.getCandidatsFiltres);
-router.post("/liste", planningController.getCandidatPupitreOrdonnes);
-router.post("/email-acceptation/:id", planningController.envoyerEmailAcceptation);
-router.use("/confirmationCandidat/:id", planningController.confirmationCandidat);
 
+/**
+ * @swagger
+ * /audition/liste:
+ *   post:
+ *     summary: Récupérer la liste des candidats par pupitre triée par résultat
+ *     tags: [Audition]
+ *     requestBody:
+ *       description: Requête pour récupérer la liste triée par résultat
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               pupitre:
+ *                 type: string
+ *                 description: Le pupitre pour lequel récupérer la liste
+ *     responses:
+ *       200:
+ *         description: Succès - Liste des candidats par pupitre triée par résultat
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 model:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       candidat:
+ *                         $ref: '#/components/schemas/Candidat'
+ *                       résultat:
+ *                         type: string
+ *                         description: Le résultat de l'audition (Accepté, En Attente, Refusé)
+ *                 message:
+ *                   type: string
+ *                   description: Message de succès
+ *       400:
+ *         description: Mauvaise requête - Vérifiez les paramètres de la requête
+ *       500:
+ *         description: Erreur serveur - Quelque chose s'est mal passé du côté serveur
+ */
+router.post("/liste", planningController.getCandidatPupitreOrdonnes);
+
+/**
+ * @swagger
+ * /audition/email-acceptation/{id}:
+ *   post:
+ *     summary: Envoyer un e-mail d'acceptation au candidat
+ *     tags: [Audition]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: L'ID du candidat auquel envoyer l'e-mail d'acceptation
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: E-mail d'acceptation envoyé avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Message de succès
+ *       404:
+ *         description: Candidat non trouvé
+ *       500:
+ *         description: Erreur serveur - Quelque chose s'est mal passé du côté serveur
+ */
+router.post("/email-acceptation/:id", planningController.envoyerEmailAcceptation);
+
+/**
+ * @swagger
+ * //audition/confirmationCandidat/{id}:
+ *   get:
+ *     summary: Confirmer la candidature et créer un compte choriste
+ *     tags: [Audition]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: L'ID du candidat à confirmer
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Candidat confirmé avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Message de succès
+ *       400:
+ *         description: Mauvaise requête - Le candidat est déjà confirmé
+ *       500:
+ *         description: Erreur serveur - Quelque chose s'est mal passé du côté serveur
+ */
+
+router.use("/confirmationCandidat/:id", planningController.confirmationCandidat);
 
 
 /**

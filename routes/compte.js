@@ -23,12 +23,6 @@ router.post("/addadmin/:id",compteController.addCompte)
 
 router.delete("/:id",auth.loggedMiddleware, auth.isAdmin , compteController.deleteCompte)
 
-router.post("/login",compteController.login)
-
-              
-
-  module.exports = router;
-
 /**
  * @swagger
  * /compte/login:
@@ -73,3 +67,10 @@ router.post("/login",compteController.login)
  *             example:
  *               error: "Server error during authentication"
  */
+router.post("/login",compteController.login)
+
+              
+
+  module.exports = router;
+
+

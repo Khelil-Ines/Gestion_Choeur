@@ -16,7 +16,7 @@ router.get("/:id",auth.loggedMiddleware ,repetitionController.fetchRepetition)
 router.patch("/:id",auth.loggedMiddleware, auth.isChefPupitre, repetitionController.updateRepetition)
 router.delete("/:id",auth.loggedMiddleware, auth.isChefPupitre, repetitionController.deleteRepetition)
 router.post("/date",auth.loggedMiddleware, repetitionController.getPlanningByDate);
-router.post('/ajouter',auth.loggedMiddleware, auth.isChefPupitre, repetitionController.repetitionPourcentage);
+router.post('/ajouter/:id',auth.loggedMiddleware, auth.isChefPupitre, repetitionController.repetitionPourcentage);
 
 module.exports = router;
 
