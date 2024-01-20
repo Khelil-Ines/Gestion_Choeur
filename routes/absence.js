@@ -328,7 +328,6 @@ router.get("/:id", absenceController.getAbsencesChoriste);
  *         '500':
  *           description: Erreur interne du serveur
  */
-=========
 /**
  * @swagger
  * /absence/discipline/{id}:
@@ -365,7 +364,6 @@ router.get("/:id", absenceController.getAbsencesChoriste);
  */
 
 router.post("/discipline/:id", absenceController.EliminerDiscipline);
->>>>>>>>> Temporary merge branch 2
 router.post("/addAbsence",auth.loggedMiddleware, auth.isChoriste, absenceController.addAbsence);
 
 

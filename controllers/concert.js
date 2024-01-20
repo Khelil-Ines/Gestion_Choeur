@@ -39,11 +39,7 @@ const ConcertFinie = cron.schedule('10 13 * * *', async () => {
 });
 
 ConcertFinie.start();
-const crypto = require('crypto');
-const _ = require('lodash');
-const Choriste = require('../models/choriste');
-const mongoose = require('mongoose');
-const Programme = require('../models/programme');
+
 
 function generateRandomURL() {
   // Define the characters that can be used in the random URL
@@ -118,7 +114,7 @@ const addConcert = async (req, res) => {
       }
     });
 }
-
+}
 
 
 const fetchConcert = (req, res) => {
@@ -315,7 +311,7 @@ const afficherPlacements = async (req, res) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 };
-}
+
 
 // const modifierPlace = async (req, res) => {
 //   try {
