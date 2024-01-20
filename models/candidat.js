@@ -6,11 +6,11 @@ const utilisateur = require("./utilisateur");
 const CandidatSchema = mongoose.Schema({
   nom: { type: String, required: true },
   prénom: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  email: { type: String, required: true , unique:true },
   connaissance_musicale: { type: String },
-  autres_activites: { type: Boolean },
-  Taille: { type: Number },
-  confirmation: { type: Boolean, required: true },
+  autres_activites: { type: Boolean},
+  Taille: { type: Number, required: true },
+  confirmation: { type: Boolean, default: false},
   createdAt: { type: Date, default: () => moment().toDate() },
 });
 

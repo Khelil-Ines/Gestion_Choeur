@@ -14,95 +14,204 @@ const CINMiddleware = require("../middlewares/CIN");
 
 
 
+
+
+
+
+
+
+
+
+router.get("/",choristeController.getChoriste)
+
+router.get("/:id",choristeController.fetchChoriste)
+
+router.post("/liste", choristeController.getChoristesByPupitre) 
+
+router.patch("/update/:id",auth.loggedMiddleware, auth.isAdmin, choristeController.updatePupitre)
+
 /**
  * @swagger
- * tags:
- *   name: Choriste
- *   description: API de gestion des choristes
- *
- * components:
- *   schemas:
- *     Choriste:
- *       type: object
- *       properties:
- *         message:
- *           type: string
- *           description: Confirmation de l'ajout de la présence
- *
- *   parameters:
- *     - name: idRepetition
- *       in: path
- *       description: L'identifiant de la répétition
- *       required: true
- *       schema:
- *         type: string
- *     - name: link
- *       in: path
- *       description: Le lien de la répétition
- *       required: true
- *       schema:
- *         type: string
- *
- *   responses:
- *     BadRequestResponse:
- *       description: Requête incorrecte
- *       content:
- *         application/json:
- *           example:
- *             erreur: "Erreur interne du serveur"
- *     NotFoundResponse:
- *       description: Entité non trouvée
- *       content:
- *         application/json:
- *           example:
- *             erreur: "Répétition non trouvée"
- *     UnauthorizedResponse:
- *       description: Accès non autorisé
- *       content:
- *         application/json:
- *           example:
- *             erreur: "Token invalide"
- *     ConflictResponse:
- *       description: Conflit
- *       content:
- *         application/json:
- *           example:
- *             erreur: "Le choriste est déjà présent à cette répétition"
- *
- * /choriste/presenceRep/{idRepetition}/{link}:
- *   post:
- *     summary: Ajouter la présence d'un choriste à une répétition
- *     tags:
- *       - Choriste
+ * /choriste/profile/{id}:
+ *   get:
+ *     summary: Get choriste profile by ID
+ *     tags: [Choriste]
  *     parameters:
- *       - name: idRepetition
- *         in: path
- *         description: L'identifiant de la répétition
+ *       - in: path
+ *         name: id
  *         required: true
+ *         description: Choriste ID
  *         schema:
  *           type: string
- *       - name: link
- *         in: path
- *         description: Le lien de la répétition
+ *           required: true
+ *           description: The ID of the choriste to fetch
+ *     responses:
+ *       200:
+ *         description: Successful response with chorister profile
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Chorister profile retrieved successfully
+ *               chorister:
+ *                 _id: "chorister_id"
+ *                 pupitre: "Soprano"
+ *                 statut: "Actif"
+ *                 niveau: "Junior"
+ *                 Taille: 170
+ *                 date_adhesion: "2023-01-01T00:00:00Z"
+ *                 nbr_concerts: 5
+ *                 nbr_repetitions: 10
+ *                 nbr_absences: 2
+ *       404:
+ *         description: Chorister not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Chorister not found
+ *               message: Chorister with specified ID not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal Server Error
+ *               message: An unexpected error occurred
+ */
+
+router.get("/profile/:id", choristeController.getprofilchoriste);
+
+/**
+ * @swagger
+ * /choriste/statut/{id}:
+ *   get:
+ *     summary: Get chorister status by ID
+ *     tags: [Choriste]
+ *     parameters:
+ *       - in: path
+ *         name: id
  *         required: true
+ *         description: Chorister ID
  *         schema:
  *           type: string
  *     responses:
- *       '200':
- *         description: Présence ajoutée avec succès
+ *       200:
+ *         description: Successful response with chorister status
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/PresenceResponse'
- *       '400':
- *         $ref: '#/components/responses/BadRequestResponse'
- *       '404':
- *         $ref: '#/components/responses/NotFoundResponse'
- *       '401':
- *         $ref: '#/components/responses/UnauthorizedResponse'
- *       '409':
- *         $ref: '#/components/responses/ConflictResponse'
+ *             example:
+ *               message: Chorister status retrieved successfully
+ *               chorister:
+ *                 _id: "chorister_id"
+ *                 statut: "Actif"
+ *                 historiqueStatut:
+ *                   - statut: "Actif"
+ *                     date: "2023-01-01T00:00:00Z"
+ *                   - statut: "En_Congé"
+ *                     date: "2023-02-01T00:00:00Z"
+ *       404:
+ *         description: Chorister not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Chorister not found
+ *               message: Chorister with specified ID not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal Server Error
+ *               message: An unexpected error occurred
  */
+
+router.get("/statut/:id", choristeController.getstatutchoriste);
+
+/**
+ * @swagger
+ * /choriste/:
+ *   post:
+ *     summary: Add a new chorister
+ *     tags: [Choriste]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/NewChorister'
+ *     responses:
+ *       201:
+ *         description: Chorister added successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Chorister added!
+ *               chorister:
+ *                 _id: "new_chorister_id"
+ *                 nom: "ines"
+ *                 prénom: "khelil"
+ *                 CIN: "22222262"
+ *                 Taille: 160
+ *                 email: "inesk093@gmail.com"
+ *                 pupitre: "Tenor"
+ *                 statut: "Actif"
+ *                 date_adhesion: "2018"
+ *       400:
+ *         description: Bad request. You may need to verify your information.
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Bad Request
+ *               message: Invalid data provided
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal Server Error
+ *               message: An unexpected error occurred
+ *
+ * components:
+ *   schemas:
+ *     NewChorister:
+ *       type: object
+ *       properties:
+ *         nom:
+ *           type: string
+ *         prénom:
+ *           type: string
+ *         CIN:
+ *           type: number
+ *         Taille:
+ *           type: number
+ *         email:
+ *           type: string
+ *         pupitre:
+ *           type: string
+ *           enum: [Soprano, Alto, Basse, Tenor]
+ *         statut:
+ *           type: string
+ *           enum: [Actif, En_Congé, Eliminé]
+ *         date_adhesion:
+ *           type: string
+ *           format: date
+ *       required:
+ *         - nom
+ *         - prénom
+ *         - CIN
+ *         - Taille
+ *         - email
+ *         - pupitre
+ *         - statut
+ *         - date_adhesion
+ */
+
+
+router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
+
+
+
+
+
 
 router.post("/presenceRep/:idRepetition/:link",auth.loggedMiddleware,auth.isChoriste,choristeController.presence)
 
@@ -370,11 +479,10 @@ router.get('/total',auth.loggedMiddleware,auth.isAdmin, choristeController.getAb
 
 
 
-router.get("/profile/:id", choristeController.getprofilchoriste);
-router.get("/statut/:id", choristeController.getstatutchoriste);
 
 
-router.get("/",choristeController.getChoriste)
+
+
 
 router.get("/:id",choristeController.fetchChoriste)
 
@@ -383,8 +491,7 @@ router.post("/liste", choristeController.getChoristesByPupitre)
 router.patch("/update/:id",auth.loggedMiddleware, auth.isAdmin, choristeController.updatePupitre)
 
 
-router.get("/profile/:id", choristeController.getprofilchoriste);
-router.get("/statut/:id", choristeController.getstatutchoriste);
+
 router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
 
 

@@ -23,6 +23,7 @@ const liste_presence_concert = require("./routes/liste_present_concert.js");
 const notifrepetition = require("./routes/notifrepetition.js");
 const ConcertRouter = require("./routes/concert");
 const mailRouter = require("./routes/validermail.js");
+const adminRouter = require("./routes/admin");
 
 const options = {
   definition: {
@@ -95,16 +96,7 @@ app.use(
   swaggerUi.setup(specs, { explorer: true })
 );
 app.use(express.json());
-mongoose
-  .connect(
-    "mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority",
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }
-  )
-  .then(() => console.log("connexion a MongoDB reussie!"))
-  .catch((e) => console.log("connexion a MongoDB échouée!", e));
+ 
 
 
 app.use(express.json());
@@ -168,7 +160,7 @@ app.use("/api/audition", auditionRouter);
 app.use("/api/Compositeur", compositeurRoutes);
 app.use("/api/Oeuvre", oeuvreRoutes);
 app.use("/api/Chef_pupitre", chef_router);
-app.use("/absence", absenceRouter);
+app.use("/api/absence", absenceRouter);
 app.use("/api/choriste", choristeRouter);
 app.use("/api/candidat", CandidatRoutes);
 app.use("/api/compte", compteRouter);
@@ -179,6 +171,7 @@ app.use("/api/concert", ConcertRouter);
 app.use("/api/saison", SaisonRouter);
 app.use("/api/presenceConcert", liste_presence_concert);
 app.use("/api/validermail", mailRouter);
+app.use("/api/admin", adminRouter);
 app.use("/api/programme", ProgrammeRouter);
 
 module.exports = app;

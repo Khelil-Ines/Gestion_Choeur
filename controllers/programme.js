@@ -12,7 +12,28 @@ const addProgramme = async (req, res) => {
         message: "Le thème est déjà enregistré pour un programme existant.",
       });
     }
-
+    
+    
+    const oeuvreIds = req.body.oeuvre;
+    const invalidOeuvreIds = [];
+    
+    // Check if all provided oeuvre IDs exist in the "oeuvre" model
+    for (const oeuvreId of oeuvreIds) {
+      const oeuvre = await Oeuvre.findById(oeuvreId);
+    
+      if (!oeuvre) {
+        invalidOeuvreIds.push(oeuvreId);
+      }
+    }
+    
+    if (invalidOeuvreIds.length > 0) {
+      return res.status(400).json({
+        message: "Certains ID d'oeuvre fournis ne sont pas valides.",
+        invalidOeuvreIds,
+      });
+    }
+    
+    
     const newProgramme = await Programme.create(req.body);
 
     res.status(201).json({
@@ -113,18 +134,15 @@ const addProgrammewithFile = async (req, res) => {
   }
 };
 
-const getProgrammes = (req, res) => {
-  Programme.find()
-    .populate("oeuvre")
-    .then((programmes) => {
-      res.status(200).json(programmes);
-    })
-    .catch((error) => {
-      res.status(400).json({
-        error: error,
-      });
-    });
+const getProgrammes = async (req, res) => {
+  try {
+    const programmes = await Programme.find().populate('oeuvre');
+    res.status(200).json({ model: programmes, message: "success" });
+  } catch (error) {
+    res.status(500).json({ error: error.message, message: "problème d'extraction" });
+  }
 };
+
 
 module.exports = {
   addProgramme,

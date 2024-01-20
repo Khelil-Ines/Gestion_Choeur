@@ -9,7 +9,7 @@ const Concert = mongoose.model("concert", {
     type: String,
     required: true,
   },
-  programme: [{ type: mongoose.Schema.Types.ObjectId, ref: "programme" }],
+  programme: [{ type: mongoose.Schema.Types.ObjectId, ref: "programme", required: true }],
   liste_Presents: { type: Array, default: [], required: false },
   liste_dispo: { type: Array, default: [], required: false },
   seuil_présence: { type: Number, default: 0 },

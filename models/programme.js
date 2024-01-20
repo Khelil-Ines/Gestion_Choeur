@@ -9,7 +9,7 @@ const Programme = mongoose.model('programme', {
     type: String,
     required: true
   },
-  oeuvre : [{ type: mongoose.Schema.Types.ObjectId, ref: 'oeuvre'  }]
+  oeuvre : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Oeuvre'  }]
 });
 
 

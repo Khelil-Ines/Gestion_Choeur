@@ -11,4 +11,5 @@ const auth = require('../middlewares/auth');
  */
 
 router.post('/addconge',auth.loggedMiddleware, auth.isChoriste, congeController.addConge);
+// router.post('/getNotif',auth.loggedMiddleware, auth.isAdmin, congeController.notifConge);
 module.exports = router;
