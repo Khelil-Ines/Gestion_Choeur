@@ -225,8 +225,27 @@ exports.getChoriste = (req, res) => {
       });
   };
 
- // Create an EventEmitter instance
-const pupitreChangedEmitter = new EventEmitter();
+// // Schedule a cron job to send notifications periodically
+cron.schedule('0 0 * * *', async () => {
+  try {
+    // Query the database for choristes who changed their pupitre in the last 24 hours
+    const choristesChanged = await Choriste.find({
+      updatedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Changed in the last 24 hours
+    });
+
+    // Emit notifications for each choriste who changed pupitre
+    choristesChanged.forEach((changedChoriste) => {
+      req.io.to('updateNotificationsRoom').emit('notificationPupitre', {
+        type: 'pupitreChanged',
+        message: `Choriste ${changedChoriste.nom} a changé de pupitre en ${changedChoriste.pupitre}.`,
+      });
+    });
+
+    console.log('Notification cron job executed.');
+  } catch (error) {
+    console.error('Error in the cron job:', error);
+  }
+});
 
 exports.updatePupitre = async (req, res ) => {
   try {
@@ -253,13 +272,23 @@ exports.updatePupitre = async (req, res ) => {
     // Enregistrez les modifications dans la base de données
     await choriste.save();
 
-   // Vérifiez si le pupitre a changé
-if (ancienPupitre !== nouveauPupitre) {
-  // Émettez l'événement pupitreChanged vers une page spécifique
-  req.io.to('updateNotificationsRoom').emit('notificationPupitre', {
-    type: 'pupitreChanged',
-    message: `Choriste ${choriste.nom} a changé de pupitre en ${choriste.pupitre}.`,
-  });
+ // Vérifiez si le pupitre a changé
+ if (ancienPupitre !== nouveauPupitre) {
+  const message = `Choriste ${choriste.nom} a changé de pupitre de "${ancienPupitre}" à "${nouveauPupitre}".`;
+  
+  // Emit the event to the specified room
+  // Check if req.io is available
+  if (req.io) {
+    // Emit the event to the specified room
+    req.io.to('updateNotificationsRoom').emit('notificationPupitre', {
+      type: 'pupitreChanged',
+      message,
+    });
+  } else {
+    // Log the notification to the console if req.io is not available
+    console.log('Notification:', message);
+  }
+
 }
 
     return res.status(200).json({ choriste, message: 'Tessiture mise à jour avec succès.' });
@@ -269,16 +298,7 @@ if (ancienPupitre !== nouveauPupitre) {
   }
 };
 
-// // Now, you can listen for the pupitreChanged event wherever you want in your application
-// pupitreChangedEmitter.on('pupitreChanged', async (choriste) => {
-//   try {
-//     // Handle the event, e.g., send notifications
-//     console.log(`Choriste ${choriste.nom} has changed pupitre  ${choriste.pupitre}`);
-//     // Implement your notification logic here
-//   } catch (error) {
-//     console.error('Error handling pupitreChanged event:', error);
-//   }
-// });
+
 
 
 
