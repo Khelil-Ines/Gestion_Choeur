@@ -15,7 +15,6 @@ server.listen(port , () => {
     console.log("listening on" + port)
 })
 
-
 const notifications = [];
 const choristesSockets = {};
 
@@ -24,12 +23,19 @@ io.on('connection', (socket) => {
 
   // Envoyer les notifications existantes lorsqu'un client se connecte
   socket.emit('notificationList', notifications);
-
   socket.on('disconnect', () => {
     console.log('Client déconnecté');
   });
 });
 
+
+
+
+
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 
 // Planifiez la tâche quotidienne à 10:00

@@ -118,10 +118,18 @@ app.use((req, res, next) => {
   next();
 });
 
+
+
+mongoose.connect("mongodb+srv://testb8835:pEgxGH7MaUleOFlx@cluster0.ogaz79o.mongodb.net/?retryWrites=true&w=majority",
+      { useNewUrlParser : true, useUnifiedTopology: true } )
+       .then(() => console.log("Connexion a MongoDB réussie !"))
+
+
 app.use((req, res, next) => {
   console.log("Requête reçue:", req.method, req.url, req.body);
   next();
 });
+
 
 
 
