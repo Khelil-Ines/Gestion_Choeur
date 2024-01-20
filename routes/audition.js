@@ -15,24 +15,7 @@ router.get("/", planningController.getAudition);
 router.get("/fetch/:id", planningController.fetchAudition);
  router.post("/add", planningController.addAudition);
 
-router.post('/generate/:startDate/:sessionStartTime/:sessionEndTime/:candidatesPerHour', planningController.genererPlanning);
-router.get('/fetch', planningController.fetchPlanning);
-router.get('/fetchDateHeure', planningController.fetchPlanningByDateHeure);
-router.get('/name', planningController.fetchPlanningByCandidat);
-router.post("/", planningController.addAudition);
-router.delete("/:id", planningController.deleteAudition);
-router.patch("/:id", planningController.updateAudition);
-router.get("/", planningController.getAudition);
-router.get("/:id", planningController.fetchAudition);
-router.get("/candidats/:filtre", planningController.getCandidatsFiltres);
-router.post("/liste", planningController.getCandidatPupitreOrdonnes);
-router.post("/email-acceptation/:id", planningController.envoyerEmailAcceptation);
-router.use("/confirmationCandidat/:id", planningController.confirmationCandidat);
-router.get('/candidat/:candidatId', planningController.fetchPlanningByid);
-router.post('/defaillant', planningController.genererPlanningDefaillants);
 
-
-module.exports = router;
 
 /**
  * @swagger
@@ -84,6 +67,8 @@ module.exports = router;
  */
 
 
+router.post('/generate/:startDate/:sessionStartTime/:sessionEndTime/:candidatesPerHour', planningController.genererPlanning);
+
 /**
  * @swagger
  * /audition/fetch:
@@ -108,42 +93,9 @@ module.exports = router;
  *               message: Problème d'extraction des plannings !
  */
 
-/**
- * @swagger
- * /audition/candidat/{candidatId}:
- *   get:
- *     summary: Retrieve the audition schedule for a specific candidate
- *     tags:
- *       - Audition
- *     parameters:
- *       - name: candidatId
- *         in: path
- *         description: ID of the candidate for whom to retrieve the schedule
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       '200':
- *         description: Successful response
- *         content:
- *           application/json:
- *             example:
- *               model: [{}, {}]
- *               message: Success!
- *       '404':
- *         description: Candidate not found or no schedule available
- *         content:
- *           application/json:
- *             example:
- *               message: Aucun planning trouvé pour le candidat avec l'ID fourni.
- *       '500':
- *         description: Internal server error
- *         content:
- *           application/json:
- *             example:
- *               error: Error message
- *               message: Problème d'extraction des plannings !
- */
+router.get('/fetch', planningController.fetchPlanning);
+
+
 
 /**
  * @swagger
@@ -188,6 +140,8 @@ module.exports = router;
  *               error: Error message
  */
 
+router.get('/fetchDateHeure', planningController.fetchPlanningByDateHeure);
+
 
 /**
  * @swagger
@@ -230,6 +184,59 @@ module.exports = router;
  *               error: Erreur lors de la récupération des plannings
  *               message: Error message
  */
+
+router.get('/name', planningController.fetchPlanningByCandidat);
+router.post("/", planningController.addAudition);
+router.delete("/:id", planningController.deleteAudition);
+router.patch("/:id", planningController.updateAudition);
+router.get("/", planningController.getAudition);
+router.get("/:id", planningController.fetchAudition);
+router.get("/candidats/:filtre", planningController.getCandidatsFiltres);
+router.post("/liste", planningController.getCandidatPupitreOrdonnes);
+router.post("/email-acceptation/:id", planningController.envoyerEmailAcceptation);
+router.use("/confirmationCandidat/:id", planningController.confirmationCandidat);
+
+
+
+/**
+ * @swagger
+ * /audition/candidat/{candidatId}:
+ *   get:
+ *     summary: Retrieve the audition schedule for a specific candidate
+ *     tags:
+ *       - Audition
+ *     parameters:
+ *       - name: candidatId
+ *         in: path
+ *         description: ID of the candidate for whom to retrieve the schedule
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             example:
+ *               model: [{}, {}]
+ *               message: Success!
+ *       '404':
+ *         description: Candidate not found or no schedule available
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Aucun planning trouvé pour le candidat avec l'ID fourni.
+ *       '500':
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Error message
+ *               message: Problème d'extraction des plannings !
+ */
+
+
+router.get('/candidat/:candidatId', planningController.fetchPlanningByid);
 
 
 /**
@@ -285,6 +292,18 @@ module.exports = router;
  *               message: Erreur lors de la génération du planning
  *               error: Internal Server Error
  */
+
+router.post('/defaillant', planningController.genererPlanningDefaillants);
+
+
+module.exports = router;
+
+
+
+
+
+
+
 
 
 
