@@ -214,6 +214,115 @@ router.patch(
   presenceConcertController.modifierParamPresence
 );
 
+///////////////////////////////////////////
+/**
+ * @swagger
+ * /presenceConcert/present/pupitre/{repetition}:
+ *   get:
+ *     summary: Afficher Les présents de mon pupitre pour cette répetition
+ *     tags: [Présence Concert/Répetition]
+ *     parameters:
+ *       - in: path
+ *         name: repetition
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Répetition id
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *                  $ref: '#/components/schemas/Choriste'
+ *       404:
+ *         description: Object not found
+ *       500:
+ *         description: Some server error
+ *
+ */
+
+/**
+ * @swagger
+ * /presenceConcert/absent/pupitre/{repetition}:
+ *   get:
+ *     summary: Afficher Les absents de mon pupitre pour cette répetition
+ *     tags: [Présence Concert/Répetition]
+ *     parameters:
+ *       - in: path
+ *         name: repetition
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Répetition id
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *                  $ref: '#/components/schemas/Choriste'
+ *       404:
+ *         description: Object not found
+ *       500:
+ *         description: Some server error
+ *
+ */
+
+/**
+ * @swagger
+ * /presenceConcert/present/programme/{programme}:
+ *   get:
+ *     summary: Afficher Les presents de mon pupitre pour ce programme
+ *     tags: [Présence Concert/Répetition]
+ *     parameters:
+ *       - in: path
+ *         name: programme
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Programme id
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *                  $ref: '#/components/schemas/Choriste'
+ *       404:
+ *         description: Object not found
+ *       500:
+ *         description: Some server error
+ *
+ */
+
+/**
+ * @swagger
+ * /presenceConcert/absent/programme/{programme}:
+ *   get:
+ *     summary: Afficher Les absents de mon pupitre pour ce programme
+ *     tags: [Présence Concert/Répetition]
+ *     parameters:
+ *       - in: path
+ *         name: programme
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Programme id
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *                  $ref: '#/components/schemas/Choriste'
+ *       404:
+ *         description: Object not found
+ *       500:
+ *         description: Some server error
+ *
+ */
+
 router.get(
   "/present/pupitre/:repetition",
   auth.loggedMiddleware,
