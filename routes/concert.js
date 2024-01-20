@@ -11,6 +11,14 @@ const auth=require('../middlewares/auth')
  *  description:  API de gestion des concerts
  */
 
+
+/**
+ * @swagger
+ * tags:
+ *   name: Concert
+ *   description: API for managing concerts
+=========
+
 /**
  * @swagger
  * /concert/add:
@@ -291,11 +299,16 @@ router.patch("/:id", concertController.updateConcert);
  *               message: An unexpected error occurred
  */
 
+
 router.delete("/:id", concertController.deleteConcert);
 router.post("/placement",auth.loggedMiddleware, auth.isAdmin, concertController.attribuerPlacesAuxChoristesPresentAuConcert);
 router.get("/placement/:id",auth.loggedMiddleware, auth.isAdmin, concertController.afficherPlacements);
 //router.patch("/placement/modifier/:id", concertController.modifierPlace);
 
   module.exports = router;
+
+
+
+
 
 

@@ -11,6 +11,7 @@ const auth = require('../middlewares/auth');
  *  description:  API de gestion des absences
  */
 
+
 /**
  * @swagger
  * /absence/:
@@ -288,6 +289,46 @@ router.get("/nomines", absenceController.getNomines);
  */
 
 router.get("/:id", absenceController.getAbsencesChoriste);
+
+/**
+ * @swagger
+ * path:
+ *   /api/addAbsence:
+ *     post:
+ *       summary: Ajoute une nouvelle absence pour un choriste
+ *       tags: [Absences]
+ *       security:
+ *         - bearerAuth: []  # Utilisez ce tag si l'authentification est nécessaire
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Type:
+ *                   type: string
+ *                   enum: ['Repetition', 'Concert']
+ *                   description: Type d'absence (Repetition ou Concert)
+ *                   example: Repetition
+ *                 raison:
+ *                   type: string
+ *                   description: Raison de l'absence (facultatif)
+ *                   example: Maladie
+ *                 Date:
+ *                   type: string
+ *                   format: date
+ *                   description: Date de l'absence (au format AAAA-MM-JJ)
+ *                   example: 2024-01-20
+ *       responses:
+ *         '200':
+ *           description: Absence ajoutée avec succès
+ *         '401':
+ *           description: Non autorisé, l'utilisateur doit être connecté et être un choriste
+ *         '500':
+ *           description: Erreur interne du serveur
+ */
+=========
 /**
  * @swagger
  * /absence/discipline/{id}:
@@ -324,6 +365,7 @@ router.get("/:id", absenceController.getAbsencesChoriste);
  */
 
 router.post("/discipline/:id", absenceController.EliminerDiscipline);
+>>>>>>>>> Temporary merge branch 2
 router.post("/addAbsence",auth.loggedMiddleware, auth.isChoriste, absenceController.addAbsence);
 
 

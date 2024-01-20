@@ -44,6 +44,7 @@ const planningController = require('../controllers/audition');
  *               message: An unexpected error occurred
  */
 
+
 router.delete("/delete/:id", planningController.deleteAudition);
 
 /**

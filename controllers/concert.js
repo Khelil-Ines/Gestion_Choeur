@@ -39,6 +39,11 @@ const ConcertFinie = cron.schedule('10 13 * * *', async () => {
 });
 
 ConcertFinie.start();
+const crypto = require('crypto');
+const _ = require('lodash');
+const Choriste = require('../models/choriste');
+const mongoose = require('mongoose');
+const Programme = require('../models/programme');
 
 function generateRandomURL() {
   // Define the characters that can be used in the random URL
@@ -73,6 +78,10 @@ const addConcert = async (req, res) => {
       .status(400)
       .send("Invalid concert date. Please choose a date greater than or equal to the current date.");
   }
+  const programme = await Programme.findOne({ _id: req.body.programme });
+  if (!programme) {
+    return res.status(400).send("Invalid programme ID. Please choose a valid programme ID.");
+  }else{
 
   const moment = require("moment");
 
@@ -86,6 +95,13 @@ const addConcert = async (req, res) => {
     console.error("Invalid Date Format");
   }
 
+  Concert.create({ ...req.body, date: dateObject, link: randomLink })
+    .then((concert) =>
+      res.status(201).json({
+        model: concert,
+        message: "Concert créé!",
+      })
+    )
   Concert.create({ ...req.body, link: randomLink })
   .then((concert) =>
     res.status(201).json({

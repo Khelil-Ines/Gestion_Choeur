@@ -93,8 +93,8 @@ exports.updateSeuilElimination = async (req, res) => {
   } catch (error) {
     res.status(200).json({ message: "Seuil mis à jour avec succès" });
   }
-};
-
+}
+ 
 
 // Schedule a cron job to send notifications periodically
 cron.schedule('0 0 * * *', async () => {
@@ -151,6 +151,8 @@ cron.schedule('0 0 * * *', async () => {
     console.error('Error in the cron job:', error);
   }
 });
+
+
 exports.declarerAbsenceRepetition = async (req, res) => {
   try {
     // Find the latest répétition
