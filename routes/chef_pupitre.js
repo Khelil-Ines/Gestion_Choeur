@@ -54,7 +54,7 @@ const auth=require('../middlewares/auth.js')
  *               message: An unexpected error occurred
  */
 
-router.get("/", chef_controller.get_chefs)
+router.get("/", auth.loggedMiddleware, auth.isAdmin, chef_controller.get_chefs)
 /**
  * @swagger
  * /chef_pupitre/add/{id}:

@@ -177,5 +177,6 @@ app.use("/api/presenceConcert", liste_presence_concert);
 app.use("/api/validermail", mailRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/programme", ProgrammeRouter);
+app.use("/api/reset", resetRouter);
 
 module.exports = app;

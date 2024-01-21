@@ -110,3 +110,21 @@ module.exports.isAdmin = async (req, res, next) => {
     res.status(401).json({ error: error.message });
   }
 };
+
+module.exports.isAdminOrChoriste = async (req, res, next) => {
+  try {
+
+    const admin = await Admin.findOne({ compte: req.auth.compteId });
+    const choriste = await Choriste.findOne({ compte: req.auth.compteId });
+
+    if (admin || choriste) {
+      next();
+    } else {
+      res
+        .status(403)
+        .json({ error: "Il faut etre admin ou choriste pour avoir acces a cette route" });
+    }
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+};
