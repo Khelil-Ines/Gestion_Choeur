@@ -1,46 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notification Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projet Gestion d'un Choeur</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            padding: 2em;
+        }
+
+        nav {
+            background-color: #2980b9;
+            padding: 1em;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        section {
+            padding: 40px;
+            text-align: center;
+        }
+
+        footer {
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            padding: 1em;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-  <h1>Notification Admin</h1>
-  <ul id="notifications"></ul>
-  <ul id="candidates"></ul> <!-- Nouveau conteneur pour les coordonnées des candidats -->
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
 
-    socket.on('notification', (data) => {
-      const notificationsList = document.getElementById('notifications');
-      const listItem = document.createElement('li');
-      listItem.textContent = data.message;
-      notificationsList.appendChild(listItem);
-    });
+    <header>
+        <h1>Notre site est déployé avec Render</h1>
+    </header>
 
-    socket.on('newCandidature', (data) => {
-      const candidatesList = document.getElementById('candidates');
-      const candidateItem = document.createElement('li');
+    <nav>
+        <a href="#">Accueil</a>
+        <a href="#">À propos</a>
+        <a href="#">Contact</a>
+    </nav>
 
-      // Afficher les coordonnées des candidats
-      data.candidatures.forEach(candidature => {
-        candidateItem.textContent = `ID: ${candidature._id}, Nom: ${candidature.nom}, Prénom: ${candidature.prénom}, ...`;
-        candidatesList.appendChild(candidateItem.cloneNode(true));
-      });
-    });
+    <section>
+        <h2>Equipe de développement :</h2>
+        <p>Ines Khelil , Asma Bouziri , Aya Ghattas , Ghofrane Mannai </p>
+    </section>
 
-    socket.on('choristeNotification', (data) => {
-      const choristeNotificationsList = document.getElementById('choristeNotifications');
-      const choristeNotificationItem = document.createElement('li');
-      choristeNotificationItem.textContent = `ID: ${choriste._id}, Nom: ${choriste.nom}, Prénom: ${choriste.prénom}`;
-      choristeNotificationsList.appendChild(choristeNotificationItem);
-    });
+    <footer>
+        <p>&copy; 2024 Gestion d'un Choeur. Tous droits réservés.</p>
+    </footer>
 
-    const choristeId = "ID_DU_CHORISTE";  // Remplacez par l'ID réel du choriste
-    socket.emit('choristeConnect', choristeId);
-
-  </script>
 </body>
 </html>

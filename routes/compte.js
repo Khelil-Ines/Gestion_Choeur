@@ -30,6 +30,7 @@ router.patch("/eliminer_choriste/:id", compteController.EliminerChoriste)
  *         description: Erreur serveur - Quelque chose s'est mal passé du côté serveur
  */
 
+
 router.get("/",auth.loggedMiddleware, auth.isAdmin ,compteController.getCompte)
 
 /**

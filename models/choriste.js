@@ -8,6 +8,9 @@ const historiqueStatutSchema = mongoose.Schema({
 
 const presenceManuelleSchema = mongoose.Schema({
   date: { type: Date, default: Date.now },
+  raison: { type: String, required: false },
+  type: { type: String ,  required: false },
+
 });
 
 const choristeSchema = mongoose.Schema({

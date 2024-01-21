@@ -112,7 +112,9 @@ const auth=require('../middlewares/auth')
  *                 type: object
  */
 
+
 router.post("/add", concertController.addConcert);
+
 
 /**
  * @swagger
@@ -155,6 +157,38 @@ router.post("/add", concertController.addConcert);
  *               error: Internal Server Error
  *               message: An unexpected error occurred
  */
+
+
+
+/**
+ * @swagger
+ * /concert/statistics:
+ *   get:
+ *     summary: Get a list of statistics of concert
+ *     tags: [Concert]
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         required: true
+ *         description: The type of statistics (concert, choriste, oeuvre).
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         description: The ID for which statistics are requested.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successful response. Returns statistics based on the provided type and ID.
+ *       400:
+ *         description: Bad request. Missing required parameters or unsupported statistics type.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get("/statistic",auth.loggedMiddleware, auth.isAdmin, concertController.getStatistics);
+
 
 router.get("/", concertController.fetchConcert);
 
@@ -291,6 +325,7 @@ router.patch("/:id", concertController.updateConcert);
  *               error: Internal Server Error
  *               message: An unexpected error occurred
  */
+
 
 router.delete("/:id", concertController.deleteConcert);
 

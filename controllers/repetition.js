@@ -1,13 +1,13 @@
 const Repetition = require("../models/repetition");
 const Choriste = require("../models/choriste");
-const crypto = require('crypto');
+const crypto = require("crypto");
 const moment = require("moment");
 const axios = require("axios");
 const cron = require('node-cron');
 const Concert = require("../models/concert");
 
 
-const RepetitionFinie = cron.schedule('01 12 * * *', async () => {
+const RepetitionFinie = cron.schedule("01 12 * * *", async () => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -15,21 +15,23 @@ const RepetitionFinie = cron.schedule('01 12 * * *', async () => {
     const repetitionsToUpdate = await Repetition.find({ date: { $lt: today } });
 
     if (!repetitionsToUpdate || repetitionsToUpdate.length === 0) {
-      console.error('No repetitions found.');
-      return res.status(404).json({ error: 'Aucune répétition trouvée.' });
+      console.error("No repetitions found.");
+      return res.status(404).json({ error: "Aucune répétition trouvée." });
     }
 
     // Assuming 'etat' is a field in your Repetition model
     for (const repetition of repetitionsToUpdate) {
       console.log(`Updating repetition ${repetition._id}...`);
-      repetition.etat = 'Done';
+      repetition.etat = "Done";
       await repetition.save();
     }
 
-    console.log('Repetitions updated successfully.');
+    console.log("Repetitions updated successfully.");
   } catch (error) {
     console.error("Erreur lors de la mise à jour des répétitions :", error);
-    return res.status(500).json({ error: "Erreur lors de la mise à jour des répétitions" });
+    return res
+      .status(500)
+      .json({ error: "Erreur lors de la mise à jour des répétitions" });
   }
 });
 
@@ -57,24 +59,27 @@ const fetchRepetition = (req, res) => {
       });
     });
 };
- function generateRandomURL() {
-    // Define the characters that can be used in the random URL
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function generateRandomURL() {
+  // Define the characters that can be used in the random URL
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    // Start the random URL with 'https:'
-    let randomURL = 'https:';
+  // Start the random URL with 'https:'
+  let randomURL = "https:";
 
-    // Generate 10 random characters and append them to the URL
-    for (let i = 0; i < 10; i++) {
-        // Select a random character from the characters string
-        randomURL += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
+  // Generate 10 random characters and append them to the URL
+  for (let i = 0; i < 10; i++) {
+    // Select a random character from the characters string
+    randomURL += characters.charAt(
+      Math.floor(Math.random() * characters.length)
+    );
+  }
 
-    // Append the '.com' domain to complete the URL
-    randomURL += '.com';
+  // Append the '.com' domain to complete the URL
+  randomURL += ".com";
 
-    // Return the generated random URL
-    return randomURL;
+  // Return the generated random URL
+  return randomURL;
 }
 
 const addRepetition = async (req, res) => {
@@ -82,8 +87,8 @@ const addRepetition = async (req, res) => {
     // Utilize the generateRandomURL function for link generation
     const randomLink = generateRandomURL();
 
-    const heureDeb = moment(req.body.heureDebut, 'HH:mm');
-    const heureFin = moment(req.body.heureFin, 'HH:mm');
+    const heureDeb = moment(req.body.heureDebut, "HH:mm");
+    const heureFin = moment(req.body.heureFin, "HH:mm");
     const dateRepetition = moment(req.body.date);
 
     // Check if heureDeb is before heureFin
@@ -92,7 +97,7 @@ const addRepetition = async (req, res) => {
     }
 
     // Check if dateRepetition is equal to or greater than the current date
-    if (dateRepetition.isBefore(moment(), 'day')) {
+    if (dateRepetition.isBefore(moment(), "day")) {
       return res.status(400).json({ error: "Invalid repetition date." });
     }
 
@@ -105,22 +110,20 @@ const addRepetition = async (req, res) => {
     const repetition = await newRepetition.save();
 
     // Retrieve all the IDs of choristers (assuming the Choriste model has a field _id)
-    const choristes = await Choriste.find({}, '_id');
+    const choristes = await Choriste.find({}, "_id");
 
     // Add the IDs of choristers to the absence list of the new repetition
-    repetition.liste_Abs = choristes.map(choriste => choriste._id);
+    repetition.liste_Abs = choristes.map((choriste) => choriste._id);
 
     // Save the updated repetition again
     await repetition.save();
 
     res.json(repetition);
   } catch (error) {
-    console.error('Error while saving the repetition:', error);
-    res.status(400).json({ error: 'Failed to create the repetition' });
+    console.error("Error while saving the repetition:", error);
+    res.status(400).json({ error: "Failed to create the repetition" });
   }
 };
-
-
 
 const getPlanning = (req, res) => {
   Repetition.find()
@@ -153,6 +156,8 @@ const updateRepetition = (req, res) => {
       });
       axios.get(
         "http://localhost:5000/api/notifrep/changes/" +
+          repetition._id +
+          "/" +
           repetition.heureDebut +
           "/" +
           repetition.lieu
@@ -160,7 +165,6 @@ const updateRepetition = (req, res) => {
     }
   });
 };
-
 
 const deleteRepetition = (req, res) => {
   Repetition.deleteOne({ _id: req.params.id })
@@ -291,11 +295,11 @@ console.log('le total des choristes est : ', totalPourcentage)
     ) {
       return res.status(400).json({
         success: false,
-        message: 'Les pourcentages des pupitres ne sont pas valides ou ne totalisent pas 100%.',
+        message:
+          "Les pourcentages des pupitres ne sont pas valides ou ne totalisent pas 100%.",
       });
     }
 
-    // Calculez le nombre de choristes nécessaires pour chaque pupitre
     const nbChoristesSoprano = Math.round((prcSoprano / 100) * countSoprano);
     console.log('le nombre de choristes Soprano demandé est : ', nbChoristesSoprano)
     const nbChoristesAlto = Math.round((prcAlto / 100) * countAlto);
@@ -312,20 +316,18 @@ console.log('le total des choristes est : ', totalPourcentage)
     const listeChoristesTenor = await Choriste.find({ _id: { $in: liste_Absents }, pupitre: 'Tenor' });
     //console.log('la liste Tenor est : ', listeChoristesTenor);
     const listeChoristesAlto = await Choriste.find({ _id: { $in: liste_Absents } , pupitre: 'Alto'});
-    //console.log('la liste Alto est : ', listeChoristesAlto);
 
     const listeSoprano = listeChoristesSoprano.slice(0, nbChoristesSoprano);
     //console.log('la liste Soprano est : ', listeSoprano);
-    
+
     const listeAlto = listeChoristesAlto.slice(0, nbChoristesAlto);
     //console.log('la liste Alto est : ', listeAlto);
-    
+
     const listeTenor = listeChoristesTenor.slice(0, nbChoristesTenor);
     //console.log('la liste Tenor est : ', listeTenor);
-    
+
     const listeBasse = listeChoristesBasse.slice(0, nbChoristesBasse);
     //console.log('la liste Basse est : ', listeBasse);
-
 
     // Créez un nouvel objet Répétition avec les données
     const nouvelleRepetition = new Repetition({
@@ -345,26 +347,42 @@ console.log('le total des choristes est : ', totalPourcentage)
       programme,
     });
 
-
     // Enregistrez la nouvelle répétition dans la base de données
     await nouvelleRepetition.save();
-const listeSopranoDetails = await Choriste.find({ _id: { $in: listeSoprano } }, 'nom prenom pupitre');
-const listeAltoDetails = await Choriste.find({ _id: { $in: listeAlto } }, 'nom prenom pupitre');
-const listeTenorDetails = await Choriste.find({ _id: { $in: listeTenor } }, 'nom prenom pupitre');
-const listeBasseDetails = await Choriste.find({ _id: { $in: listeBasse } }, 'nom prenom pupitre');
+    const listeSopranoDetails = await Choriste.find(
+      { _id: { $in: listeSoprano } },
+      "nom prenom pupitre"
+    );
+    const listeAltoDetails = await Choriste.find(
+      { _id: { $in: listeAlto } },
+      "nom prenom pupitre"
+    );
+    const listeTenorDetails = await Choriste.find(
+      { _id: { $in: listeTenor } },
+      "nom prenom pupitre"
+    );
+    const listeBasseDetails = await Choriste.find(
+      { _id: { $in: listeBasse } },
+      "nom prenom pupitre"
+    );
 
-console.log('La liste des choristes Soprano :', listeSopranoDetails);
-console.log('La liste des choristes Basse :', listeAltoDetails);
-console.log('La liste des choristes Tenor :', listeTenorDetails);
-console.log('La liste des choristes Alto :', listeBasseDetails);
-
-
+    console.log("La liste des choristes Soprano :", listeSopranoDetails);
+    console.log("La liste des choristes Basse :", listeAltoDetails);
+    console.log("La liste des choristes Tenor :", listeTenorDetails);
+    console.log("La liste des choristes Alto :", listeBasseDetails);
 
     // Répondez avec succès
-    res.status(200).json({ success: true, message: 'Répétition ajoutée avec succès.' });
+    res
+      .status(200)
+      .json({ success: true, message: "Répétition ajoutée avec succès." });
   } catch (error) {
-    console.error('Erreur lors de l\'ajout de la répétition :', error);
-    res.status(500).json({ success: false, message: 'Erreur lors de l\'ajout de la répétition.' });
+    console.error("Erreur lors de l'ajout de la répétition :", error);
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Erreur lors de l'ajout de la répétition.",
+      });
   }
 };
 
@@ -375,6 +393,5 @@ module.exports = {
   updateRepetition,
   deleteRepetition,
   getPlanningByDate,
-  repetitionPourcentage
+  repetitionPourcentage,
 };
-

@@ -97,7 +97,7 @@ exports.updateSeuilElimination = async (req, res) => {
  
 
 // Schedule a cron job to send notifications periodically
-cron.schedule('0 0 * * *', async () => {
+cron.schedule('0 0 * * *', async (req) => {
   try {
     // Query the database for choristes with a specific status and starting today
     const choristesElimine = await Choriste.find({

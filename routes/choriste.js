@@ -12,27 +12,14 @@ const CINMiddleware = require("../middlewares/CIN");
  *  description:  API de gestion des choristes
  */
 
-//router.get('/totalAbsence', choristeController.getGeneralAbsenceStatus);
-router.post("/presenceRep/:idRepetition/:link",auth.loggedMiddleware,choristeController.presence)
 
 
-// router.get('/totalAbsence', choristeController.getGeneralAbsenceStatus);
-// router.get('/totalAbsencePupitre/:pupitre', choristeController.getAbsenceStatusByPupitre);
-// router.get('/totalAbsenceDate/:date', choristeController.getAbsencesByDate);
-// router.get('/totalAbsenceChoriste/:choristeId', choristeController.getAbsencesByChoristeId);
-
-// router.get('/totalAbsencePeriod/:startDate/:endDate', choristeController.getAbsenceByPeriod);
-// router.get('/totalAbsenceProgramme/:ProgrammeId', choristeController.getAbsenceByProgram);
-router.get('/total', choristeController.getAbsenceStatus);
-// router.get('/totalAbsencePupitre/:pupitre', choristeController.getAbsenceStatusByPupitre);
-router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
-router.post("/setDispo/:idConcert",auth.loggedMiddleware,choristeController.setDispo);
-router.get('/confirm-dispo/:userId/:idConcert/:uniqueToken', choristeController.confirmDispo);
 
 
-router.post("/presenceConcert/:idConcert/:link",auth.loggedMiddleware,choristeController.presenceConcert)
-router.get("/profile/:id", choristeController.getprofilchoriste);
-router.get("/statut/:id", choristeController.getstatutchoriste);
+
+
+
+
 
 
 router.get("/",choristeController.getChoriste)
@@ -291,19 +278,107 @@ router.get("/statut/:id", choristeController.getstatutchoriste);
 router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
 
 
-router.get("/lister/:idConcert",choristeController.Lister_choriste_toutchoeur)
-router.get("/pupitre/:idConcert/:pupitre",choristeController.Lister_choriste_pupitre)
 
 
-router.get("/historique",auth.loggedMiddleware,choristeController.getHistoriqueActivite)
-module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   name: Choriste
+ *   description: API de gestion des choristes
+ *
+ * components:
+ *   schemas:
+ *     Choriste:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: Confirmation de l'ajout de la présence
+ *
+ *   parameters:
+ *     - name: idRepetition
+ *       in: path
+ *       description: L'identifiant de la répétition
+ *       required: true
+ *       schema:
+ *         type: string
+ *     - name: link
+ *       in: path
+ *       description: Le lien de la répétition
+ *       required: true
+ *       schema:
+ *         type: string
+ *
+ *   responses:
+ *     BadRequestResponse:
+ *       description: Requête incorrecte
+ *       content:
+ *         application/json:
+ *           example:
+ *             erreur: "Erreur interne du serveur"
+ *     NotFoundResponse:
+ *       description: Entité non trouvée
+ *       content:
+ *         application/json:
+ *           example:
+ *             erreur: "Répétition non trouvée"
+ *     UnauthorizedResponse:
+ *       description: Accès non autorisé
+ *       content:
+ *         application/json:
+ *           example:
+ *             erreur: "Token invalide"
+ *     ConflictResponse:
+ *       description: Conflit
+ *       content:
+ *         application/json:
+ *           example:
+ *             erreur: "Le choriste est déjà présent à cette répétition"
+ *
+ * /choriste/presenceRep/{idRepetition}/{link}:
+ *   post:
+ *     summary: Ajouter la présence d'un choriste à une répétition
+ *     tags:
+ *       - Choriste
+ *     parameters:
+ *       - name: idRepetition
+ *         in: path
+ *         description: L'identifiant de la répétition
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: link
+ *         in: path
+ *         description: Le lien de la répétition
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Présence ajoutée avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PresenceResponse'
+ *       '400':
+ *         $ref: '#/components/responses/BadRequestResponse'
+ *       '404':
+ *         $ref: '#/components/responses/NotFoundResponse'
+ *       '401':
+ *         $ref: '#/components/responses/UnauthorizedResponse'
+ *       '409':
+ *         $ref: '#/components/responses/ConflictResponse'
+ */
+router.post("/presenceRep/:idRepetition/:link",auth.loggedMiddleware,auth.isChoriste,choristeController.presence)
+
 
 
 
 /**
  * @swagger
  * /choriste/setDispo/{idConcert}:
- *   patch:
+ *   post:
  *     summary: Indiquer la disponibilité pour un concert
  *     tags:
  *       - Choriste
@@ -314,20 +389,6 @@ module.exports = router;
  *         schema:
  *           type: string
  *         description: ID du concert
- *     requestBody:
- *       required: true
- *       description: Données pour indiquer la disponibilité
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               choriste:
- *                 type: string
- *                 description: ID du choriste
- *               diponiblitee:
- *                 type: boolean
- *                 description: Indique si le choriste est disponible
  *     responses:
  *       200:
  *         description: Succès - Concert mis à jour avec la disponibilité
@@ -338,6 +399,9 @@ module.exports = router;
  *       500:
  *         description: Erreur lors de la mise à jour de la disponibilité
  */
+
+router.post("/setDispo/:idConcert",auth.loggedMiddleware,auth.isChoriste,choristeController.setDispo);
+router.get('/confirm-dispo/:userId/:idConcert/:uniqueToken', choristeController.confirmDispo);
 
 
 
@@ -380,6 +444,9 @@ module.exports = router;
  *         $ref: '#/components/responses/InternalErrorResponse'
  */
 
+router.post("/presenceConcert/:idConcert/:link",auth.loggedMiddleware,auth.isChoriste,choristeController.presenceConcert)
+
+
 
 /**
  * @swagger
@@ -415,6 +482,8 @@ module.exports = router;
  *             example:
  *               erreur: "Erreur interne du serveur. Veuillez réessayer plus tard."
  */
+
+router.get("/lister/:idConcert",auth.loggedMiddleware,auth.isAdmin,choristeController.Lister_choriste_toutchoeur)
 
 
 
@@ -460,7 +529,45 @@ module.exports = router;
  *               erreur: "Erreur interne du serveur. Veuillez réessayer plus tard."
  */
 
+router.get("/pupitre/:idConcert/:pupitre",auth.loggedMiddleware,auth.isAdmin,choristeController.Lister_choriste_pupitre)
 
+
+
+/**
+ * @swagger
+ * /choriste/historique:
+ *   get:
+ *     summary: Get the activity history of a choriste.
+ *     description: Retrieve the number of rehearsals, concerts, and details of concerts participated in by a choriste.
+ *     tags:
+ *       - Choriste
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successful response with the choriste's activity history.
+ *         content:
+ *           application/json:
+ *             example:
+ *               historique:
+ *                 nbr_repetitions: 10
+ *                 nbr_concerts: 5
+ *                 concerts_participes:
+ *                   - date: 2024-02-01
+ *                     lieu: Concert Hall
+ *                     programme:
+ *                       titre: Concert Program 1
+ *                       oeuvres:
+ *                         - titre: Oeuvre 1
+ *                         - titre: Oeuvre 2
+ *                   - date: 2024-03-15
+ *                     lieu: Opera House
+ *                     programme:
+ *                       titre: Concert Program 2
+ *                       oeuvres:
+ *                         - titre: Oeuvre 3
+ */
+router.get("/historique",auth.loggedMiddleware,auth.isChoriste,choristeController.getHistoriqueActivite)
 
 
 /**
@@ -521,6 +628,52 @@ module.exports = router;
  *       500:
  *         description: Internal Server Error
  */
+
+router.get('/total',auth.loggedMiddleware,auth.isAdmin, choristeController.getAbsenceStatus);
+
+
+
+
+
+
+
+
+
+
+
+router.get("/:id",choristeController.fetchChoriste)
+
+router.post("/liste", choristeController.getChoristesByPupitre) 
+
+router.patch("/update/:id",auth.loggedMiddleware, auth.isAdmin, choristeController.updatePupitre)
+
+
+
+router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
+
+
+
+
+
+
+
+
+module.exports = router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

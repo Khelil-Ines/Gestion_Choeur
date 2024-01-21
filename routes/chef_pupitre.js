@@ -9,10 +9,11 @@ const auth=require('../middlewares/auth.js')
  *  name: Chef_de_Pupitre
  *  description:  API de gestion des chef de pupitres
  */
-router.post("/sauvegarder-presence-repetition/:idRepetition/:idChoriste",auth.loggedMiddleware,chef_controller.sauvegarderPresenceRepetition)
-router.post("/sauvegarder-presence-concert/:idConcert/:idChoriste",auth.loggedMiddleware,chef_controller.sauvegarderPresenceConcert)
 
-router.post("/login", chef_controller.login);
+
+
+
+
 /**
  * @swagger
  * /Chef_pupitre/:
@@ -107,53 +108,15 @@ router.get("/", chef_controller.get_chefs)
 
 router.post("/add/:id", chef_controller.Ajouter_Chef_PupitreByID);
 
-module.exports = router;
 
 
-/**
- * @swagger
- * /Chef_pupitre/login:
- *   post:
- *     summary: Authenticate a chef pupitre
- *     tags:
- *       - Chef_de_Pupitre
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               login:
- *                 type: string
- *               motDePasse:
- *                 type: string
- *     responses:
- *       '200':
- *         description: Successful authentication
- *         content:
- *           application/json:
- *             example:
- *               token: "your_generated_token_here"
- *       '401':
- *         description: Unauthorized - Login or password incorrect
- *         content:
- *           application/json:
- *             example:
- *               message: "Login ou mot passe incorrecte"
- *       '500':
- *         description: Internal server error
- *         content:
- *           application/json:
- *             example:
- *               error: "Internal Server Error"
- */
+
 
 
 
 /**
  * @swagger
- * /Chef_pupitre/sauvegarder-presence-repetition/{idRepetition}/{idChoriste}:
+ * /Chef_pupitre/repetition/{idRepetition}/{idChoriste}:
  *   post:
  *     summary: Ajouter la présence manuelle d'un choriste à une répétition
  *     tags:
@@ -201,31 +164,31 @@ module.exports = router;
  *         $ref: '#/components/responses/InternalErrorResponse'
  */
 
+router.post("/repetition/:idRepetition/:idChoriste",auth.loggedMiddleware,auth.isChefPupitre,chef_controller.sauvegarderPresenceRepetition)
 
 
 /**
  * @swagger
- * /Chef_pupitre/sauvegarder-presence-concert/{idConcert}/{idChoriste}:
+ * /Chef_pupitre/concert/{idConcert}/{idChoriste}:
  *   post:
  *     summary: Ajouter la présence manuelle d'un choriste à un concert
  *     tags:
  *       - Chef_de_Pupitre
  *     parameters:
- *       - name: idConcert
- *         in: path
- *         description: L'identifiant du concert
+ *       - in: path
+ *         name: idConcert
  *         required: true
+ *         description: ID of the concert.
  *         schema:
  *           type: string
- *       - name: idChoriste
- *         in: path
- *         description: L'identifiant du choriste
+ *       - in: path
+ *         name: idChoriste
  *         required: true
+ *         description: ID of the choriste.
  *         schema:
  *           type: string
  *     requestBody:
  *       required: true
- *       description: Données pour ajouter la présence manuelle
  *       content:
  *         application/json:
  *           schema:
@@ -233,24 +196,51 @@ module.exports = router;
  *             properties:
  *               raison:
  *                 type: string
- *                 description: Raison de la présence manuelle
+ *                 description: The reason for manual presence.
  *     responses:
  *       '200':
- *         description: Présence manuelle ajoutée avec succès
+ *         description: Presence added successfully.
  *         content:
  *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/PresenceConcertResponse'
- *       '400':
- *         $ref: '#/components/responses/BadRequestResponse'
+ *             example:
+ *               message: Présence manuelle ajoutée avec succès
  *       '403':
- *         $ref: '#/components/responses/UnauthorizedResponse'
+ *         description: Access not authorized.
+ *         content:
+ *           application/json:
+ *             example:
+ *               erreur: Accès non autorisé
  *       '404':
- *         $ref: '#/components/responses/NotFoundResponse'
+ *         description: Concert or choriste not found.
+ *         content:
+ *           application/json:
+ *             example:
+ *               erreur: Concert non trouvé
  *       '409':
- *         $ref: '#/components/responses/ConflictResponse'
+ *         description: Choriste is already present in the concert.
+ *         content:
+ *           application/json:
+ *             example:
+ *               erreur: Le choriste est déjà présent à ce concert
  *       '500':
- *         $ref: '#/components/responses/InternalErrorResponse'
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               erreur: Erreur interne du serveur
  */
+router.post("/concert/:idConcert/:idChoriste",auth.loggedMiddleware,auth.isChefPupitre,chef_controller.sauvegarderPresenceConcert)
+
+
+
+module.exports = router;
+
+
+
+
+
+
+
+
 
 

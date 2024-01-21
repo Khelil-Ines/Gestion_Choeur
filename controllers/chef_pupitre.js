@@ -180,40 +180,18 @@ exports.get_chefs = async (req, res) => {
     }
 };
 
-exports.login = (req, res, next) => {
-    User.findOne({ login: req.body.login })
-      .then((user) => {
-        if (!user) {
-          return res
-            .status(401)
-            .json({ message: "Login ou mot passe incorrecte" });
-        }
-        bcrypt
-          .compare(req.body.motDePasse, user.motDePasse)
-          .then((valid) => {
-            if (!valid) {
-              return res
-                .status(401)
-                .json({ message: "Login ou mot passe incorrecte" });
-            }
-            res.status(200).json({
-              token: jwt.sign({ userId: user._id }, "RANDOM_TOKEN_SECRET", {
-                expiresIn: "24h",
-              }),
-            });
-          })
-          .catch((error) => res.status(500).json({ error }));
-      })
-      .catch((error) => res.status(500).json({ error }));
-  };
+
 
 
   exports.sauvegarderPresenceRepetition = async (req, res) => {
     try {
       // Récupérez l'ID de la répétition et l'ID du choriste à partir des paramètres de la requête
       const { idRepetition, idChoriste } = req.params;
-  
-      const chefPupitre = await Chef_Pupitre.findOne({ compte: req.auth.compteId });
+      
+      const adminId = req.auth.compteId;  
+    console.log(adminId);
+
+    const chefPupitre = await Chef_Pupitre.findOne({ compte: adminId })
       if (!chefPupitre) {
         return res.status(404).json({ erreur: 'chef Pupitre non trouvée' });
       }
@@ -269,6 +247,7 @@ exports.login = (req, res, next) => {
       const { idConcert, idChoriste } = req.params;
   
       const chefPupitre = await Chef_Pupitre.findOne({ compte: req.auth.compteId });
+      console.log(chefPupitre)
       if (!chefPupitre) {
         return res.status(404).json({ erreur: 'chef Pupitre non trouvée' });
       }

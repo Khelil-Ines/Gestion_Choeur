@@ -7,7 +7,7 @@ const ListerCandidats = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 5;
 
-   if (page < 1 || pageSize < 1) {
+    if (page < 1 || pageSize < 1) {
       return res.status(400).json({
         error: "Les paramètres de pagination doivent être des valeurs positives.",
       });
@@ -19,7 +19,7 @@ const ListerCandidats = async (req, res) => {
     const candidates = await Candidat.find()
       .skip(startIndex)
       .limit(pageSize);
-     
+
     // Récupération du nombre total de candidats pour la pagination
     const totalCandidates = await Candidat.countDocuments();
     const totalPages = Math.ceil(totalCandidates / pageSize);
@@ -27,24 +27,28 @@ const ListerCandidats = async (req, res) => {
     // Filtrage par choix arbitraire (nom, prénom, skills, experience)
     const lastNameFilter = req.query.nom;
     const firstNameFilter = req.query.prénom;
-
-    console.log(lastNameFilter)
-
+    const cinFilter = req.query.CIN;
+    const emailFilter = req.query.email;
 
     const filteredCandidates = candidates.filter((candidate) => {
+      // Ensure that CIN is a string before using includes
+      const cinString = candidate.CIN ? candidate.CIN.toString() : '';
+
       return (
         (!firstNameFilter || candidate.prénom.toLowerCase().includes(firstNameFilter.trim().toLowerCase())) &&
-        (!lastNameFilter || candidate.nom.toLowerCase().includes(lastNameFilter.trim().toLowerCase()))
+        (!lastNameFilter || candidate.nom.toLowerCase().includes(lastNameFilter.trim().toLowerCase())) &&
+        (!cinFilter || cinString.includes(cinFilter.trim().toLowerCase())) &&
+        (!emailFilter || candidate.email.toLowerCase().includes(emailFilter.trim().toLowerCase()))
       );
     });
-    
-        // Vérification si la liste filtrée est vide
-        if (filteredCandidates.length === 0) {
-          return res.status(404).json({
-            error: "Aucun candidat ne correspond aux critères de recherche.",
-          });
-        }
-   
+
+    // Vérification si la liste filtrée est vide
+    if (filteredCandidates.length === 0) {
+      return res.status(404).json({
+        error: "Aucun candidat ne correspond aux critères de recherche.",
+      });
+    }
+
     // Retourne la liste paginée, les informations de pagination et les filtres
     res.json({
       candidates: filteredCandidates,
@@ -57,15 +61,16 @@ const ListerCandidats = async (req, res) => {
       filters: {
         firstName: firstNameFilter,
         lastName: lastNameFilter,
-
+        cin: cinFilter,
+        email: emailFilter,
       },
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Erreur lors de la récupération des candidats." });
   }
+};
 
-}
 
 const fetchCandidat = (req, res) => {
     Candidat.findOne({ _id: req.params.id })

@@ -335,28 +335,28 @@ router.patch(
 router.get(
   "/present/pupitre/:repetition",
   auth.loggedMiddleware,
-  auth.isChoriste,
+  auth.isChefPupitre,
   presenceConcertController.listPresentRepetitonMemePupitre
 );
 
 router.get(
   "/absent/pupitre/:repetition",
   auth.loggedMiddleware,
-  auth.isChoriste,
+  auth.isChefPupitre,
   presenceConcertController.listAbsentRepetitonMemePupitre
 );
 
 router.get(
   "/present/programme/:programme",
   auth.loggedMiddleware,
-  auth.isChoriste,
+  auth.isChefPupitre,
   presenceConcertController.listPresentProgrammeMemePupitre
 );
 
 router.get(
   "/absent/programme/:programme",
   auth.loggedMiddleware,
-  auth.isChoriste,
+  auth.isChefPupitre,
   presenceConcertController.listAbsentProgrammeMemePupitre
 );
 
