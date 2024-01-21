@@ -8,6 +8,7 @@ const Absence = require("../models/absence");
 const Repetition = require("../models/repetition");
 const Concert = require("../models/concert");
 const Compte = require("../models/compte");
+const ParamAbsence = require("../models/ParamAbs");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -85,37 +86,39 @@ exports.envoyerEmailNomination = async (req, res) => {
 
 exports.updateSeuilElimination = async (req, res) => {
   try {
-    seuilNomination = req.body.nouveauSeuil;
-    Absence.seuilNomination = seuilNomination;
+   
+    const seuilNom = req.body.nouveauSeuil;
+    const idParam = req.body.idParam;
+    const param = await ParamAbsence.findById(idParam);
+    param.seuilNomination = seuilNom
+    param.save();
+    return res.status(200).json({ message: "Seuil mis à jour avec succès" });
 
-    // Enregistrez les modifications dans la base de données
-    await Absence.save();
   } catch (error) {
-    res.status(200).json({ message: "Seuil mis à jour avec succès" });
+    res.status(400).json({ message: "erreur !" });
+
   }
 }
  
 
 // Schedule a cron job to send notifications periodically
-cron.schedule('0 0 * * *', async (req) => {
+cron.schedule('10 17 * * *', async (req) => {
   try {
     // Query the database for choristes with a specific status and starting today
-    const choristesElimine = await Choriste.find({
-      'historiqueStatut.statut': 'Eliminé',
-      'historiqueStatut.date': {
-        $gte: new Date().setHours(0, 0, 0, 0),
-        $lt: new Date().setHours(24, 0, 0, 0),
-      },
+    const choristesElimine = await Choriste.find({ statut: 'Eliminé'
+      // 'historiqueStatut.date': {
+      //   $gte: new Date().setHours(0, 0, 0, 0),
+      //   $lt: new Date().setHours(24, 0, 0, 0),
+      // },
     });
 
-    const choristesNomine = await Choriste.find({
-      'historiqueStatut.statut': 'Nominé',
-      'historiqueStatut.date': {
-        $gte: new Date().setHours(0, 0, 0, 0),
-        $lt: new Date().setHours(24, 0, 0, 0),
-      },
+    const choristesNomine = await Choriste.find({statut: 'Nominé'
+      // 'historiqueStatut.date': {
+      //   $gte: new Date().setHours(0, 0, 0, 0),
+      //   $lt: new Date().setHours(24, 0, 0, 0),
+      // },
     });
-
+    console.log(choristesNomine);
     // Emit notifications for choristes Eliminé today
     choristesElimine.forEach((choriste) => {
       if (choriste.historiqueStatut.length > 0) {
@@ -134,7 +137,7 @@ cron.schedule('0 0 * * *', async (req) => {
     // Emit notifications for choristes Nominé today
     choristesNomine.forEach((choriste) => {
       if (choriste.historiqueStatut.length > 0) {
-        const latestStatus = choriste.historiqueStatut[choriste.historiqueStatut.length - 1].statut;
+        const latestStatus = choriste.historiqueStatut[choriste.historiqueStatut.length - 1];
         console.log(`Choriste ${choriste.nom} is currently ${latestStatus}.`);
         // Emit the event to the specified room
         if (req.io) {
@@ -155,6 +158,7 @@ cron.schedule('0 0 * * *', async (req) => {
 
 exports.declarerAbsenceRepetition = async (req, res) => {
   try {
+    const param = await ParamAbsence.findById("65ad59315be4b2b36d588f5b");
     // Find the latest répétition
     const latestRepetition = await Repetition.findOne().sort({ date: -1 });
 
@@ -198,7 +202,7 @@ exports.declarerAbsenceRepetition = async (req, res) => {
 
       console.log(choriste.absence);
       // Mettre à jour le statut en fonction des nouvelles règles
-      if (choriste.nbr_absences > Absence.seuilNomination) {
+      if (choriste.nbr_absences > param.seuilNomination) {
         choriste.statut = "Eliminé";
         const compteId = choriste.compte;
         Compte.findOneAndDelete({ _id: compteId });
@@ -207,7 +211,7 @@ exports.declarerAbsenceRepetition = async (req, res) => {
           statut: choriste.statut,
           date: latestRepetition.date,
         });
-      } else if (choriste.nbr_absences === Absence.seuilNomination) {
+      } else if (choriste.nbr_absences === param.seuilNomination) {
         choriste.statut = "Nominé";
         choriste.historiqueStatut.push({
           statut: choriste.statut,
@@ -240,6 +244,8 @@ exports.declarerAbsenceRepetition = async (req, res) => {
 
 exports.declarerAbsenceConcert = async (req, res) => {
   try {
+    const param = await ParamAbsence.findById("65ad59315be4b2b36d588f5b");
+
     // Find the latest concert
     const latestConcert = await Concert.findOne().sort({ date: -1 });
 
@@ -278,7 +284,7 @@ exports.declarerAbsenceConcert = async (req, res) => {
       choriste.absences.push(savedAbsence._id);
 
       // Mettre à jour le statut en fonction des nouvelles règles
-      if (choriste.nbr_absences > Absence.seuilNomination) {
+      if (choriste.nbr_absences > param.seuilNomination) {
         const compteId = choriste.compte;
         Compte.findOneAndDelete({ _id: compteId });
         choriste.compte = null;
@@ -287,7 +293,7 @@ exports.declarerAbsenceConcert = async (req, res) => {
           statut: choriste.statut,
           date: latestConcert.date,
         });
-      } else if (choriste.nbr_absences == Absence.seuilNomination) {
+      } else if (choriste.nbr_absences == param.seuilNomination) {
         choriste.statut = "Nominé";
         choriste.historiqueStatut.push({
           statut: choriste.statut,
@@ -520,10 +526,11 @@ exports.getElimines = async (req, res) => {
 exports.getNomines = async (req, res) => {
   try {
     const ChoristesNominees = await Choriste.find({ statut: "Nominé" });
-    if (!ChoristesNominees.length === 0) {
+    console.log(ChoristesNominees);
+    if (ChoristesNominees) {
       return res.status(200).json({ ChoristesNominees });
     } else {
-      return res.status(200).json({ message: "Aucun choriste nominé trouvé" });
+      return res.status(400).json({ message: "Aucun choriste nominé trouvé" });
     }
   } catch (error) {
     console.error(error);

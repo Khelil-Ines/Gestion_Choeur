@@ -18,7 +18,7 @@ const { EventEmitter } = require('events');
 
 
 
-const tacheMiseAJourStatut =  cron.schedule('* * * * * ', async () => {
+const tacheMiseAJourStatut =  cron.schedule('12 12 * * * ', async () => {
       try {
           
           
@@ -1160,24 +1160,7 @@ exports.getAbsenceStatus = async (req, res) => {
       return res.json({ date, pupitre, ProgrammeId, totalAbsences, filteredAbsences });
     }
     
-    // if (pupitre && ProgrammeId) {
-    //   const choristers = await Choriste.find({ pupitre }).populate('absences');
     
-    //   const filteredAbsences = choristers.reduce((allAbsences, chorister) => {
-    //     const choristerAbsences = chorister.absences.filter(absence => {
-    //       return absence.Type === 'Repetition' && absence.programmeId === ProgrammeId;
-    //       // Assuming there is a property named programmeId in the absence object
-    //     });
-    
-    //     return allAbsences.concat(choristerAbsences);
-    //   }, []);
-    
-    //   const totalAbsences = filteredAbsences.reduce((count, absence) => {
-    //     return count + 1; // Counting all absences without checking the type
-    //   }, 0);
-    
-    //   return res.json({ pupitre, ProgrammeId, totalAbsences, filteredAbsences });
-    // }
     
 
      // Check for choristeId and date
@@ -1547,9 +1530,7 @@ if (saison)
  
 
     // General absence status
-    const totalRehearsalAbsences = await Absence.countDocuments({ Type: 'Repetition' });
-
-    return res.json({ totalRehearsalAbsences });
+   
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });

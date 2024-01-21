@@ -154,14 +154,14 @@ const updateRepetition = (req, res) => {
         model: repetition,
         message: "objet modifié!",
       });
-      axios.get(
-        "http://localhost:5000/api/notifrep/changes/" +
-          repetition._id +
-          "/" +
-          repetition.heureDebut +
-          "/" +
-          repetition.lieu
-      );
+      // axios.get(
+      //   "http://localhost:5000/api/notifrep/changes/" +
+      //     repetition._id +
+      //     "/" +
+      //     repetition.heureDebut +
+      //     "/" +
+      //     repetition.lieu
+      // );
     }
   });
 };

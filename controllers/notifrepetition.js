@@ -5,11 +5,11 @@ const moment = require("moment");
 
 //Rappel de répétition selon des paramétres
 let notif;
-const envoyerNotification = async (req, res,repetitions, heure, minute, jar) => {
-  // const { repetitions, heure, minute, jar } = req.params;
+const envoyerNotification = async (req, res) => {
+   const { repetitions, heure, minute, jar } = req.params;
   const connecte = await Choriste.findOne({ compte: req.auth.compteId });
   const listerep = await Répetition.find();
-
+  
   listerep.forEach((rep) => {
     const dateCible = moment(rep.date);
     const nJoursAvant = dateCible.subtract(jar, "days");

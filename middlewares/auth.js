@@ -128,3 +128,18 @@ module.exports.isAdminOrChoriste = async (req, res, next) => {
     res.status(401).json({ error: error.message });
   }
 };
+
+module.exports.choristeActif = async (req, res, next) => {
+  try {
+    const choriste = await Choriste.findOne({ compte: req.auth.compteId });
+
+    console.log(choriste.statut);
+      if (choriste.statut === "Actif") {
+        next();
+      } else {
+        res.status(403).json({ error: "Pas de notif : Ce choriste est en congé " });
+      }
+    } catch (error) {
+      res.status(401).json({ error: error.message });
+    }
+};

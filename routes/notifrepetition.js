@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const notifrepController = require("../controllers/notifrepetition");
 const auth = require("../middlewares/auth");
-const choriste = require("../middlewares/Choriste");
 
 /**
  * @swagger
@@ -11,6 +10,13 @@ const choriste = require("../middlewares/Choriste");
  *  description:  API de gestion des notifications des répétitions
  */
 
+router.get(
+  "/rappel/:repetitions/:heure/:minute/:jar",
+  auth.loggedMiddleware,
+  auth.isChoriste,
+  auth.choristeActif,
+  notifrepController.envoyerNotification
+);
 /**
  * @swagger
  * /notifrep/rappel/{repetitions}/{heure}/{minute}/{jar}:
@@ -58,14 +64,7 @@ const choriste = require("../middlewares/Choriste");
  *       500:
  *         description: Internal Server Error
  */
-router.get(
-  "/rappel/:repetitions/:heure/:minute/:jar",
-  auth.loggedMiddleware,
-  auth.isChoriste,
-  auth.isChefPupitre,
-  choriste.choristeActif,
-  notifrepController.envoyerNotification
-);
+
 
 /**
  * @swagger

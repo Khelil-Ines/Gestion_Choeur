@@ -7,7 +7,7 @@ const Admin = require("../models/admin");
 const addConge = async (req, res) => {
   try {
     const choriste = await Choriste.findOne({ compte: req.auth.compteId });
-    const admin = await Admin.findOne({ _id: "65aba50c9d89164d30009492" });
+    const admin = await Admin.findById({ _id: req.params.AdminId });
 
     if (!admin) {
       return res.status(404).json({ error: "Admin not found." });
@@ -48,7 +48,7 @@ const addConge = async (req, res) => {
   }
 };
 
-const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
+const debutCongeStatut = cron.schedule("54 17 * * * ", async (req) => {
   try {
     // Récupérer tous les choristes à partir de la base de données
     const choristes = await Choriste.find();
@@ -58,15 +58,15 @@ const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
       if (choriste.statut === "Actif") {
         console.log(choriste.statut);
         const lastConge = choriste.conges[choriste.conges.length - 1];
+        if (!lastConge) {
+          console.log("No congé found for this choriste.");
+        }else
         if (lastConge) {
           const lastCongeId = lastConge._id;
           console.log("ID of the last congé 1111:", lastCongeId);
           const conge = await Conge.findById(lastCongeId);
           console.log(conge);
-          if (!conge) {
-            console.log("No congé found for the choriste.");
-            
-          } else {
+          
             // Vérifiez si la date de fin est égale à la date actuelle
             if (new Date(conge.date_debut).setHours(0, 0, 0, 0) === new Date().setHours(0, 0, 0, 0)) {
               console.log("The congé begins today.");
@@ -93,7 +93,7 @@ const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
               }
             }
           }
-        }
+        
       }
     }
   } catch (error) {
@@ -103,7 +103,7 @@ const debutCongeStatut = cron.schedule("* * * * * ", async (req) => {
 });
 debutCongeStatut.start();
 
-const finCongeStatut = cron.schedule("* * * * * ", async (req) => {
+const finCongeStatut = cron.schedule("55 17 * * * ", async (req) => {
   try {
     // Récupérer tous les choristes à partir de la base de données
     const choristes = await Choriste.find();

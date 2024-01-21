@@ -12,29 +12,22 @@ const Repetition = require("../models/repetition.js");
 const cron = require('node-cron');
 
 
-const ConcertFinie = cron.schedule('10 13 * * *', async (res) => {
+const ConcertFinie = cron.schedule('11 16 * * *', async () => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = new Date().setHours(0, 0, 0, 0);
+    const concerts = await Concert.find()
+    for (const concert of concerts) {
+      if (concert.date.setHours(0, 0, 0, 0) <= today) {
+        console.log(`Updating concert ${concert._id}...`);
+        concert.etat = "Done";
+        await concert.save();
+        console.log('concerts updated successfully.');
 
-    const concertToUpdate = await Concert.find({ date: { $lt: today } });
-
-    if (!concertToUpdate || concertToUpdate.length === 0) {
-      console.error('No concerts found.');
-      return res.status(404).json({ error: 'Aucune concert trouvée.' });
+      }
     }
-
-    // Assuming 'etat' is a field in your Repetition model
-    for (const concert of concertToUpdate) {
-      console.log(`Updating concert ${concert._id}...`);
-      concert.etat = 'Done';
-      await concert.save();
-    }
-
-    console.log('concerts updated successfully.');
+    
   } catch (error) {
     console.error("Erreur lors de la mise à jour des concert :", error);
-    return res.status(500).json({ error: "Erreur lors de la mise à jour des concert" });
   }
 });
 

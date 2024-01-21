@@ -21,7 +21,7 @@ const choristeSchema = mongoose.Schema({
   },
   statut: {
     type: String,
-    enum: ['Actif', 'En_Congé', 'Eliminé', "Eliminé_Discipline"],
+    enum: ['Actif', 'En_Congé','Nominé', 'Eliminé', "Eliminé_Discipline"],
     default: 'Actif',
   },
   niveau: {

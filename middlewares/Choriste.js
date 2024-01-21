@@ -1,5 +1,6 @@
 exports.choristeActif = (req, res, next) => {
     try {
+      console.log(req.auth.statut);
         if (req.auth.statut === "Actif") {
           next();
         } else {

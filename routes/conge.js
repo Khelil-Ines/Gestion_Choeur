@@ -82,6 +82,6 @@ const auth = require('../middlewares/auth');
  *                   description: Message d'erreur
  */
 
-router.post('/addconge',auth.loggedMiddleware, auth.isChoriste, congeController.addConge);
+router.post('/addconge/:AdminId',auth.loggedMiddleware, auth.isChoriste, congeController.addConge);
 
 module.exports = router;
