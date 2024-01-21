@@ -159,8 +159,9 @@ const getCandidatsBySaison = async (req, res) => {
 
     // Récupérez les candidats pour l'année spécifiée
     const candidats = await Candidat.find({
-      $expr: {
-        $eq: [{ $year: "$createdAt" }, year],
+      createdAt: {
+        $gte: new Date(`${year}-01-01`),
+        $lt: new Date(`${year + 1}-01-01`),
       },
     });
 

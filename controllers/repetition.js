@@ -3,7 +3,9 @@ const Choriste = require("../models/choriste");
 const crypto = require("crypto");
 const moment = require("moment");
 const axios = require("axios");
-const cron = require("node-cron");
+const cron = require('node-cron');
+const Concert = require("../models/concert");
+
 
 const RepetitionFinie = cron.schedule("01 12 * * *", async () => {
   try {
@@ -34,6 +36,7 @@ const RepetitionFinie = cron.schedule("01 12 * * *", async () => {
 });
 
 RepetitionFinie.start();
+
 
 const fetchRepetition = (req, res) => {
   Repetition.findOne({ _id: req.params.id })
@@ -179,6 +182,7 @@ const deleteRepetition = (req, res) => {
     });
 };
 
+
 const getPlanningByDate = async (req, res) => {
   try {
     const dateParam = req.body.date;
@@ -214,13 +218,22 @@ const getPlanningByDate = async (req, res) => {
 
 const repetitionPourcentage = async (req, res) => {
   try {
+    const concert = await Concert.findOne({ _id: req.params.id });
+
+    if (!concert) {
+      return res.status(404).json({
+        success: false,
+        message: 'Concert not found.',
+      });
+    }
+
+    const liste_Absents = concert.liste_Presents;
+    console.log(liste_Absents);
     const {
       date,
       heureDebut,
       heureFin,
       lieu,
-      liste_Presents,
-      liste_Abs,
       prcSoprano,
       prcAlto,
       prcTenor,
@@ -229,8 +242,49 @@ const repetitionPourcentage = async (req, res) => {
       programme,
     } = req.body;
 
-    // Vérifiez que les pourcentages sont fournis et valides
-    const totalChoristes = liste_Presents.length; // Supposons que la liste_Presents contienne tous les choristes disponibles
+    // Initialisez les compteurs pour chaque pupitre
+    let countSoprano = 0;
+    let countAlto = 0;
+    let countTenor = 0;
+    let countBasse = 0;
+
+    // Parcourez la liste des absents et comptez les choristes pour chaque pupitre
+    for (const choristeId of liste_Absents) {
+      try {
+        // Recherchez le choriste dans la base de données
+        const choriste = await Choriste.findById(choristeId);
+    
+        // Vérifiez si le choriste existe et s'il a un pupitre
+        if (choriste && choriste.pupitre) {
+          // Mettez à jour les compteurs en fonction du pupitre du choriste
+          switch (choriste.pupitre) {
+            case 'Soprano':
+              countSoprano++;
+              break;
+            case 'Alto':
+              countAlto++;
+              break;
+            case 'Tenor':
+              countTenor++;
+              break;
+            case 'Basse':
+              countBasse++;
+              break;
+          }
+        }    
+      } catch (error) {
+        console.error('Erreur lors de la recherche du choriste :', error);
+      }
+    }
+    
+    console.log('le nombre de choristes Soprano est : ', countSoprano)
+    console.log('le nombre de choristes Alto est : ', countAlto)
+    console.log('le nombre de choristes Tenor est : ', countTenor)
+    console.log('le nombre de choristes Basse est : ', countBasse)
+    const totalPourcentage = countSoprano + countAlto + countTenor + countBasse;
+console.log('le total des choristes est : ', totalPourcentage)
+
+    //const totalChoristes = liste_Absents.length; 
 
     if (
       !Number.isInteger(prcSoprano) ||
@@ -246,45 +300,22 @@ const repetitionPourcentage = async (req, res) => {
       });
     }
 
-    // Calculez le nombre de choristes nécessaires pour chaque pupitre
-    const nbChoristesSoprano = Math.round((prcSoprano / 100) * totalChoristes);
-    console.log(
-      "le nombre de choristes Soprano demandé est : ",
-      nbChoristesSoprano
-    );
-    const nbChoristesAlto = Math.round((prcAlto / 100) * totalChoristes);
-    console.log("le nombre de choristes Alto demandé est : ", nbChoristesAlto);
-    const nbChoristesTenor = Math.round((prcTenor / 100) * totalChoristes);
-    console.log(
-      "le nombre de choristes Tenor demandé est : ",
-      nbChoristesTenor
-    );
-    const nbChoristesBasse = Math.round((prcBasse / 100) * totalChoristes);
-    console.log(
-      "le nombre de choristes Basse demandé est : ",
-      nbChoristesBasse
-    );
+    const nbChoristesSoprano = Math.round((prcSoprano / 100) * countSoprano);
+    console.log('le nombre de choristes Soprano demandé est : ', nbChoristesSoprano)
+    const nbChoristesAlto = Math.round((prcAlto / 100) * countAlto);
+    console.log('le nombre de choristes Alto demandé est : ', nbChoristesAlto)
+    const nbChoristesTenor = Math.round((prcTenor / 100) * countTenor);
+    console.log('le nombre de choristes Tenor demandé est : ', nbChoristesTenor)
+    const nbChoristesBasse = Math.round((prcBasse / 100) * countBasse);
+    console.log('le nombre de choristes Basse demandé est : ', nbChoristesBasse)
 
-    const listeChoristesSoprano = await Choriste.find({
-      _id: { $in: liste_Presents },
-      pupitre: "Soprano",
-    });
+    const listeChoristesSoprano = await Choriste.find({ _id: { $in: liste_Absents }, pupitre: 'Soprano' });
     //console.log('la liste Soprano est : ', listeChoristesSoprano);
-    const listeChoristesBasse = await Choriste.find({
-      _id: { $in: liste_Presents },
-      pupitre: "Basse",
-    });
+    const listeChoristesBasse = await Choriste.find({ _id: { $in: liste_Absents }, pupitre: 'Basse'});
     //console.log('la liste Basse est : ', listeChoristesBasse);
-    const listeChoristesTenor = await Choriste.find({
-      _id: { $in: liste_Presents },
-      pupitre: "Tenor",
-    });
+    const listeChoristesTenor = await Choriste.find({ _id: { $in: liste_Absents }, pupitre: 'Tenor' });
     //console.log('la liste Tenor est : ', listeChoristesTenor);
-    const listeChoristesAlto = await Choriste.find({
-      _id: { $in: liste_Presents },
-      pupitre: "Alto",
-    });
-    //console.log('la liste Alto est : ', listeChoristesAlto);
+    const listeChoristesAlto = await Choriste.find({ _id: { $in: liste_Absents } , pupitre: 'Alto'});
 
     const listeSoprano = listeChoristesSoprano.slice(0, nbChoristesSoprano);
     //console.log('la liste Soprano est : ', listeSoprano);
@@ -304,8 +335,6 @@ const repetitionPourcentage = async (req, res) => {
       heureDebut,
       heureFin,
       lieu,
-      liste_Presents,
-      liste_Abs,
       prcSoprano,
       prcAlto,
       prcTenor,

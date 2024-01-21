@@ -7,7 +7,6 @@ const nodemailer = require('nodemailer');
 const ejs = require("ejs");
 const path = require("path");
 const bcrypt = require('bcrypt');
-const Audition = require('../models/audition')
 
 //Ines CRUD Audition 
 

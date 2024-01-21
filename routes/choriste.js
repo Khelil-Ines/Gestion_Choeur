@@ -28,6 +28,75 @@ router.get("/:id",choristeController.fetchChoriste)
 
 router.post("/liste", choristeController.getChoristesByPupitre) 
 
+/**
+ * @swagger
+ * /choriste/update/{id}:
+ *   patch:
+ *     summary: Met à jour le pupitre d'un choriste (réservé aux administrateurs)
+ *     tags: [Choriste]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: L'ID du choriste
+ *     requestBody:
+ *       description: Les détails de la mise à jour du pupitre
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               pupitre:
+ *                 type: string
+ *                 enum: ['Soprano', 'Alto', 'Basse', 'Tenor']
+ *                 description: Le nouveau pupitre du choriste
+ *     responses:
+ *       '200':
+ *         description: Mise à jour réussie - Retourne le choriste mis à jour
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Choriste'
+ *       '401':
+ *         description: Non autorisé - L'utilisateur doit être authentifié en tant qu'administrateur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Message d'erreur
+ *       '404':
+ *         description: Choriste non trouvé - Aucun choriste trouvé avec l'ID spécifié
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Message d'erreur
+ *       '500':
+ *         description: Erreur serveur - Quelque chose s'est mal passé du côté serveur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Message d'erreur détaillé
+ *                 message:
+ *                   type: string
+ *                   description: Message d'erreur
+ */
+
 router.patch("/update/:id",auth.loggedMiddleware, auth.isAdmin, choristeController.updatePupitre)
 
 /**
