@@ -8,7 +8,19 @@ const ejs = require("ejs");
 const path = require("path");
 const bcrypt = require('bcrypt');
 const Audition = require('../models/audition');
+const BesoinChoriste = require('../models/besoinChoriste')
 
+
+const addBesoinChoriste = (req, res) => {
+  const newBesoin = new BesoinChoriste(req.body);
+  newBesoin.save()
+      .then(besoin => {
+          res.json(besoin);
+      })
+      .catch(err => {
+          res.status(400).json({ erreur: 'Échec de la création des besoin en choristes' });
+      });
+}
 //Ines CRUD Audition 
 
 
@@ -1047,4 +1059,5 @@ module.exports = {
   fetchPlanningByCandidat,
   genererPlanningDefaillants,
   fetchPlanningByDateHeure,
+  addBesoinChoriste
 };

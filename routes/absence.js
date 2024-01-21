@@ -74,31 +74,51 @@ router.post("/nomination",auth.loggedMiddleware, auth.isAdmin, absenceController
  * @swagger
  * /absence/seuil:
  *   post:
- *     summary: Update elimination threshold
- *     tags: [Absence]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               nouveauSeuil:
- *                 type: integer
+ *     summary: Update Seuil Elimination
+ *     description: Update the threshold for elimination
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - Absence
+ *     parameters:
+ *       - in: body
+ *         name: seuilElimination
+ *         required: true
+ *         description: The new threshold value
+ *         schema:
+ *           type: object
+ *           properties:
+ *             nouveauSeuil:
+ *               type: integer
+ *               description: The new threshold value
+ *             idParam:
+ *               type: string
+ *               description: The ID of the parameter to update
  *     responses:
- *       '200':
- *         description: Seuil mis à jour avec succès
+ *       200:
+ *         description: Successful update
  *         content:
  *           application/json:
  *             example:
  *               message: Seuil mis à jour avec succès
- *       '500':
- *         description: Server error
+ *       400:
+ *         description: Error during update
  *         content:
  *           application/json:
  *             example:
- *               error: Internal Server Error
- *               message: An unexpected error occurred
+ *               message: Erreur lors de la mise à jour du seuil
+ *       401:
+ *         description: Unauthorized access
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Unauthorized
+ *       403:
+ *         description: Forbidden access
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Forbidden
  */
 
 router.post('/seuil',auth.loggedMiddleware, auth.isAdmin, absenceController.updateSeuilElimination)

@@ -9,6 +9,8 @@ const auth=require('../middlewares/auth.js')
  *  description:  API de gestion des auditions et du planning
  */
 
+
+
 /**
  * @swagger
  * /audition/delete/{id}:
@@ -557,6 +559,7 @@ router.get('/candidat/:candidatId',  auth.loggedMiddleware, auth.isAdmin , plann
 
 router.post('/defaillant', auth.loggedMiddleware, auth.isAdmin ,  planningController.genererPlanningDefaillants);
 
+router.post("/besoin", auth.loggedMiddleware, auth.isAdmin,  planningController.addBesoinChoriste);
 
 module.exports = router;
 
