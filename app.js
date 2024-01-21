@@ -17,13 +17,14 @@ const compteRouter = require("./routes/compte");
 const congeRouter = require("./routes/conge");
 const SaisonRouter = require("./routes/saison.js");
 const ProgrammeRouter = require("./routes/programme");
-const resetRouter = require("./routes/reset");
+const path = require('path');
 const liste_presence_concert = require("./routes/liste_present_concert.js");
 
 const notifrepetition = require("./routes/notifrepetition.js");
 const ConcertRouter = require("./routes/concert");
 const mailRouter = require("./routes/validermail.js");
 const adminRouter = require("./routes/admin");
+const resetRouter = require("./routes/reset");
 
 const options = {
   definition: {
@@ -128,8 +129,12 @@ app.use((req, res, next) => {
 
 
 
-app.use("/notif", (req, res) => {
-  res.send("OK"); // Réponse simple pour indiquer que la route est accessible
+app.get("/notif", (req, res) => {
+  // Spécifiez le chemin du fichier HTML que vous souhaitez renvoyer
+  const filePath = path.join(__dirname, 'public', './index1.html');
+
+  // Utilisez res.sendFile() pour envoyer le fichier HTML
+  res.sendFile(filePath);
 });
 
 // Configurations Socket.IO

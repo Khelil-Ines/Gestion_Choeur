@@ -22,6 +22,103 @@ const CINMiddleware = require("../middlewares/CIN");
 
 
 
+/**
+ * @swagger
+ * /choriste/total:
+ *   get:
+ *     summary: List choristers available for a specific choir section in a concert
+ *     tags:
+ *       - Choriste
+ *     parameters:
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *         description: Start date for filtering absences
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *         description: End date for filtering absences
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *         description: Specific date for filtering absences
+ *       - in: query
+ *         name: choristeId
+ *         schema:
+ *           type: string
+ *         description: ID of the chorister for individual filtering
+ *       - in: query
+ *         name: pupitre
+ *         schema:
+ *           type: string
+ *         description: Chorister's section or group
+ *       - in: query
+ *         name: ProgrammeId
+ *         schema:
+ *           type: string
+ *         description: ID of the program for filtering
+ *       - in: query
+ *         name: dateDonne
+ *         schema:
+ *           type: string
+ *         description: Date for filtering absences based on given date
+ *       - in: query
+ *         name: saison
+ *         schema:
+ *           type: string
+ *         description: Filter absences based on the current season
+ *     responses:
+ *       200:
+ *         description: Successful response with absence status
+ *       400:
+ *         description: Bad request, check the request parameters
+ *       404:
+ *         description: Chorister not found or other related errors
+ *       500:
+ *         description: Internal Server Error
+ */
+
+router.get('/total',auth.loggedMiddleware,auth.isAdmin, choristeController.getAbsenceStatus);
+
+/**
+ * @swagger
+ * /choriste/historique:
+ *   get:
+ *     summary: Get the activity history of a choriste.
+ *     description: Retrieve the number of rehearsals, concerts, and details of concerts participated in by a choriste.
+ *     tags:
+ *       - Choriste
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successful response with the choriste's activity history.
+ *         content:
+ *           application/json:
+ *             example:
+ *               historique:
+ *                 nbr_repetitions: 10
+ *                 nbr_concerts: 5
+ *                 concerts_participes:
+ *                   - date: 2024-02-01
+ *                     lieu: Concert Hall
+ *                     programme:
+ *                       titre: Concert Program 1
+ *                       oeuvres:
+ *                         - titre: Oeuvre 1
+ *                         - titre: Oeuvre 2
+ *                   - date: 2024-03-15
+ *                     lieu: Opera House
+ *                     programme:
+ *                       titre: Concert Program 2
+ *                       oeuvres:
+ *                         - titre: Oeuvre 3
+ */
+router.get("/historiqueC",auth.loggedMiddleware,auth.isChoriste,choristeController.getHistoriqueActivite)
+
 router.get("/",choristeController.getChoriste)
 
 router.get("/:id",choristeController.fetchChoriste)
@@ -533,103 +630,9 @@ router.get("/pupitre/:idConcert/:pupitre",auth.loggedMiddleware,auth.isAdmin,cho
 
 
 
-/**
- * @swagger
- * /choriste/historique:
- *   get:
- *     summary: Get the activity history of a choriste.
- *     description: Retrieve the number of rehearsals, concerts, and details of concerts participated in by a choriste.
- *     tags:
- *       - Choriste
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Successful response with the choriste's activity history.
- *         content:
- *           application/json:
- *             example:
- *               historique:
- *                 nbr_repetitions: 10
- *                 nbr_concerts: 5
- *                 concerts_participes:
- *                   - date: 2024-02-01
- *                     lieu: Concert Hall
- *                     programme:
- *                       titre: Concert Program 1
- *                       oeuvres:
- *                         - titre: Oeuvre 1
- *                         - titre: Oeuvre 2
- *                   - date: 2024-03-15
- *                     lieu: Opera House
- *                     programme:
- *                       titre: Concert Program 2
- *                       oeuvres:
- *                         - titre: Oeuvre 3
- */
-router.get("/historique",auth.loggedMiddleware,auth.isChoriste,choristeController.getHistoriqueActivite)
 
 
-/**
- * @swagger
- * /choriste/total:
- *   get:
- *     summary: List choristers available for a specific choir section in a concert
- *     tags:
- *       - Choriste
- *     parameters:
- *       - in: query
- *         name: startDate
- *         schema:
- *           type: string
- *         description: Start date for filtering absences
- *       - in: query
- *         name: endDate
- *         schema:
- *           type: string
- *         description: End date for filtering absences
- *       - in: query
- *         name: date
- *         schema:
- *           type: string
- *         description: Specific date for filtering absences
- *       - in: query
- *         name: choristeId
- *         schema:
- *           type: string
- *         description: ID of the chorister for individual filtering
- *       - in: query
- *         name: pupitre
- *         schema:
- *           type: string
- *         description: Chorister's section or group
- *       - in: query
- *         name: ProgrammeId
- *         schema:
- *           type: string
- *         description: ID of the program for filtering
- *       - in: query
- *         name: dateDonne
- *         schema:
- *           type: string
- *         description: Date for filtering absences based on given date
- *       - in: query
- *         name: saison
- *         schema:
- *           type: string
- *         description: Filter absences based on the current season
- *     responses:
- *       200:
- *         description: Successful response with absence status
- *       400:
- *         description: Bad request, check the request parameters
- *       404:
- *         description: Chorister not found or other related errors
- *       500:
- *         description: Internal Server Error
- */
 
-router.get('/total',auth.loggedMiddleware,auth.isAdmin, choristeController.getAbsenceStatus);
 
 
 

@@ -80,6 +80,7 @@ const auth=require('../middlewares/auth.js')
  *               error: Erreur lors de la récupération des candidats.
  */
 router.get("/ListerCandidat",auth.loggedMiddleware, auth.isAdmin, CandidatController.ListerCandidats);
+
 router.get("/:id",CandidatController.fetchCandidat)
 
 
