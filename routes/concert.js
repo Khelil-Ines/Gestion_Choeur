@@ -11,14 +11,6 @@ const auth=require('../middlewares/auth')
  *  description:  API de gestion des concerts
  */
 
-
-/**
- * @swagger
- * tags:
- *   name: Concert
- *   description: API for managing concerts
- */
-
 /**
  * @swagger
  * /concert/add:
@@ -120,7 +112,6 @@ const auth=require('../middlewares/auth')
  *                 type: object
  */
 
-
 router.post("/add", concertController.addConcert);
 
 /**
@@ -166,6 +157,7 @@ router.post("/add", concertController.addConcert);
  */
 
 router.get("/", concertController.fetchConcert);
+
 /**
  * @swagger
  * /concert/{id}:
@@ -264,6 +256,7 @@ router.get("/", concertController.fetchConcert);
  */
 
 router.patch("/:id", concertController.updateConcert);
+
 /**
  * @swagger
  * /concert/{id}:
@@ -299,11 +292,64 @@ router.patch("/:id", concertController.updateConcert);
  *               message: An unexpected error occurred
  */
 
-
 router.delete("/:id", concertController.deleteConcert);
+
+/**
+ * @swagger
+ * /concert/placement:
+ *   post:
+ *     summary: Attribue des places aux choristes présents pour un concert
+ *     tags: [Concert]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       description: L'ID du concert pour lequel attribuer les places
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               concertId:
+ *                 type: string
+ *                 description: L'ID du concert
+ *                 example: 61778c1c86f3a456ea77aa04
+ *     responses:
+ *       '200':
+ *         description: Places attribuées avec succès aux choristes présents
+ *       '401':
+ *         description: Non autorisé - L'utilisateur doit être connecté et être un administrateur
+ *       '500':
+ *         description: Erreur serveur - Quelque chose s'est mal passé du côté serveur
+ */
 router.post("/placement",auth.loggedMiddleware, auth.isAdmin, concertController.attribuerPlacesAuxChoristesPresentAuConcert);
+
+/**
+ * @swagger
+ * /concert/placement/{id}:
+ *   get:
+ *     summary: Affiche les placements des choristes pour un concert
+ *     tags: [Concert]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: L'ID du concert
+ *     responses:
+ *       '200':
+ *         description: Placements du concert affichés avec succès
+ *       '401':
+ *         description: Non autorisé - L'utilisateur doit être connecté et être un administrateur
+ *       '404':
+ *         description: Non trouvé - Le concert avec l'ID spécifié n'a pas été trouvé
+ *       '500':
+ *         description: Erreur serveur - Quelque chose s'est mal passé du côté serveur
+ */
 router.get("/placement/:id",auth.loggedMiddleware, auth.isAdmin, concertController.afficherPlacements);
-//router.patch("/placement/modifier/:id", concertController.modifierPlace);
 
   module.exports = router;
 

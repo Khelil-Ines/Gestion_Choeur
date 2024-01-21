@@ -21,12 +21,70 @@ router.patch("/:id", CandidatController.updateCandidat)
 
 router.post("/liste", CandidatController.getCandidatsByPupitre)
 
+/**
+ * @swagger
+ * /candidat/saison:
+ *   post:
+ *     summary: Obtenir les candidats par saison
+ *     tags: [Candidat]
+ *     requestBody:
+ *       description: L'ID de la saison pour filtrer les candidats
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               saisonId:
+ *                 type: string
+ *                 description: L'ID de la saison (ObjectID)
+ *     responses:
+ *       200:
+ *         description: Candidats récupérés avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     description: L'ID du candidat
+ *                   nom:
+ *                     type: string
+ *                     description: Le nom du candidat
+ *                   prénom:
+ *                     type: string
+ *                     description: Le prénom du candidat
+ *                   email:
+ *                     type: string
+ *                     description: L'email du candidat
+ *                   connaissance_musicale:
+ *                     type: string
+ *                     description: La connaissance musicale du candidat
+ *                   autres_activites:
+ *                     type: boolean
+ *                     description: Autres activités du candidat
+ *                   Taille:
+ *                     type: number
+ *                     description: La taille du candidat
+ *                   confirmation:
+ *                     type: boolean
+ *                     description: Statut de confirmation du candidat
+ *                   createdAt:
+ *                     type: string
+ *                     description: Date de création du candidat
+ *       400:
+ *         description: Mauvaise requête - Données invalides
+ *       500:
+ *         description: Erreur serveur - Quelque chose s'est mal passé du côté serveur
+ */
 router.post("/saison", CandidatController.getCandidatsBySaison)
-
 
 /**
  * @swagger
- * /api/candidat/add:
+ * /candidat/add:
  *   post:
  *     summary: Ajouter un nouveau candidat
  *     tags: [Candidat]

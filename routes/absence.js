@@ -292,13 +292,12 @@ router.get("/:id", absenceController.getAbsencesChoriste);
 
 /**
  * @swagger
- * path:
- *   /api/addAbsence:
+ *   /absence/addAbsence:
  *     post:
  *       summary: Ajoute une nouvelle absence pour un choriste
- *       tags: [Absences]
+ *       tags: [Absence]
  *       security:
- *         - bearerAuth: []  # Utilisez ce tag si l'authentification est nécessaire
+ *         - bearerAuth: [] 
  *       requestBody:
  *         required: true
  *         content:
@@ -328,6 +327,8 @@ router.get("/:id", absenceController.getAbsencesChoriste);
  *         '500':
  *           description: Erreur interne du serveur
  */
+router.post("/addAbsence",auth.loggedMiddleware, auth.isChoriste, absenceController.addAbsence);
+
 /**
  * @swagger
  * /absence/discipline/{id}:
@@ -364,7 +365,5 @@ router.get("/:id", absenceController.getAbsencesChoriste);
  */
 
 router.post("/discipline/:id", absenceController.EliminerDiscipline);
-router.post("/addAbsence",auth.loggedMiddleware, auth.isChoriste, absenceController.addAbsence);
-
 
 module.exports = router;

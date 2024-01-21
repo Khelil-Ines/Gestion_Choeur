@@ -179,7 +179,6 @@ const deleteRepetition = (req, res) => {
 };
 
 
-
 const getPlanningByDate = async (req, res) => {
   try {
     const dateParam = req.body.date;
