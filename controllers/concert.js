@@ -12,7 +12,7 @@ const Repetition = require("../models/repetition.js");
 const cron = require('node-cron');
 
 
-const ConcertFinie = cron.schedule('10 13 * * *', async () => {
+const ConcertFinie = cron.schedule('10 13 * * *', async (res) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

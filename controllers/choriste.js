@@ -625,9 +625,10 @@ exports.updatePresenceList = (concert, userId) => {
 
 exports.getHistoriqueActivite = async (req, res) => {
   try {
+    console.log("hello")
     // Find the choriste by their account ID
     const choriste = await Choriste.findOne({ compte: req.auth.compteId });
-
+    
     if (!choriste) {
       return res.status(404).json({ erreur: 'Choriste non trouvé' });
     }
