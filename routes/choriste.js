@@ -147,7 +147,7 @@ router.patch("/update/:id",auth.loggedMiddleware, auth.isAdmin, choristeControll
  *               message: An unexpected error occurred
  */
 
-router.get("/profile/:id", choristeController.getprofilchoriste);
+router.get("/profile/:id",auth.loggedMiddleware, auth.isAdminOrChoriste, choristeController.getprofilchoriste);
 
 /**
  * @swagger
@@ -193,7 +193,7 @@ router.get("/profile/:id", choristeController.getprofilchoriste);
  *               message: An unexpected error occurred
  */
 
-router.get("/statut/:id", choristeController.getstatutchoriste);
+router.get("/statut/:id",auth.loggedMiddleware, auth.isAdminOrChoriste, choristeController.getstatutchoriste);
 
 /**
  * @swagger
@@ -275,7 +275,7 @@ router.get("/statut/:id", choristeController.getstatutchoriste);
  */
 
 
-router.post("/",CINMiddleware.validateCIN , choristeController.addChoriste);
+router.post("/",auth.loggedMiddleware, auth.isAdmin, CINMiddleware.validateCIN , choristeController.addChoriste);
 
 
 

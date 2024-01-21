@@ -113,8 +113,41 @@ const auth=require('../middlewares/auth')
  */
 
 
-router.post("/add", concertController.addConcert);
+router.post("/add",auth.loggedMiddleware, auth.isAdmin, concertController.addConcert);
 
+
+
+
+
+
+/**
+ * @swagger
+ * /concert/statistics:
+ *   get:
+ *     summary: Get a list of statistics of concert
+ *     tags: [Concert]
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         required: true
+ *         description: The type of statistics (concert, choriste, oeuvre).
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         description: The ID for which statistics are requested.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successful response. Returns statistics based on the provided type and ID.
+ *       400:
+ *         description: Bad request. Missing required parameters or unsupported statistics type.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get("/statistic",auth.loggedMiddleware, auth.isAdmin, concertController.getStatistics);
 
 /**
  * @swagger
@@ -158,39 +191,7 @@ router.post("/add", concertController.addConcert);
  *               message: An unexpected error occurred
  */
 
-
-
-/**
- * @swagger
- * /concert/statistics:
- *   get:
- *     summary: Get a list of statistics of concert
- *     tags: [Concert]
- *     parameters:
- *       - in: query
- *         name: type
- *         required: true
- *         description: The type of statistics (concert, choriste, oeuvre).
- *         schema:
- *           type: string
- *       - in: query
- *         name: id
- *         required: true
- *         description: The ID for which statistics are requested.
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Successful response. Returns statistics based on the provided type and ID.
- *       400:
- *         description: Bad request. Missing required parameters or unsupported statistics type.
- *       500:
- *         description: Internal server error.
- */
-router.get("/statistic",auth.loggedMiddleware, auth.isAdmin, concertController.getStatistics);
-
-
-router.get("/", concertController.fetchConcert);
+router.get("/",auth.loggedMiddleware, auth.isAdmin, concertController.fetchConcert);
 
 /**
  * @swagger
@@ -289,7 +290,7 @@ router.get("/", concertController.fetchConcert);
  *           type: object
  */
 
-router.patch("/:id", concertController.updateConcert);
+router.patch("/:id",auth.loggedMiddleware, auth.isAdmin, concertController.updateConcert);
 
 /**
  * @swagger
@@ -327,7 +328,7 @@ router.patch("/:id", concertController.updateConcert);
  */
 
 
-router.delete("/:id", concertController.deleteConcert);
+router.delete("/:id",auth.loggedMiddleware, auth.isAdmin, concertController.deleteConcert);
 
 /**
  * @swagger

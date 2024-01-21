@@ -39,7 +39,7 @@ const auth = require('../middlewares/auth');
  *               error: Erreur lors de l'envoi de l'e-mail.
  */
 
-router.post("/", absenceController.envoyerEmailElimination);
+router.post("/",auth.loggedMiddleware, auth.isAdmin, absenceController.envoyerEmailElimination);
 
 /**
  * @swagger
@@ -68,7 +68,7 @@ router.post("/", absenceController.envoyerEmailElimination);
  *               error: Erreur lors de l'envoi de l'e-mail.
  */
 
-router.post("/nomination", absenceController.envoyerEmailNomination)
+router.post("/nomination",auth.loggedMiddleware, auth.isAdmin, absenceController.envoyerEmailNomination)
 
 /**
  * @swagger
@@ -101,7 +101,7 @@ router.post("/nomination", absenceController.envoyerEmailNomination)
  *               message: An unexpected error occurred
  */
 
-router.post('/seuil', absenceController.updateSeuilElimination)
+router.post('/seuil',auth.loggedMiddleware, auth.isAdmin, absenceController.updateSeuilElimination)
 
 /**
  * @swagger
@@ -141,7 +141,7 @@ router.post('/seuil', absenceController.updateSeuilElimination)
  *               message: An unexpected error occurred
  */
 
-router.patch("/declarationConcert", absenceController.declarerAbsenceConcert)
+router.patch("/declarationConcert",auth.loggedMiddleware, auth.isAdmin, absenceController.declarerAbsenceConcert)
 
 /**
  * @swagger
@@ -181,7 +181,7 @@ router.patch("/declarationConcert", absenceController.declarerAbsenceConcert)
  *               message: An unexpected error occurred
  */
 
-router.patch("/declarationRepetition", absenceController.declarerAbsenceRepetition)
+router.patch("/declarationRepetition",auth.loggedMiddleware, auth.isAdmin, absenceController.declarerAbsenceRepetition)
 /**
  * @swagger
  * /absence/elimines:
@@ -212,7 +212,7 @@ router.patch("/declarationRepetition", absenceController.declarerAbsenceRepetiti
  *               message: An unexpected error occurred
  */
 
-router.get("/elimines", absenceController.getElimines);
+router.get("/elimines",auth.loggedMiddleware, auth.isAdmin, absenceController.getElimines);
 
 /**
  * @swagger
@@ -244,7 +244,7 @@ router.get("/elimines", absenceController.getElimines);
  *               message: An unexpected error occurred
  */
 
-router.get("/nomines", absenceController.getNomines);
+router.get("/nomines",auth.loggedMiddleware, auth.isAdmin, absenceController.getNomines);
 /**
  * @swagger
  * /absence/{id}:
@@ -288,7 +288,7 @@ router.get("/nomines", absenceController.getNomines);
  *               message: An unexpected error occurred
  */
 
-router.get("/:id", absenceController.getAbsencesChoriste);
+router.get("/:id",auth.loggedMiddleware, auth.isAdmin, absenceController.getAbsencesChoriste);
 
 /**
  * @swagger
@@ -364,6 +364,6 @@ router.post("/addAbsence",auth.loggedMiddleware, auth.isChoriste, absenceControl
  *               message: An unexpected error occurred
  */
 
-router.post("/discipline/:id", absenceController.EliminerDiscipline);
+router.post("/discipline/:id",auth.loggedMiddleware, auth.isAdmin, absenceController.EliminerDiscipline);
 
 module.exports = router;
