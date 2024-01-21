@@ -64,7 +64,7 @@ const verifierExpirationLien = (req, res) => {
       confirmation: true,
       nom: " ",
       prénom: " ",
-      CIN: "12345678",
+      CIN: "00000000",
     });
 
     cand.save()

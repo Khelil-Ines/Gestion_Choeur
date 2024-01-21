@@ -106,7 +106,7 @@ router.get("/", auth.loggedMiddleware, auth.isAdmin, chef_controller.get_chefs)
  *               message: An unexpected error occurred
  */
 
-router.post("/add/:id", chef_controller.Ajouter_Chef_PupitreByID);
+router.post("/add/:id", auth.loggedMiddleware, auth.isAdmin, chef_controller.Ajouter_Chef_PupitreByID);
 
 
 

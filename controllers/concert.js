@@ -91,13 +91,7 @@ const addConcert = async (req, res) => {
     console.error("Invalid Date Format");
   }
 
-  Concert.create({ ...req.body, date: dateObject, link: randomLink })
-    .then((concert) =>
-      res.status(201).json({
-        model: concert,
-        message: "Concert créé!",
-      })
-    )
+
   Concert.create({ ...req.body, link: randomLink })
   .then((concert) =>
     res.status(201).json({
@@ -244,7 +238,7 @@ const attribuerPlacesAuxChoristesPresentAuConcert = async (req, res) => {
       return;
     }
 
-    const choristesPresentIds = concert.liste_Presents.map(String);
+    const choristesPresentIds = concert.liste_Abs.map(String);
     const choristesPresent = await Choriste.find({
       _id: { $in: choristesPresentIds },
     });

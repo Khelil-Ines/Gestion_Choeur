@@ -12,7 +12,8 @@ const CINMiddleware = require("../middlewares/CIN");
  *  description:  API de gestion des choristes
  */
 
-
+//juste pour le teste
+//router.get("/choristeupdated", choristeController.tacheMiseAJourStatut);
 
 
 
@@ -373,7 +374,6 @@ router.get("/statut/:id",auth.loggedMiddleware, auth.isAdminOrChoriste, choriste
 
 
 router.post("/",auth.loggedMiddleware, auth.isAdmin, CINMiddleware.validateCIN , choristeController.addChoriste);
-
 
 
 

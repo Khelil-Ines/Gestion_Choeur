@@ -9,7 +9,7 @@ const CandidatSchema = mongoose.Schema({
   email: { type: String, required: true , unique:true },
   connaissance_musicale: { type: String },
   autres_activites: { type: Boolean},
-  Taille: { type: Number, required: true },
+  Taille: { type: Number },
   confirmation: { type: Boolean, default: false},
   createdAt: { type: Date, default: () => moment().toDate() },
 });

@@ -832,7 +832,7 @@ const creerChoriste = async (candidat) => {
 
     if (!audition) {
       throw new Error("Audition non trouvée pour le candidat.");
-    }
+    }else{
 
     console.log(audition.pupitre)
     const nom= candidat.nom
@@ -852,7 +852,7 @@ const creerChoriste = async (candidat) => {
     const nouveauChoriste = new Choriste({
       nom: nom,
       prénom: prénom,
-      pupitre: audition.pupitre,
+      pupitre: pupitre,
       email: email,
       taille: taille,
       num_tel: num_tel,
@@ -891,7 +891,7 @@ const creerChoriste = async (candidat) => {
     console.log("E-mail de login envoyé avec succès.");
 
     return { choriste: nouveauChoriste, compte: nouveauCompte };
-  } catch (error) {
+  }} catch (error) {
     console.error("Erreur lors de la création du Choriste :", error);
     throw error;
   }

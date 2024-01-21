@@ -16,53 +16,108 @@ const saisonCourante = new Date().getFullYear();
 const { EventEmitter } = require('events');
 
 
-// Tâche planifiée pour déclencher la mise à jour du statut au début de chaque saison,programmée pour s'exécuter à minuit le 1er octobre de chaque année
-const tacheMiseAJourStatut = cron.schedule('0 0 1 10 * ', async () => {
-    try {
-        
-        
-        // Récupérer tous les choristes à partir de la base de données 
-        const choristes = await Choriste.find();
-       
 
-          // Mettre à jour le statut pour chaque choriste
-          for (const choriste of choristes) {
-      
 
-            if (choriste.date_adhesion.getFullYear() === saisonCourante) {
-                choriste.niveau = "Junior";
-                
+const tacheMiseAJourStatut =  cron.schedule('* * * * * ', async () => {
+      try {
+          
+          
+          // Récupérer tous les choristes à partir de la base de données 
+          const choristes = await Choriste.find();
+  
+            // Mettre à jour le statut pour chaque choriste
+            for (const choriste of choristes) {
+              const date = choriste.date_adhesion
+                if (!date)
+                { console.log("pas de date");
+            }else{
 
-             } else if ( choriste.date_adhesion.getFullYear() === saisonCourante - 1) {
-                 choriste.niveau = "Choriste";
-             } else if (((choriste.date_adhesion.getFullYear() - saisonCourante) >= 3  ) && choriste.nbr_repetitions >= 5 && choriste.nbr_concerts >= 5) {
-                 choriste.niveau = "Sénior";
-             } else if (choriste.date_adhesion.getFullYear() === 2018 || choriste.date_adhesion.getFullYear() === 2019) {
-                 choriste.niveau = "Vétéran"; 
-                 console.log('probleme 8')
-             }else {
-                 choriste.niveau = "Choriste"; 
-             }
-             await Choriste.collection.updateOne({ _id: this._id }, { $set: { historiqueStatut: this.historiqueStatut }})
-             choriste.historiqueStatut.push({ statut: choriste.niveau, date: new Date() });
-
-              savedchoriste = await choriste.save();
-              Utilisateur.Choriste = savedchoriste;
-      
-          // Après la mise à jour du statut, émettez une notification au socket spécifique du choriste
-          const choristeSocket = choristesSockets[choriste._id];
-          if (choristeSocket) {
-              choristeSocket.emit('notification', { message: 'Votre statut a été mis à jour.' });
-          }
+                console.log(choriste.date_adhesion.getFullYear());
+              if (choriste.date_adhesion.getFullYear() === saisonCourante) {
+                  choriste.niveau = "Junior";
+                  
+                console.log(`le choriste ${choriste.nom} a été mis à jour pour ${choriste.niveau}`);
+               } else if ( choriste.date_adhesion.getFullYear() === saisonCourante - 1) {
+                   choriste.niveau = "Choriste";
+                   console.log(`le choriste ${choriste.nom} a été mis à jour pour ${choriste.niveau}`);
+  
+               } else if (((choriste.date_adhesion.getFullYear() - saisonCourante) >= 3  ) && choriste.nbr_repetitions >= 5 && choriste.nbr_concerts >= 5) {
+                   choriste.niveau = "Sénior";
+                   console.log(`le choriste ${choriste.nom} a été mis à jour pour ${choriste.niveau}`);
+  
+               } else if (choriste.date_adhesion.getFullYear() === 2018 || choriste.date_adhesion.getFullYear() === 2019) {
+                   choriste.niveau = "Vétéran"; 
+                   console.log(`le choriste ${choriste.nom} a été mis à jour pour ${choriste.niveau}`);
+  
+                   
+               }else {
+                   choriste.niveau = "Choriste"; 
+               }
+               await Choriste.collection.updateOne({ _id: this._id }, { $set: { historiqueStatut: this.historiqueStatut }})
+               choriste.historiqueStatut.push({ statut: choriste.niveau, date: new Date() });
+  
+                savedchoriste = await choriste.save();
+                Utilisateur.Choriste = savedchoriste;
+                   
+        }
+  
+          console.log('Mise à jour réussie pour tous les choristes');
+      }} catch (error) {
+          console.error('Erreur lors de la mise à jour des statuts des choristes', error);
       }
+  })
+  tacheMiseAJourStatut.start();
 
-        console.log('Mise à jour réussie pour tous les choristes');
-    } catch (error) {
-        console.error('Erreur lors de la mise à jour des statuts des choristes', error);
-    }
-});
+//   exports.tacheMiseAJourStatut =  async () => {
+//     try {
+        
+        
+//         // Récupérer tous les choristes à partir de la base de données 
+//         const choristes = await Choriste.find();
 
-tacheMiseAJourStatut.start();
+//           // Mettre à jour le statut pour chaque choriste
+//           for (const choriste of choristes) {
+//             const date = choriste.date_adhesion
+//               if (!date)
+//               { console.log("pas de date");
+//           }else{
+//             console.log(choriste)
+//             console.log(choriste.date_adhesion);
+
+//               console.log(choriste.date_adhesion.getFullYear());
+//             if (choriste.date_adhesion.getFullYear() === saisonCourante) {
+//                 choriste.niveau = "Junior";
+                
+//               console.log(`le choriste ${choriste.nom} a été mis à jour pour ${choriste.niveau}`);
+//              } else if ( choriste.date_adhesion.getFullYear() === saisonCourante - 1) {
+//                  choriste.niveau = "Choriste";
+//                  console.log(`le choriste ${choriste.nom} a été mis à jour pour ${choriste.niveau}`);
+
+//              } else if (((choriste.date_adhesion.getFullYear() - saisonCourante) >= 3  ) && choriste.nbr_repetitions >= 5 && choriste.nbr_concerts >= 5) {
+//                  choriste.niveau = "Sénior";
+//                  console.log(`le choriste ${choriste.nom} a été mis à jour pour ${choriste.niveau}`);
+
+//              } else if (choriste.date_adhesion.getFullYear() === 2018 || choriste.date_adhesion.getFullYear() === 2019) {
+//                  choriste.niveau = "Vétéran"; 
+//                  console.log(`le choriste ${choriste.nom} a été mis à jour pour ${choriste.niveau}`);
+
+                 
+//              }else {
+//                  choriste.niveau = "Choriste"; 
+//              }
+//              await Choriste.collection.updateOne({ _id: this._id }, { $set: { historiqueStatut: this.historiqueStatut }})
+//              choriste.historiqueStatut.push({ statut: choriste.niveau, date: new Date() });
+
+//               savedchoriste = await choriste.save();
+//               Utilisateur.Choriste = savedchoriste;
+      
+         
+//         console.log('Mise à jour réussie pour tous les choristes');
+//     }}} catch (error) {
+//         console.error('Erreur lors de la mise à jour des statuts des choristes', error);
+//     }
+// }
+
 
 exports.addChoriste = (req, res) => {
     const choriste = new Choriste(req.body);
@@ -239,10 +294,11 @@ cron.schedule('0 0 * * *', async () => {
 
 exports.updatePupitre = async (req, res ) => {
   try {
-    const nouveauPupitre = req.body.pupitre;
-    
+    const nouveauPupitre = req.body.nouveauPupitre;
+    const liste = ['Soprano', 'Alto', 'Tenor', 'Basse']
+    console.log(nouveauPupitre)
     // Assurez-vous que le nouveau pupitre est valide
-    if (!['Soprano', 'Alto', 'Tenor', 'Basse'].includes(nouveauPupitre)) {
+    if (!liste.includes(nouveauPupitre)) {
       throw new Error('Tessiture invalide.');
     }
 

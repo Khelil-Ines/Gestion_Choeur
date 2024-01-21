@@ -227,7 +227,7 @@ const repetitionPourcentage = async (req, res) => {
       });
     }
 
-    const liste_Absents = concert.liste_Presents;
+    const liste_Absents = concert.liste_Abs;
     console.log(liste_Absents);
     const {
       date,
@@ -259,16 +259,16 @@ const repetitionPourcentage = async (req, res) => {
           // Mettez à jour les compteurs en fonction du pupitre du choriste
           switch (choriste.pupitre) {
             case 'Soprano':
-              countSoprano++;
+              countSoprano +=1;
               break;
             case 'Alto':
-              countAlto++;
+              countAlto+=1
               break;
             case 'Tenor':
-              countTenor++;
+              countTenor+=1
               break;
             case 'Basse':
-              countBasse++;
+              countBasse+=1
               break;
           }
         }    
