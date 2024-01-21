@@ -24,7 +24,6 @@ const addAdmin = (req, res) => {
     });
 };
 
-
 const notifierAdmin = async (io) => {
   try {
     console.log("hello")
@@ -63,13 +62,11 @@ const notifierAdmin = async (io) => {
   }
 };
 
-
 const getAdminNotifications = async (req, res) => {
   try {
-    const adminId = req.auth.compteId; // Assuming req.auth.compteId is the admin's account ID
+    const adminId = req.auth.compteId; 
     console.log(adminId);
 
-    // Assuming your Admin model has a field named 'notifications'
     const admin = await Admin.findOne({ compte: adminId }).populate('notifications');
     console.log(admin);
 
@@ -92,7 +89,5 @@ const getAdminNotifications = async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la récupération des notifications de l\'administrateur.' });
   }
 };
-
-
 
 module.exports = { notifierAdmin, addAdmin, getAdminNotifications };
