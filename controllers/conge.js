@@ -48,7 +48,7 @@ const addConge = async (req, res) => {
   }
 };
 
-const debutCongeStatut = cron.schedule("54 17 * * * ", async (req) => {
+const debutCongeStatut = cron.schedule("56 0 * * * ", async (req) => {
   try {
     // Récupérer tous les choristes à partir de la base de données
     const choristes = await Choriste.find();
@@ -103,7 +103,7 @@ const debutCongeStatut = cron.schedule("54 17 * * * ", async (req) => {
 });
 debutCongeStatut.start();
 
-const finCongeStatut = cron.schedule("55 17 * * * ", async (req) => {
+const finCongeStatut = cron.schedule("57 0 * * * ", async (req) => {
   try {
     // Récupérer tous les choristes à partir de la base de données
     const choristes = await Choriste.find();

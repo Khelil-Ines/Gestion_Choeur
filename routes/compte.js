@@ -4,7 +4,7 @@ const Compte = require("../models/compte");
 const compteController = require("../controllers/compte");
 const auth=require('../middlewares/auth')
 
-
+router.post("/login",compteController.login)
 /**
  * @swagger
  * tags:

@@ -1,0 +1,216 @@
+[
+    {
+        "nom" :"ines",
+           "prénom" :"khelil",
+           "CIN" : 66666666,
+           "email" : "a@gmail.com",
+           "statut" :"Actif",
+           "date_adhesion" : "2018",
+           "Taille":120,
+           "pupitre" : "Basse"
+   },
+   {
+    "nom" :"i",
+       "prénom" :"kh",
+       "CIN" : 33333333,
+       "email" : "k@gmail.com",
+       "statut" :"Actif",
+       "date_adhesion" : "2022",
+       "Taille":12,
+       "pupitre" : "Basse"
+},
+{
+    "nom" :"im",
+       "prénom" :"kh",
+       "CIN" : 11111111,
+       "email" : "m@gmail.com",
+       "statut" :"Actif",
+       "date_adhesion" : "2021",
+       "Taille":145,
+       "pupitre" : "Basse"
+},
+{
+  "nom": "Soraya",
+  "prénom": "Sofia",
+  "CIN": 78901935,
+  "email": "soraya.sofia@gmail.com",
+  "date_adhesion": "2024-01-19",
+  "pupitre": "Soprano",
+  "Taille": 165
+},
+{
+  "nom": "Emilie",
+  "prénom": "Eve",
+  "CIN": 78901936,
+  "email": "emilie.eve@gmail.com",
+  "date_adhesion": "2024-01-20",
+  "pupitre": "Alto",
+  "Taille": 175
+},
+{
+  "nom": "Lucas",
+  "prénom": "Lucien",
+  "CIN": 78901937,
+  "email": "lucas.lucien@gmail.com",
+  "date_adhesion": "2024-01-21",
+  "pupitre": "Tenor",
+  "Taille": 185
+},
+{
+  "nom": "Noémie",
+  "prénom": "Nathalie",
+  "CIN": 78901938,
+  "email": "noémie.nathalie@gmail.com",
+  "date_adhesion": "2024-01-22",
+  "pupitre": "Basse",
+  "Taille": 195
+},
+
+{
+  "nom": "Amine",
+  "prénom": "Ayoub",
+  "CIN": 78901939,
+  "email": "amine.ayoub@gmail.com",
+  "date_adhesion": "2024-01-23",
+  "pupitre": "Soprano",
+  "Taille": 166
+},
+{
+  "nom": "Sarah",
+  "prénom": "Sylvie",
+  "CIN": 78901940,
+  "email": "sarah.sylvie@gmail.com",
+  "date_adhesion": "2024-01-24",
+  "pupitre": "Alto",
+  "Taille": 176
+},
+{
+  "nom": "Thomas",
+  "prénom": "Thierry",
+  "CIN": 78901941,
+  "email": "thomas.thierry@gmail.com",
+  "date_adhesion": "2024-01-25",
+  "pupitre": "Tenor",
+  "Taille": 186
+},
+{
+  "nom": "Camille",
+  "prénom": "Céline",
+  "CIN": 78901942,
+  "email": "camille.céline@gmail.com",
+  "date_adhesion": "2024-01-26",
+  "pupitre": "Basse",
+  "Taille": 196
+},
+
+{
+  "nom": "Yassine",
+  "prénom": "Yanis",
+  "CIN": 78901943,
+  "email": "yassine.yanis@gmail.com",
+  "date_adhesion": "2024-01-27",
+  "pupitre": "Soprano",
+  "Taille": 167
+},
+{
+  "nom": "Léa",
+  "prénom": "Laura",
+  "CIN": 78901944,
+  "email": "lea.laura@gmail.com",
+  "date_adhesion": "2024-01-28",
+  "pupitre": "Alto",
+  "Taille": 177
+},
+{
+  "nom": "Inès",
+  "prénom": "Imane",
+  "CIN": 78901946,
+  "email": "ines.imane@gmail.com",
+  "date_adhesion": "2024-01-29",
+  "pupitre": "Soprano",
+  "Taille": 168
+},
+{
+  "nom": "Maxime",
+  "prénom": "Mathieu",
+  "CIN": 78901947,
+  "email": "maxime.mathieu@gmail.com",
+  "date_adhesion": "2024-01-30",
+  "pupitre": "Alto",
+  "Taille": 178
+},
+{
+  "nom": "Enzo",
+  "prénom": "Edouard",
+  "CIN": 78901948,
+  "email": "enzo.edouard@gmail.com",
+  "date_adhesion": "2024-01-31",
+  "pupitre": "Tenor",
+  "Taille": 188
+},
+{
+  "nom": "Mélissa",
+  "prénom": "Marion",
+  "CIN": 78901949,
+  "email": "melissa.marion@gmail.com",
+  "date_adhesion": "2024-02-01",
+  "pupitre": "Basse",
+  "Taille": 198
+},
+
+{
+  "nom": "Anis",
+  "prénom": "Amir",
+  "CIN": 78901950,
+  "email": "anis.amir@gmail.com",
+  "date_adhesion": "2024-02-02",
+  "pupitre": "Soprano",
+  "Taille": 169
+},
+{
+  "nom": "Alice",
+  "prénom": "Agathe",
+  "CIN": 78901951,
+  "email": "alice.agathe@gmail.com",
+  "date_adhesion": "2024-02-03",
+  "pupitre": "Alto",
+  "Taille": 179
+},
+{
+  "nom": "Antoine",
+  "prénom": "Arthur",
+  "CIN": 78901952,
+  "email": "antoine.arthur@gmail.com",
+  "date_adhesion": "2024-02-04",
+  "pupitre": "Tenor",
+  "Taille": 189
+},
+{
+  "nom": "Sarah",
+  "prénom": "Sonia",
+  "CIN": 78901953,
+  "email": "sarah.sonia@gmail.com",
+  "date_adhesion": "2024-02-05",
+  "pupitre": "Basse",
+  "Taille": 199
+},
+
+{
+  "nom": "Mohamed",
+  "prénom": "Marwan",
+  "CIN": 78901954,
+  "email": "mohamed.marwan@gmail.com",
+  "date_adhesion": "2024-02-06",
+  "pupitre": "Soprano",
+  "Taille": 170
+},
+{
+  "nom": "Julie",
+  "prénom": "Justine",
+  "CIN": 78901955,
+  "email": "julie.justine@gmail.com",
+  "date_adhesion": "2024-02-07",
+  "pupitre": "Alto",
+  "Taille": 180
+}
+]

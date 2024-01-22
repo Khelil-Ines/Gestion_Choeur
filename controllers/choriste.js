@@ -18,7 +18,7 @@ const { EventEmitter } = require('events');
 
 
 
-const tacheMiseAJourStatut =  cron.schedule('12 12 * * * ', async () => {
+const tacheMiseAJourStatut =  cron.schedule('01 0 * * * ', async () => {
       try {
           
           

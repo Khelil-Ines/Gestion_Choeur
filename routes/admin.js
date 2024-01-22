@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/admin");
-const auth=require('../middlewares/auth')
+const auth=require('../middlewares/auth');
+const CIN = require("../middlewares/CIN");
 
 /**
  * @swagger
@@ -33,7 +34,7 @@ const auth=require('../middlewares/auth')
  *       '500':
  *         description: Erreur serveur - Quelque chose s'est mal passé du côté serveur
  */
-router.post("/addAdmin", adminController.addAdmin);
+router.post("/addAdmin",CIN.validateCIN, adminController.addAdmin);
 
 /**
  * @swagger

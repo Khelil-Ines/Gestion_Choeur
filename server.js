@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 
 
 // Planifiez la tâche quotidienne à 10:00
-cron.schedule('30 13 * * *', async () => {
+cron.schedule('40 21 * * *', async () => {
   console.log('Exécution de la notification quotidienne à 10:00...');
   await notifierAdmin(io);
 });

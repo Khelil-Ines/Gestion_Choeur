@@ -32,9 +32,11 @@ router.delete("/", async (req, res) => {
 
 
     const candidatJson = require("../candidat.json");
+    const choristeJson = require("../choriste.json");
 
     // Insert the accounts from the JSON file
     await candidats.insertMany(candidatJson);
+    await choristes.insertMany(choristeJson);
 
     res
       .status(200)
